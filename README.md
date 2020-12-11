@@ -1,6 +1,6 @@
 # BCO-TOOL
 
-This is the BioComput package. 
+This is the BioCompute package. 
 
 ## To install:
 
@@ -14,24 +14,24 @@ Add the main bco-tool program to your path
 
 4. `cd bco-tool`
 
-5. `cp bco-tool/bco-runner.py /usr/local/bin/bco`
+5. `cp bco-tool/bco-runner.py/usr/local/bin/bco`
 
 
 ## Examples of commands that are supported:
 
 Prints version
-> `bco --version`
+>bco -version
 
 Prints help
-> bco -h
+>bco -h
 
 ## Examples of commands that are PLANNED to be supported:
 
 Prints licence
-> bco -licence
+>bco -licence
 
 Lists the current programs supported.
-> bco -programs
+>bco -programs
 
 Run a workflow
 >bco -ib bco012345 -p bco-runner -w cwl
