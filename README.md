@@ -18,5 +18,5 @@ Options:
 1. help text == `bco -h` or `bco` or `bco --help`
 2. version == `bco -v` or `bco --version`
 3. workflow extraction == `bco extract_workflow -w cwl`
-4. validation == bco -j bco12345 -s https://opensource.ieee.org/2791-object/ieee-2791-schema/-/raw/master/2791object.json
-5. evaluate reproducibility based on available resources == bco bco-runner -w cwl 
+4. validation == `bco -j bco12345 -s https://opensource.ieee.org/2791-object/ieee-2791-schema/-/raw/master/2791object.json`
+5. evaluate reproducibility based on available resources == `bco bco-runner -w cwl`
