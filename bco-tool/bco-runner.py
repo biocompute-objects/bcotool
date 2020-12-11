@@ -22,6 +22,11 @@ def arguments():
     functional arguments for process
     """
 
+    FUNCTION_MAP = {'top20' : my_top20_func,
+                    'listapps' : my_listapps_func }
+
+    parser.add_argument('command', choices=FUNCTION_MAP.keys())
+    
     
 #______________________________________________________________________________#
 def options():
@@ -31,11 +36,11 @@ def options():
     """
 
     usage = "\n%prog  [options]"
-    parser = OptionParser(usage,version="%prog " + __version__)
-    parser.add_option('-j','--json', help="json to validate")
-#    parser.add_option('-schema', type=argparse.FileType('r'), help="root json schema to validate against")
-    (options, args) = parser.parse_args()
-    # parser.print_help()
+    opt_parser = OptionParser(usage,version="%prog " + __version__)
+    opt_parser.add_option('-j','--json', help="json to validate")
+#    opt_parser.add_option('-schema', type=argparse.FileType('r'), help="root json schema to validate against")
+    (options, args) = opt_parser.parse_args()
+    # opt_parser.print_help()
 #______________________________________________________________________________#
 def validate():
     """
