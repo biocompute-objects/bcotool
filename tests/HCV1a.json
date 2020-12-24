@@ -248,11 +248,21 @@
         "script": [
             {
                 "uri": {
-                    "uri": "https://example.com/workflows/antiviral_resistance_detection_hive.py"
+                    "uri": "https://raw.githubusercontent.com/HadleyKing/bco-tool/main/tests/blast/blastn.cwl"
+                }
+            },
+            {
+                "uri": {
+                    "uri": "https://raw.githubusercontent.com/HadleyKing/bco-tool/main/tests/blast/makeblastdb.cwl"
+                }
+            },
+            {
+                "uri": {
+                    "uri": "https://raw.githubusercontent.com/HadleyKing/bco-tool/main/tests/blast/blastn-homologs.cwl"
                 }
             }
         ],
-        "script_driver": "shell",
+        "script_driver": "cwltool",
         "software_prerequisites": [
             {
                 "name": "HIVE-hexagon",
@@ -318,50 +328,14 @@
         "input_subdomain": [
             {
                 "uri": {
-                    "filename": "Hepatitis C virus genotype 1",
-                    "uri": "http://www.ncbi.nlm.nih.gov/nuccore/22129792",
-                    "access_time": "2017-01-24T09:40:17-0500"
+                    "filename": "HepC-DB",
+                    "uri": "https://raw.githubusercontent.com/HadleyKing/bco-tool/main/tests/blast/HepC-DB.fasta"
                 }
             },
             {
                 "uri": {
-                    "filename": "Hepatitis C virus type 1b complete genome",
-                    "uri": "http://www.ncbi.nlm.nih.gov/nuccore/5420376",
-                    "access_time": "2017-01-24T09:40:17-0500"
-                }
-            },
-            {
-                "uri": {
-                    "filename": "Hepatitis C virus (isolate JFH-1) genomic RNA",
-                    "uri": "http://www.ncbi.nlm.nih.gov/nuccore/13122261",
-                    "access_time": "2017-01-24T09:40:17-0500"
-                }
-            },
-            {
-                "uri": {
-                    "uri": "http://www.ncbi.nlm.nih.gov/nuccore/386646758",
-                    "access_time": "2017-01-24T09:40:17-0500"
-                }
-            },
-            {
-                "uri": {
-                    "filename": "Hepatitis C virus S52 polyprotein gene",
-                    "uri": "http://www.ncbi.nlm.nih.gov/nuccore/295311559",
-                    "access_time": "2017-01-24T09:40:17-0500"
-                }
-            },
-            {
-                "uri": {
-                    "filename": "HCV1a_drug_resistant_sample0001-01",
-                    "uri": "http://example.com/nuc-read/514682",
-                    "access_time": "2017-01-24T09:40:17-0500"
-                }
-            },
-            {
-                "uri": {
-                    "filename": "HCV1a_drug_resistant_sample0001-02",
-                    "uri": "http://example.com/nuc-read/514683",
-                    "access_time": "2017-01-24T09:40:17-0500"
+                    "filename": "M67463-HepC",
+                    "uri": "https://raw.githubusercontent.com/HadleyKing/bco-tool/main/tests/blast/M67463-HepC.fa"
                 }
             }
         ],
