@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+    setup script for a pip package
+"""
+
 import setuptools
 
 with open("README.md", "r", encoding="utf-8") as fh:

@@ -14,17 +14,55 @@ Add the main bco-tool program to your path
 
 4. `cd bco-tool`
 
-5. `cp bco-tool/bco-runner.py/usr/local/bin/bco`
+5. `cp bco-tool/bco_runner.py  /usr/local/bin/bco`
 
 
-## Examples of commands that are supported:
+## Commands that are supported:
 
-Prints version
->bco -version
+```
+usage: bco [options]
 
-Prints help
->bco -h
+positional arguments:
+  {validate,run_cwl,functions}
+    validate            Validation options. Used to test a BCO against a JSON
+                        schema. If no schema is supplied the ieee-2791-schema
+                        is used as thedefault
+    run_cwl             run a CWL
+    functions           list all available functions
 
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
+```
+
+### BCO validate
+```
+usage: bco [options] validate [-h] -b BCO [-s SCHEMA]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -b BCO, --bco BCO     json to validate
+  -s SCHEMA, --schema SCHEMA
+                        root json schema to validate against
+``` 
+
+### BCO run_cwl
+```
+usage: bco [options] run_cwl [-h] -b BCO
+
+optional arguments:
+  -h, --help         show this help message and exit
+  -b BCO, --bco BCO  json to extract CWL from
+
+```
+
+### BCO functions
+```
+usage: bco_runner.py [-h]
+
+optional arguments:
+  -h, --help  show this help message and exit
+```
 ## Examples of commands that are PLANNED to be supported:
 
 Prints licence
