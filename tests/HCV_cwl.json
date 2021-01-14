@@ -258,6 +258,11 @@
             },
             {
                 "uri": {
+                    "uri": "https://raw.githubusercontent.com/HadleyKing/bco-tool/main/tests/blast/blastn-homologs.yml"
+                }
+            },
+            {
+                "uri": {
                     "uri": "https://raw.githubusercontent.com/HadleyKing/bco-tool/main/tests/blast/blastn-homologs.cwl"
                 }
             }

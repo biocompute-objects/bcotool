@@ -90,52 +90,6 @@ def usr_args():
     # e.g. `options.func(options)`
 
 #______________________________________________________________________________#
-def load_bco( options ):
-    """
-    Import and parsing of a BioCompute Object.
-    """
-
-    data = options.bco.read()
-    bco_dict = json.loads(data)
-    print('BioCompute loaded as ', bco_dict['provenance_domain']['name'])
-    print('BCO provided schema: ', bco_dict['spec_version'])
-
-    return bco_dict
-
-#______________________________________________________________________________#
-def run_cwl( options ):
-    """
-    run a CWL
-    """
-
-    os.system('mkdir cwl_run')
-    data = options.bco.read()
-    bco_dict = json.loads(data)
-    bco_scripts = bco_dict['execution_domain']['script']
-    bco_inputs = bco_dict['io_domain']['input_subdomain']
-
-    for script in bco_scripts:
-        uri = script['uri']['uri']
-        script = os.popen('curl '+ uri).read()
-        script_name = 'cwl_run/'+str(uri.split('/')[-1])
-        with open( script_name, 'w' ) as file:
-            file.write(script)
-        os.system('cwltool --validate ' + script_name)
-
-    for infile in bco_inputs:
-        uri = infile['uri']['uri']
-        print(uri)
-        infile = os.popen('curl '+ uri).read()
-        infile_name = 'cwl_run/'+str(uri.split('/')[-1])
-        with open( infile_name, 'w' ) as file:
-            file.write(infile)
-
-    os.system('cwltool cwl_run/blastn-homologs.cwl --database \
-                cwl_run/HepC-DB.fasta --query cwl_run/M67463-HepC.fa')
-    #     os.system('cwltool --validate ' + script_name)
-    # os.system('cwltool ')
-
-#______________________________________________________________________________#
 def listapps( options, parser ):
     """
     hello
@@ -153,7 +107,56 @@ def listapps( options, parser ):
             print("Function: '{}'".format(choice))
             print(subparser.format_help())
     # print(parser.format_help())
+#______________________________________________________________________________#
+def load_bco( options ):
+    """
+    Import and parsing of a BioCompute Object.
+    """
 
+    data = options.bco.read()
+    bco_dict = json.loads(data)
+    print('BioCompute loaded as ', bco_dict['provenance_domain']['name'])
+    print('BCO provided schema: ', bco_dict['spec_version'])
+
+    return bco_dict
+#______________________________________________________________________________#
+def run_cwl( options ):
+    """
+    run a CWL
+    """
+
+    try:
+        Path('cwl_run').mkdir(parents=True, exist_ok=True)
+    except:
+        Exception
+
+    data = options.bco.read()
+    bco_dict = json.loads(data)
+    bco_scripts = bco_dict['execution_domain']['script']
+    bco_inputs = bco_dict['io_domain']['input_subdomain']
+
+    workflow_definition = bco_scripts[2]['uri']['uri']
+
+    # for script in bco_scripts:
+    #     uri = script['uri']['uri']
+    #     script = os.popen('curl '+ uri).read()
+    #     script_name = 'cwl_run/'+str(uri.split('/')[-1])
+    #     with open( script_name, 'w' ) as file:
+    #         file.write(script)
+    #     with open ( script_name, 'r' ) as file:
+    #         if file.readline().rstrip() == 'class: Workflow':
+    #             workflow_definition = script_name
+    #     os.system('cwltool --validate ' + script_name)
+
+    # for infile in bco_inputs:
+    #     uri = infile['uri']['uri']
+    #     print(uri)
+    #     infile = os.popen('curl '+ uri).read()
+    #     infile_name = 'cwl_run/'+str(uri.split('/')[-1])
+    #     with open( infile_name, 'w' ) as file:
+    #         file.write(infile)
+
+    os.popen('cwltool '+workflow_definition+' cwl_run/blastn-homologs.yml').read()
 #______________________________________________________________________________#
 def validate_bco( options ):
     """
@@ -189,7 +192,7 @@ def validate_bco( options ):
 #______________________________________________________________________________#
 def main():
     """
-    some text
+    Main function
     """
 
     usr_args()

@@ -7,7 +7,7 @@ Comput Biol 2000; 7(1-2):203-14.
 
 
 
-Database: /private/tmp/docker_tmpm1t3agoa/HepC-DB.fasta
+Database: /private/tmp/docker_tmpjirc3z_4/HepC-DB.fasta
            12 sequences; 37,763 total letters
 
 
@@ -2690,8 +2690,8 @@ Lambda      K        H
 Effective search space used: 352566108
 
 
-  Database: /private/tmp/docker_tmpm1t3agoa/HepC-DB.fasta
-    Posted date:  Jan 13, 2021  1:05 PM
+  Database: /private/tmp/docker_tmpjirc3z_4/HepC-DB.fasta
+    Posted date:  Jan 14, 2021  5:39 PM
   Number of letters in database: 37,763
   Number of sequences in database:  12
 
