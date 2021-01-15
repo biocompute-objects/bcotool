@@ -26,15 +26,11 @@ inputs:
     'sbg:y': -104.66351318359375
   - id: query
     type: File
-    'sbg:x': 187.08053588867188
-    'sbg:y': -190.08018493652344
 outputs:
   - id: blast_results
     outputSource:
       - blastn/blast_results
     type: File
-    'sbg:x': 452.7055358886719
-    'sbg:y': -121.3301773071289
 steps:
   - id: makeblastdb
     in:
@@ -44,8 +40,6 @@ steps:
       - id: blastdbcmd_results
     run: ./makeblastdb.cwl
     label: makeblastdb
-    'sbg:x': 194.5833282470703
-    'sbg:y': -43.5
   - id: blastn
     in:
       - id: database
@@ -56,6 +50,4 @@ steps:
       - id: blast_results
     run: ./blastn.cwl
     label: blastn
-    'sbg:x': 344.3721923828125
-    'sbg:y': -55.70518112182617
 requirements: []

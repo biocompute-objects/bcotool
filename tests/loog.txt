@@ -1,0 +1,4 @@
+Questions about BCO rendering
+1) Is "CWL" a 'platform'?
+2) "arguments", "requirements", "outputBinding" recorded in 'parametric_domain'?
+3) 

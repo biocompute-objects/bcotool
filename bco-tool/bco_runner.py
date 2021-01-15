@@ -9,6 +9,8 @@
 import os
 import sys
 import argparse
+from pathlib import Path
+
 import json
 import jsonref
 from jsonschema import validate
@@ -21,7 +23,6 @@ def usr_args():
     """
     functional arguments for process
     https://stackoverflow.com/questions/27529610/call-function-based-on-argparse
-    https://stackoverflow.com/questions/7498595/python-argparse-add-argument-to-multiple-subparsers
     """
 
     # initialize parser
@@ -81,23 +82,20 @@ def usr_args():
 
     # Run the appropriate function
     options = parser.parse_args()
-    if parser.parse_args().func == listapps:
-        options.func(options, parser)
+    if parser.parse_args().func is listapps:
+        options.func( parser )
     else:
         options.func(options)
-    
-    # If you add command-line options, consider passing them to the function,
-    # e.g. `options.func(options)`
-
 #______________________________________________________________________________#
-def listapps( options, parser ):
+def listapps( parser ):
     """
-    hello
+    List all functions and options available in app
+    https://stackoverflow.com/questions/7498595/python-argparse-add-argument-to-multiple-subparsers
     """
 
     print('Function List')
     subparsers_actions = [
-        action for action in parser._actions 
+        action for action in parser._actions
         if isinstance(action, argparse._SubParsersAction)]
     # there will probably only be one subparser_action,
     # but better safe than sorry
@@ -125,38 +123,53 @@ def run_cwl( options ):
     run a CWL
     """
 
-    try:
-        Path('cwl_run').mkdir(parents=True, exist_ok=True)
-    except:
-        Exception
+    # try:
+    #     Path('cwl_run').mkdir(parents=True, exist_ok=True)
+    # except Exception as ex:
+    #     print(ex.message, ex.args)
+    #     raise ex
 
-    data = options.bco.read()
-    bco_dict = json.loads(data)
+    Path('cwl_run').mkdir(parents=True, exist_ok=True)
+
+    bco_dict = load_bco(options)
     bco_scripts = bco_dict['execution_domain']['script']
     bco_inputs = bco_dict['io_domain']['input_subdomain']
 
-    workflow_definition = bco_scripts[2]['uri']['uri']
+    # load scripts via URL and write to local directory
+    for script in bco_scripts:
+        uri = script['uri']['uri']
+        script = os.popen('curl '+ uri).read()
+        script_name = 'cwl_run/'+str(uri.split('/')[-1])
+        with open( script_name, 'w' ) as file:
+            file.write(script)
 
-    # for script in bco_scripts:
-    #     uri = script['uri']['uri']
-    #     script = os.popen('curl '+ uri).read()
-    #     script_name = 'cwl_run/'+str(uri.split('/')[-1])
-    #     with open( script_name, 'w' ) as file:
-    #         file.write(script)
-    #     with open ( script_name, 'r' ) as file:
-    #         if file.readline().rstrip() == 'class: Workflow':
-    #             workflow_definition = script_name
-    #     os.system('cwltool --validate ' + script_name)
+        # Identify YAML file for cli
+        if script_name.split('.')[-1] == 'yml':
+            input_yaml = ' ' + script_name
 
-    # for infile in bco_inputs:
-    #     uri = infile['uri']['uri']
-    #     print(uri)
-    #     infile = os.popen('curl '+ uri).read()
-    #     infile_name = 'cwl_run/'+str(uri.split('/')[-1])
-    #     with open( infile_name, 'w' ) as file:
-    #         file.write(infile)
+        # Check for file type before cwltool validation
+        if script_name.split('.')[-1] == 'cwl':
+            print("CWL File")
 
-    os.popen('cwltool '+workflow_definition+' cwl_run/blastn-homologs.yml').read()
+            # Find the Workflow definition and assign to variable
+            with open ( script_name, 'r' ) as file:
+                if file.readline().rstrip() == 'class: Workflow':
+                    workflow_definition = ' ' + script_name
+
+            # run cwltool validation via cli
+            os.system('cwltool --validate ' + script_name)
+
+    # Download input files parsed from BCO
+    for infile in bco_inputs:
+        uri = infile['uri']['uri']
+        print(uri)
+        infile = os.popen('curl '+ uri).read()
+        infile_name = 'cwl_run/'+str(uri.split('/')[-1])
+        with open( infile_name, 'w' ) as file:
+            file.write(infile)
+
+    # Run cwltool command
+    os.popen('cwltool' + workflow_definition + input_yaml).read()
 #______________________________________________________________________________#
 def validate_bco( options ):
     """
@@ -178,8 +191,8 @@ def validate_bco( options ):
     else:
         try:
             schema = jsonref.load_uri(bco_dict['spec_version'])
-            print("Loaded Schema: ", schema['title'], ' from ', )
-        except:
+            print("Loaded Schema: ", schema['title'], ' from ', bco_dict['spec_version'] )
+        except json.decoder.JSONDecodeError:
             print('Failed to load the provided Schema. Using default instead')
             schema = jsonref.load_uri(str('https://opensource.ieee.org/2791-object'\
                                 + '/ieee-2791-schema/-/raw/master/2791object.json'))
