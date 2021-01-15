@@ -11,6 +11,7 @@ import sys
 import argparse
 from pathlib import Path
 
+from urllib.parse import urlparse
 import json
 import jsonref
 from jsonschema import validate
@@ -49,32 +50,34 @@ def usr_args():
             type = argparse.FileType('r'),
             help = "BioCompute json to process")
 
+    # Create a functions subcommand
+    parser_listapps = subparsers.add_parser('functions',
+            help='list all available functions')
+    parser_listapps.set_defaults(func=listapps)
+
+    # Create the license subcommand
+    parser_license = subparsers.add_parser('license',
+            parents = [parent_parser],
+            help = 'Prints License ')
+    parser_license.set_defaults(func=license)
+
     # Create a validate subcommand
     parser_validate = subparsers.add_parser('validate',
             parents = [parent_parser],
             help = "Validation options. "
             "Used to test a BCO against a JSON schema. "
-            "If no schema is supplied the ieee-2791-schema is used as the"
+            "If no schema is supplied the ieee-2791-schema is used as the "
             "default")
-
     parser_validate.add_argument('-s', '--schema',
             type = argparse.FileType('r'),
             help = "root json schema to validate against")
-
     parser_validate.set_defaults(func=validate_bco)
 
     # Create a run_cwl subcommand
     parser_run_cwl = subparsers.add_parser('run_cwl',
             parents = [parent_parser],
             help = 'run a CWL ')
-
     parser_run_cwl.set_defaults(func=run_cwl)
-
-    # Create a listapps subcommand
-    parser_listapps = subparsers.add_parser('functions',
-            help='list all available functions')
-
-    parser_listapps.set_defaults(func=listapps)
 
     # Print usage message if no args are supplied.
     if len(sys.argv) <= 1:
@@ -86,6 +89,29 @@ def usr_args():
         options.func( parser )
     else:
         options.func(options)
+#______________________________________________________________________________#
+def load_bco( options ):
+    """
+    Import and parsing of a BioCompute Object.
+    """
+
+    data = options.bco.read()
+    bco_dict = json.loads(data)
+    print('BioCompute loaded as ', bco_dict['provenance_domain']['name'])
+    print('BCO provided schema: ', bco_dict['spec_version'])
+
+    return bco_dict
+#______________________________________________________________________________#
+def url_valid( url ):
+    """
+    Validate a URL
+    """
+
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
 #______________________________________________________________________________#
 def listapps( parser ):
     """
@@ -106,17 +132,28 @@ def listapps( parser ):
             print(subparser.format_help())
     # print(parser.format_help())
 #______________________________________________________________________________#
-def load_bco( options ):
+def license( options ):
     """
-    Import and parsing of a BioCompute Object.
+    Prints license
     """
 
-    data = options.bco.read()
-    bco_dict = json.loads(data)
-    print('BioCompute loaded as ', bco_dict['provenance_domain']['name'])
-    print('BCO provided schema: ', bco_dict['spec_version'])
+    bco_dict = load_bco(options)
+    bco_license = bco_dict['provenance_domain']['license']
 
-    return bco_dict
+    # checks if license is valid URL
+    if url_valid(bco_license) is True:
+        license = os.popen('curl '+ bco_license).read()
+        license_name = str(bco_license.split('/')[-1])
+    else:
+        license = str(bco_dict['provenance_domain']['license'])
+        license_name = 'license.txt'
+
+    # write to file
+    with open(license_name, 'w+') as file:
+        file.write(license)
+
+    print('BCO license written to '+ license_name)
+    return license
 #______________________________________________________________________________#
 def run_cwl( options ):
     """

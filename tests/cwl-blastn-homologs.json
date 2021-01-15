@@ -50,7 +50,7 @@
                 "orcid": "https://orcid.org/0000-0003-1409-4549"
             }
         ],
-        "license": "https://spdx.org/licenses/CC-BY-4.0.html"
+        "license": "https://creativecommons.org/licenses/by/4.0/legalcode.txt"
     },
     "usability_domain": [
         "Run blastn to identify homologs. This is an essentual 'Hello, World!' for bioinformatics. The input file is a HCV 1a isolate H77 complete genome [taxid:63746] (nucinput.fa) nucleotide sequence. The database (nucdb.fa) is a collection of HCV sequences.",

@@ -35,6 +35,23 @@ optional arguments:
   -v, --version         show program's version number and exit
 ```
 
+### BCO functions
+```
+usage: bco_runner.py [-h]
+
+optional arguments:
+  -h, --help  show this help message and exit
+```
+
+### BCO License
+```
+usage: bco [options] license [-h] -b BCO
+
+optional arguments:
+  -h, --help         show this help message and exit
+  -b BCO, --bco BCO  BioCompute json to process
+```
+
 ### BCO validate
 ```
 usage: bco [options] validate [-h] -b BCO [-s SCHEMA]
@@ -55,27 +72,3 @@ optional arguments:
   -b BCO, --bco BCO  json to extract CWL from
 
 ```
-
-### BCO functions
-```
-usage: bco_runner.py [-h]
-
-optional arguments:
-  -h, --help  show this help message and exit
-```
-## Examples of commands that are PLANNED to be supported:
-
-Prints licence
->bco -licence
-
-Lists the current programs supported.
->bco -programs
-
-Run a workflow
->bco -ib bco012345 -p bco-runner -w cwl
-
-- ib == input bco file
-
-- p == (bco-runner/bco-validator/bco-comparator)
-
-- w == (workflow used cwl/wdl/nextflow)
