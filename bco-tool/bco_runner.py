@@ -7,6 +7,7 @@
 ################################################################################
 
 import os
+import io
 import sys
 import argparse
 from pathlib import Path
@@ -14,7 +15,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 import json
 import jsonref
-from jsonschema import validate
+import jsonschema
 
 __version__="1.0"
 __status__ = "Dev"
@@ -55,11 +56,11 @@ def usr_args():
             help='list all available functions')
     parser_listapps.set_defaults(func=listapps)
 
-    # Create the license subcommand
+    # Create the bco_license
     parser_license = subparsers.add_parser('license',
             parents = [parent_parser],
-            help = 'Prints License ')
-    parser_license.set_defaults(func=license)
+            help = 'Prints BCO License ')
+    parser_license.set_defaults(func=bco_license)
 
     # Create a validate subcommand
     parser_validate = subparsers.add_parser('validate',
@@ -97,8 +98,11 @@ def load_bco( options ):
 
     data = options.bco.read()
     bco_dict = json.loads(data)
-    print('BioCompute loaded as ', bco_dict['provenance_domain']['name'])
-    print('BCO provided schema: ', bco_dict['spec_version'])
+    try:
+        print('BioCompute loaded as ', bco_dict['provenance_domain']['name'])
+        print('BCO provided schema: ', bco_dict['spec_version'])
+    except Exception:
+        print('Json object loaded')
 
     return bco_dict
 #______________________________________________________________________________#
@@ -132,28 +136,28 @@ def listapps( parser ):
             print(subparser.format_help())
     # print(parser.format_help())
 #______________________________________________________________________________#
-def license( options ):
+def bco_license( options ):
     """
-    Prints license
+    Prints BCO bco_license
     """
 
     bco_dict = load_bco(options)
-    bco_license = bco_dict['provenance_domain']['license']
+    bco_license_obj = bco_dict['provenance_domain']['license']
 
-    # checks if license is valid URL
-    if url_valid(bco_license) is True:
-        license = os.popen('curl '+ bco_license).read()
-        license_name = str(bco_license.split('/')[-1])
+    # checks if bco_license is valid URL
+    if url_valid(bco_license_obj) is True:
+        bco_license_obj = os.popen('curl '+ bco_license_obj).read()
+        bco_license_obj_name = str(bco_license_obj.split('/')[-1])
     else:
-        license = str(bco_dict['provenance_domain']['license'])
-        license_name = 'license.txt'
+        bco_license_obj = str(bco_dict['provenance_domain']['license'])
+        bco_license_obj_name = 'bco_license.txt'
 
     # write to file
-    with open(license_name, 'w+') as file:
-        file.write(license)
+    with open(bco_license_obj_name, 'w+') as file:
+        file.write(bco_license_obj)
 
-    print('BCO license written to '+ license_name)
-    return license
+    print('BCO bco_license written to '+ bco_license_obj_name)
+    return bco_license_obj
 #______________________________________________________________________________#
 def run_cwl( options ):
     """
@@ -210,10 +214,21 @@ def run_cwl( options ):
 #______________________________________________________________________________#
 def validate_bco( options ):
     """
-    Validation of a BioCompute Object.
+    # Check for schema compliance.
+    # Arguments
+    # ---------
+    # object_pass:  the object being checked.
+    # Check the object against the provided schema.
     """
 
+    error_flags = 0
+    error_strings = ''
     bco_dict = load_bco(options)
+
+    for extension in bco_dict['extension_domain']:
+        error_string, error_flag = validate_extension(extension)
+        error_flags += error_flag
+        error_strings += error_string
 
     if options.schema is not None:
         base_uri = 'file://{}/'.format(os.path.dirname \
@@ -221,9 +236,12 @@ def validate_bco( options ):
         print(base_uri)
         schema = jsonref.load \
                     (options.schema, base_uri=base_uri, jsonschema=True)
-        print("Schema: ", schema['title'])
-        print("File location: ", base_uri)
-        print("BioCompute Object: ", bco_dict['provenance_domain']['name'])
+        try:
+            print("Schema: ", schema['title'])
+            print("File location: ", base_uri)
+            print("BioCompute Object: ", bco_dict['provenance_domain']['name'])
+        except Exception:
+            pass
 
     else:
         try:
@@ -236,9 +254,82 @@ def validate_bco( options ):
             print("Loaded default schema: ", schema['title'])
             print("BioCompute Object: ", bco_dict['provenance_domain']['name'])
 
-    validate(bco_dict, schema)
+    error_string, error_flag = bco_validator(schema, bco_dict)
+    error_flags += error_flag
+    error_strings += error_string
 
-    print("BCO is valid against Schema")
+    if error_flags == 0:
+        print('BCO VALID')
+    else:
+        with open ('error.log', 'w') as file:
+            file.write(error_strings)
+        print('Encountered', error_flags, 'errors while validating. ' \
+            + 'See "error.log" for more detail')
+#______________________________________________________________________________#
+def validate_extension ( extension ):
+    """
+    Validation of the extension domain if one is included.
+    """
+
+    try:
+        schema = jsonref.load_uri(extension['extension_schema'])
+        try:
+            print("Loaded Extension Schema: ", schema['title'] )
+            name = schema['title']
+            error_string, error_flag = bco_validator(schema, extension)
+        except Exception:
+            print("Loaded Extension Schema: ", schema['$id'] )
+            name = schema['$id']
+    except json.decoder.JSONDecodeError:
+        print('Failed to load extension schema', schema['$id'])
+        error_flag = 1
+
+    if error_flag == 0:
+        print(name + ' PASSED')
+    return error_string, error_flag
+#______________________________________________________________________________#
+def bco_validator ( schema, bco_dict ):
+    """
+    Generalized JSON validation script
+    """
+
+    # Define a validator.
+    validator = jsonschema.Draft7Validator(schema)
+
+    # Define the errors list.
+    errors = validator.iter_errors(bco_dict)
+    error_string = ''
+
+    # We have to use a bit of tricky output re-direction,
+    # see https://www.kite.com/python/answers/how-to-redirect-print-output-to-a-variable-in-python
+
+    old_stdout = sys.stdout
+    new_stdout = io.StringIO()
+    sys.stdout = new_stdout
+
+    # We ALSO have to use a bit of tricky flagging to indicate
+    # that there were errors since generators can't use the norma len(list(generator)) idiom.
+    error_flag = 0
+
+    for exp in errors:
+
+        # There is at least 1 error.
+        error_flag = 1
+
+        print(exp)
+        print('===============================================================')
+
+    error_string = error_string + new_stdout.getvalue()
+    sys.stdout = old_stdout
+
+    # Return based on whether or not there were any errors.
+    # if error_flag != 0:
+    #
+    #     print('\nSchema failure with given payload. ' \
+    #         + 'This message will only show up in the terminal.')
+
+    # Collapse and return the errors.
+    return error_string, error_flag
 #______________________________________________________________________________#
 def main():
     """
