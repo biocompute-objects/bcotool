@@ -3,22 +3,23 @@
 
 ################################################################################
                         ##bco-toold##
-'''reads text file and makes BCO.'''
+'''CLI tools for BioCompute Objects.'''
 ################################################################################
+
+__version__="1.1.0"
+__status__ = "Production"
 
 import os
 import io
 import sys
+import json
 import argparse
 from pathlib import Path
-
 from urllib.parse import urlparse
-import json
-import jsonref
-import jsonschema
 
-__version__="1.0"
-__status__ = "Dev"
+import requests
+import jsonschema
+import jsonref
 
 #______________________________________________________________________________#
 def usr_args():
@@ -48,8 +49,11 @@ def usr_args():
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument('-b', '--bco',
             required = True,
-            type = argparse.FileType('r'),
             help = "BioCompute json to process")
+
+    parent_parser.add_argument('-s', '--schema',
+            # type = argparse.FileType('r'),
+            help = "root json schema to validate against")
 
     # Create a functions subcommand
     parser_listapps = subparsers.add_parser('functions',
@@ -69,9 +73,6 @@ def usr_args():
             "Used to test a BCO against a JSON schema. "
             "If no schema is supplied the ieee-2791-schema is used as the "
             "default")
-    parser_validate.add_argument('-s', '--schema',
-            type = argparse.FileType('r'),
-            help = "root json schema to validate against")
     parser_validate.set_defaults(func=validate_bco)
 
     # Create a run_cwl subcommand
@@ -93,16 +94,34 @@ def usr_args():
 #______________________________________________________________________________#
 def load_bco( options ):
     """
-    Import and parsing of a BioCompute Object.
+    Import of a BioCompute Object. Values can be a local file path or a URI.
     """
 
-    data = options.bco.read()
-    bco_dict = json.loads(data)
-    try:
-        print('BioCompute loaded as ', bco_dict['provenance_domain']['name'])
-        print('BCO provided schema: ', bco_dict['spec_version'])
-    except Exception:
-        print('Json object loaded')
+    # Declare source of BioCompute Object
+    print('\nRemote BCO supplied: ', url_valid(options.bco), \
+         '\t Local BCO supplied: ', os.path.exists(options.bco))
+
+    if url_valid(options.bco):
+        try:
+            bco_dict = json.loads(requests.get(options.bco).content)
+            print('Remote BioCompute loaded as ', bco_dict['provenance_domain']['name'])
+
+        except ValueError:  # includes simplejson.decoder.JSONDecodeError
+            sys.exit('Loading remote JSON has failed \U0001F61E\nExiting')
+
+    elif os.path.exists(options.bco):
+        try:
+            with open(options.bco, 'r') as data:
+                bco_dict = json.load(data)
+            print('Local BioCompute loaded as ', bco_dict['provenance_domain']['name'])
+
+        except ValueError:  # includes simplejson.decoder.JSONDecodeError
+            sys.exit("Importing local JSON has failed \U0001F61E\nExiting")
+
+    # If options.bco is not a valid FILE or URI program will exit
+    else:
+        print('BioCompute loading FAILED \n')
+        sys.exit("Please provide a valid URI or PATH")
 
     return bco_dict
 #______________________________________________________________________________#
@@ -125,7 +144,9 @@ def listapps( parser ):
 
     print('Function List')
     subparsers_actions = [
+        # pylint: disable=protected-access
         action for action in parser._actions
+        # pylint: disable=W0212
         if isinstance(action, argparse._SubParsersAction)]
     # there will probably only be one subparser_action,
     # but better safe than sorry
@@ -146,29 +167,22 @@ def bco_license( options ):
 
     # checks if bco_license is valid URL
     if url_valid(bco_license_obj) is True:
-        bco_license_obj = os.popen('curl '+ bco_license_obj).read()
-        bco_license_obj_name = str(bco_license_obj.split('/')[-1])
+        bco_license_name = str(bco_license_obj.split('/')[-1])
+        bco_license_content = os.popen('curl '+ bco_license_obj).read()
     else:
-        bco_license_obj = str(bco_dict['provenance_domain']['license'])
-        bco_license_obj_name = 'bco_license.txt'
+        bco_license_content = str(bco_dict['provenance_domain']['license'])
 
     # write to file
-    with open(bco_license_obj_name, 'w+') as file:
-        file.write(bco_license_obj)
+    with open(bco_license_name, 'w+') as file:
+        file.write(bco_license_content)
 
-    print('BCO bco_license written to '+ bco_license_obj_name)
-    return bco_license_obj
+    print('BCO bco_license written to '+ bco_license_name)
+    return bco_license_content
 #______________________________________________________________________________#
 def run_cwl( options ):
     """
     run a CWL
     """
-
-    # try:
-    #     Path('cwl_run').mkdir(parents=True, exist_ok=True)
-    # except Exception as ex:
-    #     print(ex.message, ex.args)
-    #     raise ex
 
     Path('cwl_run').mkdir(parents=True, exist_ok=True)
 
@@ -225,67 +239,115 @@ def validate_bco( options ):
     error_strings = ''
     bco_dict = load_bco(options)
 
-    for extension in bco_dict['extension_domain']:
-        error_string, error_flag = validate_extension(extension)
-        error_flags += error_flag
-        error_strings += error_string
-
-    if options.schema is not None:
-        base_uri = 'file://{}/'.format(os.path.dirname \
-                    (os.path.abspath(options.schema.name)))
-        print(base_uri)
-        schema = jsonref.load \
-                    (options.schema, base_uri=base_uri, jsonschema=True)
-        try:
-            print("Schema: ", schema['title'])
-            print("File location: ", base_uri)
-            print("BioCompute Object: ", bco_dict['provenance_domain']['name'])
-        except Exception:
-            pass
-
-    else:
+    if options.schema is None:
         try:
             schema = jsonref.load_uri(bco_dict['spec_version'])
             print("Loaded Schema: ", schema['title'], ' from ', bco_dict['spec_version'] )
+
+        except KeyError:
+            print('Failed to load the provided Schema OR none was provided.' \
+            + ' Using default instead')
+            schema = jsonref.load_uri(str('https://opensource.ieee.org/2791-object'\
+                                + '/ieee-2791-schema/-/raw/master/2791object.json'))
+
         except json.decoder.JSONDecodeError:
-            print('Failed to load the provided Schema. Using default instead')
+            print('Failed to load the provided Schema OR none was provided.' \
+            + ' Using default instead')
             schema = jsonref.load_uri(str('https://opensource.ieee.org/2791-object'\
                                 + '/ieee-2791-schema/-/raw/master/2791object.json'))
             print("Loaded default schema: ", schema['title'])
             print("BioCompute Object: ", bco_dict['provenance_domain']['name'])
 
+        except ValueError:
+            print('Failed to load the provided Schema OR none was provided.' \
+            + ' Using default instead')
+            schema = jsonref.load_uri(str('https://opensource.ieee.org/2791-object'\
+                                + '/ieee-2791-schema/-/raw/master/2791object.json'))
+
+    else:
+        if os.path.exists(options.schema):
+            base_uri = 'file://{}/'.format(os.path.dirname \
+                        (os.path.abspath(options.schema.name)))
+            print(base_uri)
+            schema = jsonref.load \
+                        (options.schema, base_uri=base_uri, jsonschema=True)
+            try:
+                print("Schema: ", schema['title'])
+                print("File location: ", base_uri)
+                print("BioCompute Object: ", bco_dict['provenance_domain']['name'])
+
+            except json.decoder.JSONDecodeError:
+                pass
+
+        elif url_valid(options.schema):
+            try:
+                schema = jsonref.load_uri(options.schema)
+                print("Loaded Schema: ", schema['title'], ' from ', options.schema )
+
+            except json.decoder.JSONDecodeError:
+                print('Failed to load the provided Schema.' \
+                + ' Using default instead')
+                schema = jsonref.load_uri(str('https://opensource.ieee.org/2791-object'\
+                                    + '/ieee-2791-schema/-/raw/master/2791object.json'))
+
     error_string, error_flag = bco_validator(schema, bco_dict)
     error_flags += error_flag
     error_strings += error_string
 
+    if 'extension_domain' in bco_dict.keys():
+        for extension in bco_dict['extension_domain']:
+            error_string, error_flag = validate_extension(extension)
+            error_flags += error_flag
+            error_strings += error_string
+
     if error_flags == 0:
-        print('BCO VALID')
+        print('BCO VALID \U0001F389')
+
     else:
         with open ('error.log', 'w') as file:
             file.write(error_strings)
-        print('Encountered', error_flags, 'errors while validating. ' \
-            + 'See "error.log" for more detail')
+        print('Encountered', error_flags, 'errors while validating. \U0001F61E' \
+            + '\n See "error.log" for more detail')
 #______________________________________________________________________________#
 def validate_extension ( extension ):
     """
     Validation of the extension domain if one is included.
     """
 
-    try:
-        schema = jsonref.load_uri(extension['extension_schema'])
+    error_flag = 0
+    error_string = ''
+
+    if isinstance(extension, dict):
         try:
-            print("Loaded Extension Schema: ", schema['title'] )
-            name = schema['title']
-            error_string, error_flag = bco_validator(schema, extension)
-        except Exception:
-            print("Loaded Extension Schema: ", schema['$id'] )
-            name = schema['$id']
-    except json.decoder.JSONDecodeError:
-        print('Failed to load extension schema', schema['$id'])
+            schema = jsonref.load_uri(extension['extension_schema'])
+            try:
+                print("Loaded Extension Schema: ", schema['title'] )
+                name = schema['title']
+                error_string, error_flag = bco_validator(schema, extension)
+
+            # For if the schema has no ['title']
+            except KeyError:
+                print("Loaded Extension Schema: ", schema['$id'] )
+                name = schema['$id']
+
+        except json.decoder.JSONDecodeError:
+            print('Failed to load extension schema', schema['$id'])
+            error_flag += 1
+
+        except TypeError:
+            print('Failed to load extension schema. \nInvalid format ', )
+            print(extension)
+            error_string += json.dumps(extension)
+            error_flag += 1
+
+    else:
+        print('Invalid BCO extension format')
+        error_string += json.dumps(extension)
         error_flag = 1
 
+
     if error_flag == 0:
-        print(name + ' PASSED')
+        print(name + ' PASSED \U0001F44D')
     return error_string, error_flag
 #______________________________________________________________________________#
 def bco_validator ( schema, bco_dict ):

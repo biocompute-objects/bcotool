@@ -23,16 +23,16 @@ Add the main bco-tool program to your path
 usage: bco [options]
 
 positional arguments:
-  {validate,run_cwl,functions}
-    validate            Validation options. Used to test a BCO against a JSON
-                        schema. If no schema is supplied the ieee-2791-schema
-                        is used as thedefault
-    run_cwl             run a CWL
+  {functions,license,validate,run_cwl}
     functions           list all available functions
+    license             Prints BCO License
+    validate            Validation options. Used to test a BCO against a JSON                       schema. If no schema is supplied the ieee-2791-schema                       is used as the default
+    run_cwl             run a CWL
 
 optional arguments:
   -h, --help            show this help message and exit
   -v, --version         show program's version number and exit
+
 ```
 
 ### BCO functions

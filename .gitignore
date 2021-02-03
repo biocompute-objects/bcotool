@@ -1,3 +1,4 @@
 cwl_run/*
 .DS_Store
-tests/log.txt
+tests/notes.txt
+error.log
