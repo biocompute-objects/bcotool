@@ -14,7 +14,7 @@ Add the main bco-tool program to your path
 
 4. `cd bco-tool`
 
-5. `cp bco-tool/bco_runner.py  /usr/local/bin/bco`
+5. `cp src/bco_runner.py  /usr/local/bin/bco`
 
 
 ## Commands that are supported:
