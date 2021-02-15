@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-################################################################################
-                        ##bco-toold##
+#bcotool
 '''CLI tools for BioCompute Objects.'''
-################################################################################
 
 __version__="1.1.0"
 __status__ = "Production"
@@ -13,13 +11,14 @@ import os
 import io
 import sys
 import json
+from hashlib import sha256
 import argparse
 from pathlib import Path
 
 import requests
 import jsonschema
 import jsonref
-import functions
+import bcoutils
 
 #______________________________________________________________________________#
 def usr_args():
@@ -60,7 +59,7 @@ def usr_args():
             help='list all available functions')
     parser_listapps.set_defaults(func=listapps)
 
-    # Create the bco_license
+    # Create the bco_license subcommand
     parser_license = subparsers.add_parser('license',
             parents = [parent_parser],
             help = 'Prints BCO License ')
@@ -74,6 +73,12 @@ def usr_args():
             "If no schema is supplied the ieee-2791-schema is used as the "
             "default")
     parser_validate.set_defaults(func=validate_bco)
+
+    # Create the bco_license subcommand
+    parser_license = subparsers.add_parser('etag',
+            parents = [parent_parser],
+            help = 'Validates the etag ')
+    parser_license.set_defaults(func=validate_etag)
 
     # Create a run_cwl subcommand
     parser_run_cwl = subparsers.add_parser('run_cwl',
@@ -94,7 +99,20 @@ def usr_args():
 #______________________________________________________________________________#
 
 #______________________________________________________________________________#
+def validate_etag( options ):
+    """
+    checks etag
+    https://docs.python.org/3/library/hashlib.html#hash-algorithms
+    https://stackoverflow.com/questions/26539366/how-to-use-sha256-hash-in-python
+    """
 
+    bco_dict = bcoutils.load_bco(options.bco)
+    bco_etag = bco_dict['etag']
+    data = bco_dict
+    del data['object_id'], data['spec_version'], data['etag']
+    etag = sha256(json.dumps(data).encode('utf-8')).hexdigest()
+    print(etag, '\n', bco_etag)
+    print(bco_etag == etag)
 #______________________________________________________________________________#
 def listapps( parser ):
     """
@@ -122,7 +140,7 @@ def bco_license( options ):
     Prints BCO bco_license
     """
 
-    bco_dict = load_bco(options.bco)
+    bco_dict = bcoutils.load_bco(options.bco)
     bco_license_obj = bco_dict['provenance_domain']['license']
 
     # checks if bco_license is valid URL
@@ -146,7 +164,7 @@ def run_cwl( options ):
 
     Path('cwl_run').mkdir(parents=True, exist_ok=True)
 
-    bco_dict = load_bco(options.bco)
+    bco_dict = bcoutils.load_bco(options.bco)
     bco_scripts = bco_dict['execution_domain']['script']
     bco_inputs = bco_dict['io_domain']['input_subdomain']
 
@@ -197,7 +215,7 @@ def validate_bco( options ):
 
     error_flags = 0
     error_strings = ''
-    bco_dict = functions.load_bco(options.bco)
+    bco_dict = bcoutils.load_bco(options.bco)
 
     if options.schema is None:
         try:
@@ -357,7 +375,8 @@ def main():
     """
     Main function
     """
-
+    for path in sys.path:
+        print(path)
     usr_args()
 
 #______________________________________________________________________________#

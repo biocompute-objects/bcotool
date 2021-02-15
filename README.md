@@ -12,9 +12,9 @@ Run the Git Clone command in the location you would like the repostory:
 
 Add the main bco-tool program to your path
 
-4. `cd bco-tool`
+4. `cd bcotool`
 
-5. `cp src/bco_runner.py  /usr/local/bin/bco`
+5. `cp bcotool/bco_runner.py  /usr/local/bin/bco`
 
 
 ## Commands that are supported:
