@@ -19,9 +19,8 @@ def validate_etag( options ):
     https://docs.python.org/3/library/hashlib.html#hash-algorithms
     https://stackoverflow.com/questions/26539366/how-to-use-sha256-hash-in-python
     """
-    print(dir(options))
 
-    bco_dict = load_bco( options.bco )
+    bco_dict = bcoutils.load_bco( options )
     bco_etag = bco_dict['etag']
     data = bco_dict
     del data['object_id'], data['spec_version'], data['etag']

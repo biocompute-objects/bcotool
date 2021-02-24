@@ -14,7 +14,9 @@ Add the main bco-tool program to your path
 
 4. `cd bcotool`
 
-5. `cp bcotool/bco_runner.py  /usr/local/bin/bco`
+5. `cp bcotool/app_runner.py /usr/local/bin/bco`
+
+6. `export PYTHONPATH=$(pwd)`
 
 
 ## Commands that are supported:

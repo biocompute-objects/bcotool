@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#bcotool
+################################################################################
+                        ##bco-toold##
 '''CLI tools for BioCompute Objects.'''
+################################################################################
 
 __version__="1.1.0"
 __status__ = "Production"
@@ -11,14 +13,14 @@ import os
 import io
 import sys
 import json
-from hashlib import sha256
 import argparse
+from hashlib import sha256
 from pathlib import Path
+from urllib.parse import urlparse
 
 import requests
 import jsonschema
 import jsonref
-import bcoutils
 
 #______________________________________________________________________________#
 def usr_args():
@@ -59,7 +61,7 @@ def usr_args():
             help='list all available functions')
     parser_listapps.set_defaults(func=listapps)
 
-    # Create the bco_license subcommand
+    # Create the bco_license
     parser_license = subparsers.add_parser('license',
             parents = [parent_parser],
             help = 'Prints BCO License ')
@@ -74,7 +76,7 @@ def usr_args():
             "default")
     parser_validate.set_defaults(func=validate_bco)
 
-    # Create the bco_license subcommand
+    # Calculates the etag and compares to existing etag
     parser_license = subparsers.add_parser('etag',
             parents = [parent_parser],
             help = 'Validates the etag ')
@@ -97,22 +99,49 @@ def usr_args():
     else:
         options.func(options)
 #______________________________________________________________________________#
+def load_bco( options ):
+    """
+    Import of a BioCompute Object. Values can be a local file path or a URI.
+    """
 
+    # Declare source of BioCompute Object
+    print('\nRemote BCO supplied: ', url_valid(options.bco), \
+         '\t Local BCO supplied: ', os.path.exists(options.bco))
+
+    if url_valid(options.bco):
+        try:
+            bco_dict = json.loads(requests.get(options.bco).content)
+            print('Remote BioCompute loaded as ', bco_dict['provenance_domain']['name'])
+
+        except ValueError:  # includes simplejson.decoder.JSONDecodeError
+            sys.exit('Loading remote JSON has failed \U0001F61E\nExiting')
+
+    elif os.path.exists(options.bco):
+        try:
+            with open(options.bco, 'r') as data:
+                bco_dict = json.load(data)
+            print('Local BioCompute loaded as ', bco_dict['provenance_domain']['name'])
+
+        except ValueError:  # includes simplejson.decoder.JSONDecodeError
+            sys.exit("Importing local JSON has failed \U0001F61E\nExiting")
+
+    # If options.bco is not a valid FILE or URI program will exit
+    else:
+        print('BioCompute loading FAILED \n')
+        sys.exit("Please provide a valid URI or PATH")
+
+    return bco_dict
 #______________________________________________________________________________#
-def validate_etag( options ):
+def url_valid( url ):
     """
-    checks etag
-    https://docs.python.org/3/library/hashlib.html#hash-algorithms
-    https://stackoverflow.com/questions/26539366/how-to-use-sha256-hash-in-python
+    Validate a URL
     """
 
-    bco_dict = bcoutils.load_bco(options.bco)
-    bco_etag = bco_dict['etag']
-    data = bco_dict
-    del data['object_id'], data['spec_version'], data['etag']
-    etag = sha256(json.dumps(data).encode('utf-8')).hexdigest()
-    print(etag, '\n', bco_etag)
-    print(bco_etag == etag)
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
 #______________________________________________________________________________#
 def listapps( parser ):
     """
@@ -140,7 +169,7 @@ def bco_license( options ):
     Prints BCO bco_license
     """
 
-    bco_dict = bcoutils.load_bco(options.bco)
+    bco_dict = load_bco(options)
     bco_license_obj = bco_dict['provenance_domain']['license']
 
     # checks if bco_license is valid URL
@@ -156,6 +185,23 @@ def bco_license( options ):
 
     print('BCO bco_license written to '+ bco_license_name)
     return bco_license_content
+
+#______________________________________________________________________________#
+def validate_etag( options ):
+    """
+    checks etag
+    https://docs.python.org/3/library/hashlib.html#hash-algorithms
+    https://stackoverflow.com/questions/26539366/how-to-use-sha256-hash-in-python
+    """
+
+    bco_dict = load_bco(options)
+    bco_etag = bco_dict['etag']
+    data = bco_dict
+    del data['object_id'], data['spec_version'], data['etag']
+    etag = sha256(json.dumps(data).encode('utf-8')).hexdigest()
+    print(etag, '\n', bco_etag)
+    print(bco_etag == etag)
+
 #______________________________________________________________________________#
 def run_cwl( options ):
     """
@@ -164,7 +210,7 @@ def run_cwl( options ):
 
     Path('cwl_run').mkdir(parents=True, exist_ok=True)
 
-    bco_dict = bcoutils.load_bco(options.bco)
+    bco_dict = load_bco(options)
     bco_scripts = bco_dict['execution_domain']['script']
     bco_inputs = bco_dict['io_domain']['input_subdomain']
 
@@ -215,7 +261,7 @@ def validate_bco( options ):
 
     error_flags = 0
     error_strings = ''
-    bco_dict = bcoutils.load_bco(options.bco)
+    bco_dict = load_bco(options)
 
     if options.schema is None:
         try:
@@ -309,7 +355,8 @@ def validate_extension ( extension ):
                 name = schema['$id']
 
         except json.decoder.JSONDecodeError:
-            print('Failed to load extension schema from: ', extension['extension_schema'])
+            print('Failed to load extension schema', 
+                    extension['extension_schema'])
             error_flag += 1
 
         except TypeError:
@@ -354,7 +401,7 @@ def bco_validator ( schema, bco_dict ):
     for exp in errors:
 
         # There is at least 1 error.
-        error_flag += 1
+        error_flag = 1
 
         print(exp)
         print('===============================================================')

@@ -3,6 +3,7 @@
 
 import os
 import json
+import requests
 from urllib.parse import urlparse
 
 def load_bco( bco ):
