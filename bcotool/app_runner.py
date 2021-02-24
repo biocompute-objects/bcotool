@@ -245,10 +245,11 @@ def validate_bco( options ):
     else:
         if os.path.exists(options.schema):
             base_uri = 'file://{}/'.format(os.path.dirname \
-                        (os.path.abspath(options.schema.name)))
-            print(base_uri)
-            schema = jsonref.load \
-                        (options.schema, base_uri=base_uri, jsonschema=True)
+                        (os.path.abspath(options.schema)))
+            print(base_uri, '\n', options.schema)
+            with open(options.schema) as file:
+                schema = jsonref.load \
+                        (file, base_uri=base_uri, jsonschema=True)
             try:
                 print("Schema: ", schema['title'])
                 print("File location: ", base_uri)
