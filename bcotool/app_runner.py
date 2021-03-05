@@ -319,6 +319,12 @@ def validate_extension ( extension ):
             error_string += json.dumps(extension)
             error_flag += 1
 
+        except requests.exceptions.SSLError:
+            print('Failed to load extension schema. \nInvalid format ', )
+            print(extension)
+            error_string += json.dumps(extension)
+            error_flag += 1
+
     else:
         print('Invalid BCO extension format')
         error_string += json.dumps(extension)

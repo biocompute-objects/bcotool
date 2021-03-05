@@ -18,3 +18,8 @@
 	- verify
 	- etag check
 	- etag generation
+
+### TODOs ...
+- enable `critical` errors and `warnings`
+	- incomplete or unresolvable schema should be a warning
+- enable check for empty fields. 

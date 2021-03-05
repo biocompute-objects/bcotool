@@ -1,7 +1,7 @@
 """ Static Function for BCO tools
 """ 
 
-import os
+import os, sys
 import json
 import requests
 from urllib.parse import urlparse
