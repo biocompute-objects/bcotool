@@ -57,7 +57,7 @@ default_mapping = {
 }
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def usr_args():
     """
     functional arguments for process
@@ -84,56 +84,56 @@ def usr_args():
     # Create parent subparser. Note `add_help=False` & creation via `argparse.`
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument('-b', '--bco',
-                               required=True,
-                               help="BioCompute json to process")
+        required=True,
+        help="BioCompute json to process")
 
     parent_parser.add_argument('-s', '--schema',
-                               # type = argparse.FileType('r'),
-                               help="root json schema to validate against")
+        # type = argparse.FileType('r'),
+        help="root json schema to validate against")
 
     parent_parser.add_argument('-m', '--mappingFile',
-                               # type = argparse.FileType('r'),
-                               help="mapping file to convert BioCompute json with")
+        # type = argparse.FileType('r'),
+        help="mapping file to convert BioCompute json with")
 
     # Create a functions subcommand
     parser_listapps = subparsers.add_parser('functions',
-                                            help='list all available functions')
+        help='list all available functions')
     parser_listapps.set_defaults(func=listapps)
 
     # Create the bco_license
     parser_license = subparsers.add_parser('license',
-                                           parents=[parent_parser],
-                                           help='Prints BCO License ')
+        parents=[parent_parser],
+        help='Prints BCO License ')
     parser_license.set_defaults(func=bco_license)
 
     # Create a validate subcommand
     parser_validate = subparsers.add_parser('validate',
-                                            parents=[parent_parser],
-                                            help="Validation options. "
-                                                 "Used to test a BCO against a JSON schema. "
-                                                 "If no schema is supplied the ieee-2791-schema "
-                                                 "is used as the "
-                                                 "default")
+        parents=[parent_parser],
+        help="Validation options. "
+        "Used to test a BCO against a JSON schema. "
+        "If no schema is supplied the ieee-2791-schema "
+        "is used as the "
+        "default")
     parser_validate.set_defaults(func=validate_bco)
 
     parser_validate = subparsers.add_parser('convert',
-                                            parents=[parent_parser],
-                                            help="Converting options "
-                                                 "Used to convert a JSON into a schema (default "
-                                                 "is ieee-2791-schema). If no mapping file is "
-                                                 "provided, performs default conversions.")
+        parents=[parent_parser],
+        help="Converting options "
+        "Used to convert a JSON into a schema (default "
+        "is ieee-2791-schema). If no mapping file is "
+        "provided, performs default conversions.")
     parser_validate.set_defaults(func=map_bcos)
 
     parser_validate = subparsers.add_parser('map',
-                                            parents=[parent_parser],
-                                            help="Mapping options "
-                                                 "Used to generate a mapping file for a bco/bcos.")
+        parents=[parent_parser],
+        help="Mapping options "
+        "Used to generate a mapping file for a bco/bcos.")
     parser_validate.set_defaults(func=map_bcos)
 
     # Create a run_cwl subcommand
     parser_run_cwl = subparsers.add_parser('run_cwl',
-                                           parents=[parent_parser],
-                                           help='run a CWL ')
+        parents=[parent_parser],
+        help='run a CWL ')
     parser_run_cwl.set_defaults(func=run_cwl)
 
     # Print usage message if no args are supplied.
@@ -148,7 +148,7 @@ def usr_args():
         options.func(options)
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def load_bco(options):
     """
     Import of a BioCompute Object. Values can be a local file path or a URI.
@@ -184,7 +184,7 @@ def load_bco(options):
     return bco_dict
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def url_valid(url):
     """
     Validate a URL
@@ -197,7 +197,7 @@ def url_valid(url):
         return False
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def listapps(parser):
     """
     List all functions and options available in app
@@ -220,7 +220,7 @@ def listapps(parser):
     # print(parser.format_help())
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def bco_license(options):
     """
     Prints BCO bco_license
@@ -244,7 +244,7 @@ def bco_license(options):
     return bco_license_content
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def run_cwl(options):
     """
     run a CWL
@@ -293,7 +293,7 @@ def run_cwl(options):
     os.popen('cwltool' + workflow_definition + input_yaml).read()
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def validate_bco(options):
     """
     # Check for schema compliance.
@@ -383,7 +383,7 @@ def validate_bco(options):
               + '\n See "error.log" for more detail')
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def validate_extension(extension):
     """
     Validation of the extension domain if one is included.
@@ -405,6 +405,10 @@ def validate_extension(extension):
                 print("Loaded Extension Schema: ", schema['$id'])
                 name = schema['$id']
 
+        except requests.exceptions.SSLError:
+            print('Failed to load extension schema from ', extension['extension_schema'])
+            error_flag += 1
+
         except json.decoder.JSONDecodeError:
             print('Failed to load extension schema', schema['$id'])
             error_flag += 1
@@ -425,7 +429,7 @@ def validate_extension(extension):
     return error_string, error_flag
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def bco_validator(schema, bco_dict):
     """
     Generalized JSON validation script
@@ -469,7 +473,7 @@ def bco_validator(schema, bco_dict):
     return error_string, error_flag
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def convert_schema(bco, filename, mapping_dict):
     """
     Converts a BCO dict according to a mapping_dict, and writes the result at filename
@@ -513,7 +517,7 @@ def convert_schema(bco, filename, mapping_dict):
     json.dump(new_bco, file, indent=4)
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def create_master_mapping_file(options, bcos_to_map):
     """
     Takes a list of bco's and creates a master mapping file
@@ -609,7 +613,7 @@ def create_master_mapping_file(options, bcos_to_map):
             masterfile.write("-----------------------\n")
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def parse_master_mapping_file(master_mapping_file, bcos):
     """
     Parses a mastering mapping file into individual mapping files for each
@@ -674,7 +678,7 @@ def parse_master_mapping_file(master_mapping_file, bcos):
     return list_files
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def parse_mapping_file(mapping_file, default, check_file):
     """
     Parses a mapping file into a dict.
@@ -748,7 +752,7 @@ def parse_mapping_file(mapping_file, default, check_file):
     return mapping_dict
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def map_bcos(options):
     """
     Function called when convert feature is called
@@ -862,7 +866,7 @@ def map_bcos(options):
                   "<mastermappingfile.txt>")
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def create_mapping_file(options):
     """
 
@@ -963,7 +967,7 @@ def create_mapping_file(options):
         return mapping_file.name
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def rename_dict_key_HELPER(data_dict, key_list, new_key_name):
     """
     Takes a dict, a key path, and renames the last key in the list
@@ -983,7 +987,7 @@ def rename_dict_key_HELPER(data_dict, key_list, new_key_name):
         set_key_in_dict_HELPER(data_dict, key_list, data)
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def delete_key_HELPER(data_dict, key_list, key_to_delete):
     """
     Deletes a key from a dictionary
@@ -1000,7 +1004,7 @@ def delete_key_HELPER(data_dict, key_list, key_to_delete):
     return data_dict
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def get_key_from_dict_HELPER(data_dict, key_list):
     """
     Returns a value from a dictionary given a nested key list
@@ -1019,7 +1023,7 @@ def get_key_from_dict_HELPER(data_dict, key_list):
     return data_dict
 
 
-# ______________________________________________________________________________#
+#_____________________________________________________________________________#
 def set_key_in_dict_HELPER(data_dict, key_list, value_to_add):
     """
     Sets a new key in a dictionary
@@ -1034,7 +1038,7 @@ def set_key_in_dict_HELPER(data_dict, key_list, value_to_add):
     data_dict[key_list[-1]] = value_to_add
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def add_or_update_list_HELPER(data_dict, key, value):
     """
     Takes a dictionary, key, and value. Creates a list containing the value with key
@@ -1046,7 +1050,7 @@ def add_or_update_list_HELPER(data_dict, key, value):
         data_dict[key] = [value]
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def reorder_dict_HELPER(dict, key_list):
     """
 
@@ -1070,7 +1074,7 @@ def reorder_dict_HELPER(dict, key_list):
     dict = temp_dict
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def main():
     """
     Main function
@@ -1079,6 +1083,6 @@ def main():
     usr_args()
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 if __name__ == "__main__":
     main()
