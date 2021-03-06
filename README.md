@@ -1,6 +1,6 @@
 # BCO-TOOL
 
-This is the BioCompute package. 
+This is the BioCompute Tool. 
 
 ## To install:
 
