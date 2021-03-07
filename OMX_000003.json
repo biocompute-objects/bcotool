@@ -1,0 +1,221 @@
+{
+    "bco_id": "http://data.oncomx.org/OMX_000003", 
+    "checksum": "3c9f6890c015ba3cf9ca79649310776c", 
+    "bco_spec_version": "1.3.0", 
+    "provenance_domain": {
+        "name": "FDA breast cancer biomarkers", 
+        "version": "1.0.25", 
+        "license": "Data - Attribution 4.0 International CC BY 4.0 [https://creativecommons.org/licenses/by/4.0/]", 
+        "created": "2019-04-24T22:22:25.334069", 
+        "modified": "2020-02-21T11:51:14.306579", 
+        "contributors": [
+            {
+                "name": "Nikhita Gogate", 
+                "orcid": "", 
+                "affiliation": "GW HIVE-Lab", 
+                "contribution": [
+                    "createdBy"
+                ], 
+                "email": "nikigogate@gwu.edu"
+            }, 
+            {
+                "name": "Natalie Abrams", 
+                "orcid": "", 
+                "affiliation": "NIH-NCI", 
+                "contribution": [
+                    "authoredBy"
+                ], 
+                "email": "natalie.abrams@nih.gov"
+            }, 
+            {
+                "name": "Dara Baker", 
+                "orcid": "", 
+                "affiliation": "GW SMHS", 
+                "contribution": [
+                    "authoredBy"
+                ], 
+                "email": "dara25@gwmail.gwu.edu"
+            }, 
+            {
+                "name": "Hayley M. Dingerdissen", 
+                "orcid": "", 
+                "affiliation": "GW HIVE-Lab", 
+                "contribution": [
+                    "createdBy"
+                ], 
+                "email": "hmhamilt@gwmail.gwu.edu"
+            }, 
+            {
+                "name": "Evan Holmes", 
+                "orcid": "", 
+                "affiliation": "GW HIVE-Lab", 
+                "contribution": [
+                    "createdBy"
+                ], 
+                "email": "evanh@gwmail.gwu.edu"
+            }
+        ]
+    }, 
+    "usability_domain": [
+        "FDA-approved or cleared nucleic acid-based human biomarker tests for breast cancer - This file contains FDA-approved human biomarker tests for breast cancer. Each row represents one gene linked to its respective test. Genes are labeled by relevant identifiers/accessions from UniProtKB, HGNC, and EDRN. Tests are distinguished by manufacturer, FDA submission ID(s), clinical trial ID(s), and PubMed ID(s)."
+    ], 
+    "extension_domain": {
+        "fhir_extension": [], 
+        "scm_extension": {
+            "scm_repository": "", 
+            "scm_path": "", 
+            "scm_type": "git", 
+            "scm_commit": ""
+        }, 
+        "dataset_categories": [
+            {
+                "category_value": "Homo sapiens", 
+                "category_name": "species"
+            }, 
+            {
+                "category_value": "cancer", 
+                "category_name": "disease_status"
+            }, 
+            {
+                "category_value": "internal", 
+                "category_name": "scope"
+            }, 
+            {
+                "category_value": "csv", 
+                "category_name": "file_format"
+            }, 
+            {
+                "category_value": "reviewed", 
+                "category_name": "dataset_status"
+            }, 
+            {
+                "category_value": "biomarker", 
+                "category_name": "study_type"
+            }
+        ]
+    }, 
+    "description_domain": {
+        "keywords": [
+            "cancer", 
+            "breast cancer", 
+            "biomarker", 
+            "biomarker test", 
+            "FDA"
+        ], 
+        "pipeline_steps": [
+            {
+                "name": "", 
+                "version": "", 
+                "step_number": 1, 
+                "input_list": [], 
+                "output_list": [], 
+                "prerequisite": [], 
+                "description": "FDA-approved tests were downloaded a list of FDA-approved or cleared nucleic acid based tests from https://www.fda.gov/MedicalDevices/ProductsandMedicalProcedures/InVitroDiagnostics/ucm330711.htm"
+            }, 
+            {
+                "name": "", 
+                "version": "", 
+                "step_number": 2, 
+                "input_list": [], 
+                "output_list": [], 
+                "prerequisite": [], 
+                "description": "Potential headers were added for manual annotation"
+            }, 
+            {
+                "name": "", 
+                "version": "", 
+                "step_number": 3, 
+                "input_list": [], 
+                "output_list": [], 
+                "prerequisite": [], 
+                "description": "Manual annotation of breast cancer tests - search tools included PubMed, UniProt, EDRN, HGNC, Google"
+            }, 
+            {
+                "name": "", 
+                "version": "", 
+                "step_number": 4, 
+                "input_list": [], 
+                "output_list": [], 
+                "prerequisite": [], 
+                "description": "Added UniProtID column and EDRN values from biomarkers-joined.xlsx into FDA tests dataset"
+            }, 
+            {
+                "name": "", 
+                "version": "", 
+                "step_number": 5, 
+                "input_list": [], 
+                "output_list": [], 
+                "prerequisite": [], 
+                "description": " Hyperlinks added clinical use in AdoptionEvidence"
+            }, 
+            {
+                "name": "", 
+                "version": "", 
+                "step_number": 6, 
+                "input_list": [], 
+                "output_list": [], 
+                "prerequisite": [], 
+                "description": "Incorporated GTR terms https://www.ncbi.nlm.nih.gov/gtr/"
+            }, 
+            {
+                "name": "", 
+                "version": "", 
+                "step_number": 7, 
+                "input_list": [], 
+                "output_list": [], 
+                "prerequisite": [], 
+                "description": " Modified header definitions and variable descriptions"
+            }, 
+            {
+                "name": "", 
+                "version": "", 
+                "step_number": 8, 
+                "input_list": [], 
+                "output_list": [], 
+                "prerequisite": [], 
+                "description": "Manual population of chart based on database searches and review of literature"
+            }
+        ]
+    }, 
+    "execution_domain": {
+        "external_data_endpoints": [], 
+        "environment_variables": {}, 
+        "script_driver": "", 
+        "software_prerequisites": [], 
+        "script": []
+    }, 
+    "parametric_domain": [
+        {
+            "step": "", 
+            "param": "", 
+            "value": ""
+        }
+    ], 
+    "io_domain": {
+        "input_subdomain": [], 
+        "output_subdomain": [
+            {
+                "mediatype": "csv", 
+                "uri": {
+                    "access_time": "", 
+                    "sha1_chksum": "", 
+                    "uri": "http://data.oncomx.org/ln2wwwdata/reviewed/human_cancer_biomarkers_FDA_breast.csv", 
+                    "filename": "human_cancer_biomarkers_FDA_breast.csv"
+                }
+            }, 
+            {
+                "mediatype": "csv", 
+                "uri": {
+                    "access_time": "", 
+                    "sha1_chksum": "", 
+                    "uri": "http://data.oncomx.org/ln2wwwdata/reviewed/human_cancer_biomarkers_FDA_breast.stat.csv", 
+                    "filename": "human_cancer_biomarkers_FDA_breast.stat.csv"
+                }
+            }
+        ]
+    }, 
+    "error_domain": {
+        "empirical_error": {}, 
+        "algorithmic_error": {}
+    }
+}
