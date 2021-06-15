@@ -85,25 +85,25 @@ def usr_args():
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument('-b', '--bco',
                                required=True,
-                               help="BioCompute json to process")
+                               help="BioCompute JSON to process.")
 
     parent_parser.add_argument('-s', '--schema',
                                # type = argparse.FileType('r'),
-                               help="root json schema to validate against")
+                               help="Root json schema to validate against.")
 
     parent_parser.add_argument('-m', '--mappingFile',
                                # type = argparse.FileType('r'),
-                               help="mapping file to convert BioCompute json with")
+                               help="Mapping file to convert BioCompute json with.")
 
     # Create a functions subcommand
     parser_listapps = subparsers.add_parser('functions',
-                                            help='list all available functions')
+                                            help='List all available functions.')
     parser_listapps.set_defaults(func=listapps)
 
     # Create the bco_license
     parser_license = subparsers.add_parser('license',
                                            parents=[parent_parser],
-                                           help='Prints BCO License ')
+                                           help='Saves HTML version of BCO License.')
     parser_license.set_defaults(func=bco_license)
 
     # Create a validate subcommand
@@ -113,7 +113,7 @@ def usr_args():
                                                  "Used to test a BCO against a JSON schema. "
                                                  "If no schema is supplied the ieee-2791-schema "
                                                  "is used as the "
-                                                 "default")
+                                                 "default.")
     parser_validate.set_defaults(func=validate_bco)
 
     parser_validate = subparsers.add_parser('convert',
@@ -133,7 +133,7 @@ def usr_args():
     # Create a run_cwl subcommand
     parser_run_cwl = subparsers.add_parser('run_cwl',
                                            parents=[parent_parser],
-                                           help='run a CWL ')
+                                           help='Run a CWL described in a BCO.')
     parser_run_cwl.set_defaults(func=run_cwl)
 
     # Print usage message if no args are supplied.
