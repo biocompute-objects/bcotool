@@ -1,0 +1,6 @@
+database: 
+  class: File
+  path: HepC-DB.fasta
+query: 
+  class: File
+  path: M67463-HepC.fa
