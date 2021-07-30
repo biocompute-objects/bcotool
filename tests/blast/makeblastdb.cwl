@@ -17,13 +17,9 @@ outputs:
     outputBinding:
       glob: $(inputs.database.basename)
     secondaryFiles:
-      - .ndb
       - .nhr
       - .nin
-      - .not
       - .nsq
-      - .ntf
-      - .nto
 label: makeblastdb
 arguments:
   - position: 0

@@ -28,7 +28,7 @@
             "end_time": "2021-01-15T10:10:50-0500"
         },
         "created": "2021-01-15T10:10:50-0500",
-        "modified": "2021-01-15T10:10:50-0500",
+        "modified": "2021-07-30T13:30:00-0500",
         "contributors": [
             {
                 "name": "Charles Hadley King",
@@ -151,19 +151,7 @@
                         "access_time": "2021-01-15T10:41:27-0500"
                     },
                     {
-                        "uri": "file://./M67463-HepC.fa.nto",
-                        "access_time": "2021-01-15T10:41:27-0500"
-                    },
-                    {
-                        "uri": "file://./M67463-HepC.fa.ntf",
-                        "access_time": "2021-01-15T10:41:27-0500"
-                    },
-                    {
                         "uri": "file://./M67463-HepC.fa.nsq",
-                        "access_time": "2021-01-15T10:41:27-0500"
-                    },
-                    {
-                        "uri": "file://./M67463-HepC.fa.not",
                         "access_time": "2021-01-15T10:41:27-0500"
                     },
                     {
@@ -172,10 +160,6 @@
                     },
                     {
                         "uri": "file://./M67463-HepC.fa.nhr",
-                        "access_time": "2021-01-15T10:41:27-0500"
-                    },
-                    {
-                        "uri": "file://./M67463-HepC.fa.ndb",
                         "access_time": "2021-01-15T10:41:27-0500"
                     }
                 ],
