@@ -124,6 +124,13 @@ def usr_args():
                                                  "provided, performs default conversions.")
     parser_validate.set_defaults(func=map_bcos)
 
+
+    parser_validate = subparsers.add_parser('update',
+                                            parents=[parent_parser],
+                                            help="Update option"
+                                                 "Updates last modified and etag on BCO. Updates modified time to current time.")
+    parser_validate.set_defaults(func=update_bco)
+
     parser_validate = subparsers.add_parser('map',
                                             parents=[parent_parser],
                                             help="Mapping options "
@@ -182,6 +189,23 @@ def load_bco(options):
         sys.exit("Please provide a valid URI or PATH")
 
     return bco_dict
+
+# ______________________________________________________________________________#
+def update_bco(options):
+    new_bco = load_bco(options)
+    try:
+        new_bco['provenance_domain'][
+            'modified'] = datetime.now().isoformat()  # change date to current
+
+        temp_bco = dict(new_bco)
+        del temp_bco['object_id'], temp_bco['etag'], temp_bco['spec_version']
+
+        new_bco['spec_version'] = "https://w3id.org/ieee/ieee-2791-schema/2791object.json"
+        new_bco["etag"] = sha256(json.dumps(temp_bco).encode('utf-8')).hexdigest()
+    except KeyError:  # Vital field was missing, will be caught by final error checker
+        pass
+    file = open(options.bco, "w")
+    json.dump(new_bco, file, indent=4)
 
 
 # ______________________________________________________________________________#

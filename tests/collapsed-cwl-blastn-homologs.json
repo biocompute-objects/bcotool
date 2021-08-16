@@ -1,44 +1,36 @@
 {
-    "object_id": "https://raw.githubusercontent.com/HadleyKing/bco-tool/1.1.0/tests/cwl-blastn-homologs.json",
-    "etag": "2a733bb9c0cd8e5717cb0f478fb985195c460c5392b0b41f17390eb6ceeb740f",
+    "object_id": "https://raw.githubusercontent.com/HadleyKing/bco-tool/1.1.0/tests/collapsed-cwl-blastn-homologs.json",
+    "etag": "f37a6806e8e5979b3e1527af258df96a4af116247727f8d1ad8bf2ba6173bece",
     "spec_version": "https://w3id.org/ieee/ieee-2791-schema/2791object.json",
     "provenance_domain": {
-        "name": "HCV1a BLASTN homologue identification",
+        "name": "HCV1a BLASTN homologue identification, with collapsed secondary files.",
         "version": "1.0",
-        "review": [
-            {
-                "status": "unreviewed",
-                "reviewer_comment": "WIP",
-                "date": "2021-01-15T10:10:50-0500",
-                "reviewer": {
-                    "name": "Charles Hadley King",
-                    "affiliation": "George Washington University",
-                    "email": "hadley_king@gwu.edu",
-                    "contribution": [
-                        "createdBy",
-                        "curatedBy"
-                    ],
-                    "orcid": "https://orcid.org/0000-0003-1409-4549"
-                }
-            }
-        ],
+        "derived_from": "https://github.com/HadleyKing/bco-tool/1.1.0/tests/cwl-blastn-homologs.json",
         "obsolete_after": "2118-09-26T14:43:43-0400",
         "embargo": {
-            "start_time": "2021-01-15T10:10:50-0500",
-            "end_time": "2021-01-15T10:10:50-0500"
+            "start_time": "2021-08-13T10:45:22-0500",
+            "end_time": "2021-08-13T10:45:22-0500"
         },
-        "created": "2021-01-15T10:10:50-0500",
-        "modified": "2021-01-15T10:10:50-0500",
+        "created": "2021-08-13T10:45:22-0500",
+        "modified": "2021-08-16T13:33:54.527692",
         "contributors": [
             {
                 "name": "Charles Hadley King",
                 "affiliation": "George Washington University",
                 "email": "hadley_king@gwu.edu",
                 "contribution": [
-                    "createdBy",
                     "curatedBy"
                 ],
                 "orcid": "https://orcid.org/0000-0003-1409-4549"
+            },
+            {
+                "name": "Alex Coleman",
+                "affiliation": "George Washington University",
+                "email": "acoleman29@gwmail.gwu.edu",
+                "contribution": [
+                    "createdBy"
+                ],
+                "orcid": "https://orcid.org/0000-0003-3465-0557"
             },
             {
                 "name": "Raja Mazumder",
@@ -47,7 +39,7 @@
                 "contribution": [
                     "authoredBy"
                 ],
-                "orcid": "https://orcid.org/0000-0003-1409-4549"
+                "orcid": "https://orcid.org/0000-0001-8823-9945"
             }
         ],
         "license": "https://creativecommons.org/licenses/by/4.0/legalcode.txt"
@@ -61,12 +53,12 @@
         {
             "extension_schema": "https://w3id.org/biocompute/extension_domain/1.1.0/scm/scm_extension.json",
             "scm_extension": {
-                "scm_repository": "https://github.com/hadleyking/bco-tool",
+                "scm_repository": "https://github.com/hadleyking/bcotool",
                 "scm_type": "git",
-                "scm_commit": "37bd8d5ac33e56e2b82c6b6db5032f7da064b6fc",
-                "scm_path": "/tests/cwl-blastn-homologs.json",
-                "scm_preview": "https://github.com/hadleyking/bco-tool/blob/37bd8d5ac33e56e2b82c6b6db5032f7da064b6fc/tests/cwl-blastn-homologs.json"
-          }
+                "scm_commit": "aeb0121c392f02364563dd57c19dbefd8b4948f6",
+                "scm_path": "/tests/blast/blastn-homologs.cwl",
+                "scm_preview": "https://github.com/HadleyKing/bcotool/blob/aeb0121c392f02364563dd57c19dbefd8b4948f6/tests/blast/blastn-homologs.cwl"
+            }
         }
     ],
     "description_domain": {
@@ -106,37 +98,21 @@
                 "input_list": [
                     {
                         "uri": "https://raw.githubusercontent.com/HadleyKing/bco-tool/main/tests/blast/HepC-DB.fasta",
-                        "access_time": "2021-01-15T10:41:27-0500"
+                        "access_time": "2021-08-13T11:25:40-0500"
                     }
                 ],
                 "output_list": [
                     {
-                        "uri": "file://./M67463-HepC.fa.nto",
-                        "access_time": "2021-01-15T10:41:27-0500"
-                    },
-                    {
-                        "uri": "file://./M67463-HepC.fa.ntf",
-                        "access_time": "2021-01-15T10:41:27-0500"
-                    },
-                    {
                         "uri": "file://./M67463-HepC.fa.nsq",
-                        "access_time": "2021-01-15T10:41:27-0500"
-                    },
-                    {
-                        "uri": "file://./M67463-HepC.fa.not",
-                        "access_time": "2021-01-15T10:41:27-0500"
+                        "access_time": "2021-08-13T10:53:18-0500"
                     },
                     {
                         "uri": "file://./M67463-HepC.fa.nin",
-                        "access_time": "2021-01-15T10:41:27-0500"
+                        "access_time": "2021-08-13T10:53:18-0500"
                     },
                     {
                         "uri": "file://./M67463-HepC.fa.nhr",
-                        "access_time": "2021-01-15T10:41:27-0500"
-                    },
-                    {
-                        "uri": "file://./M67463-HepC.fa.ndb",
-                        "access_time": "2021-01-15T10:41:27-0500"
+                        "access_time": "2021-08-13T10:53:18-0500"
                     }
                 ]
             },
@@ -148,41 +124,25 @@
                 "input_list": [
                     {
                         "uri": "https://raw.githubusercontent.com/HadleyKing/bco-tool/main/tests/blast/M67463-HepC.fa",
-                        "access_time": "2021-01-15T10:41:27-0500"
-                    },
-                    {
-                        "uri": "file://./M67463-HepC.fa.nto",
-                        "access_time": "2021-01-15T10:41:27-0500"
-                    },
-                    {
-                        "uri": "file://./M67463-HepC.fa.ntf",
-                        "access_time": "2021-01-15T10:41:27-0500"
+                        "access_time": "2021-08-13T10:53:18-0500"
                     },
                     {
                         "uri": "file://./M67463-HepC.fa.nsq",
-                        "access_time": "2021-01-15T10:41:27-0500"
-                    },
-                    {
-                        "uri": "file://./M67463-HepC.fa.not",
-                        "access_time": "2021-01-15T10:41:27-0500"
+                        "access_time": "2021-08-13T10:53:18-0500"
                     },
                     {
                         "uri": "file://./M67463-HepC.fa.nin",
-                        "access_time": "2021-01-15T10:41:27-0500"
+                        "access_time": "2021-08-13T10:53:18-0500"
                     },
                     {
                         "uri": "file://./M67463-HepC.fa.nhr",
-                        "access_time": "2021-01-15T10:41:27-0500"
-                    },
-                    {
-                        "uri": "file://./M67463-HepC.fa.ndb",
-                        "access_time": "2021-01-15T10:41:27-0500"
+                        "access_time": "2021-08-13T10:53:18-0500"
                     }
                 ],
                 "output_list": [
                     {
                         "uri": "file://./blast-out.txt",
-                        "access_time": "2021-01-15T10:41:27-0500"
+                        "access_time": "2021-08-13T10:53:18-0500"
                     }
                 ]
             }
@@ -217,16 +177,14 @@
                 "name": "cwltool",
                 "version": "3.0.20201121085451",
                 "uri": {
-                    "uri": "https://github.com/common-workflow-language/cwltool.git",
-                    "access_time": "2020-11-25T12:50:27-0500"
+                    "uri": "https://github.com/common-workflow-language/cwltool.git"
                 }
             },
             {
                 "name": "BLAST",
                 "version": "2.11.0+",
                 "uri": {
-                    "uri": "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/",
-                    "access_time": "2020-11-25T12:50:27-0500"
+                    "uri": "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/"
                 }
             }
         ],
@@ -277,7 +235,7 @@
                 "mediatype": "text",
                 "uri": {
                     "uri": "file://./blast-out.txt",
-                    "access_time": "2021-01-15T10:41:27-0500"
+                    "access_time": "2021-08-13T10:53:27-0500"
                 }
             }
         ]
@@ -291,7 +249,7 @@
             "Query": {
                 "accession": "M67463.1",
                 "length": 9416,
-                "name":  "Hepatitis C virus subtype 1a, complete genome"
+                "name": "Hepatitis C virus subtype 1a, complete genome"
             },
             "Sequences producing significant alignments": {
                 "NC_038882.1:1-9416 Hepatitis C virus (isolate H77) genotype 1, co...": {
@@ -330,7 +288,7 @@
                     "Score": "1024",
                     "E value": "0.0"
                 },
-                "NC_009824.1:3292-6176 Hepatitis C virus genotype 3, genome" : {
+                "NC_009824.1:3292-6176 Hepatitis C virus genotype 3, genome": {
                     "Score": "542",
                     "E value": "2e-155"
                 },
