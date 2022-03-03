@@ -1,5 +1,7 @@
 cwl_run/*
-.DS_Store
+*.DS_Store
 error.log
 .bco_env/
-
+home
+.python-version
+.vscode/

@@ -7,17 +7,31 @@ This is a Command Line Tool that allows for the manipulation of [BioCompute Obje
 
 Run the Git Clone command in the location you would like the repostory:
 
-1. `cd path/to/my/github/repositories`
+1. Choose location for repository
 
-2. `git clone https://github.com/HadleyKing/bco-tool.git`
+        cd path/to/my/github/repositories
 
-Add the main bco-tool program to your path
+2. Clone repo
 
-4. `cd bcotool`
+        git clone https://github.com/biocompute-objects/bcotool.git
 
-5. `pip install -r requirements.txt`
+### To add the main bco-tool program to your path
 
-6. `cp bco-tool/bco_runner.py  /usr/local/bin/bco`
+4. Enter directory
+
+        cd bcotool
+
+5. Create and/or activate a [python virtual environment](https://virtualenv.pypa.io/en/latest/user_guide.html):
+
+        virtualenv [path_to_environment]
+
+5. Install requirements in the virtual environment
+
+        pip install -r requirements.txt
+
+6. Copy the exicutable program file to the user local  bin:
+
+        cp bco-tool/bco_runner.py  /usr/local/bin/bco
 
 
 ## Supported modes

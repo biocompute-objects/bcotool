@@ -6,7 +6,7 @@
 '''CLI tools for BioCompute Objects.'''
 ################################################################################
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 __status__ = "Production"
 
 import os
@@ -17,7 +17,6 @@ import argparse
 from datetime import datetime
 from hashlib import sha256
 from pathlib import Path
-from random import random
 from urllib.parse import urlparse
 
 import requests
@@ -26,7 +25,7 @@ import jsonref
 import re
 
 """
-Default mapping that is used when no mapping file is provided
+    Default mapping that is used when no mapping file is provided
 """
 default_mapping = {
     "bco_id": {
@@ -117,11 +116,11 @@ def usr_args():
     parser_validate.set_defaults(func=validate_bco)
 
     parser_validate = subparsers.add_parser('convert',
-        parents=[parent_parser],
-        help="Converting options "
-        "Used to convert a JSON into a schema (default "
-        "is ieee-2791-schema). If no mapping file is "
-        "provided, performs default conversions.")
+                                            parents=[parent_parser],
+                                            help="Converting options "
+                                            "Used to convert a JSON into a schema (default "
+                                            "is ieee-2791-schema). If no mapping file is "
+                                            "provided, performs default conversions.")
     parser_validate.set_defaults(func=map_bcos)
 
 
@@ -192,6 +191,10 @@ def load_bco(options):
 
 #______________________________________________________________________________#
 def update_bco(options):
+    """Update BCO
+    
+    Updates the etag and modified fields
+    """
     new_bco = load_bco(options)
     try:
         new_bco['provenance_domain'][
@@ -319,12 +322,14 @@ def run_cwl(options):
 
 #______________________________________________________________________________#
 def validate_bco(options):
-    """
-    # Check for schema compliance.
-    # Arguments
-    # ---------
-    # object_pass:  the object being checked.
-    # Check the object against the provided schema.
+    """Validate BCO
+
+    Check for schema compliance.
+
+    Arguments
+    ---------
+    object_pass:  the object being checked.
+    Check the object against the provided schema.
     """
 
     error_flags = 0
@@ -509,6 +514,22 @@ def convert_schema(bco, filename, mapping_dict):
     :param mapping_dict: dictionary containing value mapping for bco
     :type mapping_dict: dict
     """
+    # Hard coded fixes for GLYGEN and OncoMX
+    if isinstance(bco['extension_domain'], dict) and 'dataset_categories' in bco['extension_domain']:
+        del bco['error_domain']['emperical_error']
+        categories = bco['extension_domain']['dataset_categories']
+        extension = {
+            'extension_schema': "http://www.w3id.org/biocompute/extension_domain/1.1.0/dataset/dataset_extension.json",
+            'dataset_extension': {
+                'additional_license': {
+                    'data_license': "https://creativecommons.org/licenses/by/4.0/",
+                    'script_license': "https://www.gnu.org/licenses/gpl-3.0.en.html"
+            },
+            'dataset_categories': categories
+        }
+    }
+    bco['extension_domain'] = extension
+
     for item in mapping_dict['to_swap']:
         value_list = mapping_dict['to_swap'][item]
         for i in range(0, len(value_list)):
@@ -790,7 +811,9 @@ def map_bcos(options):
 
     directory, mapping file -> maps each bco in directory with mapping file
     """
-    if os.path.isfile(options.bco):  # single bco
+
+    if os.path.isfile(options.bco):
+        print('single BCO was provided')
         if options.mappingFile is None:  # no provided mapping file
             create_mapping_file(options)  # making mapping file to get indexes of missing values
             mapping_file = os.path.splitext(options.bco)[0] + "mapping.txt"
@@ -807,12 +830,12 @@ def map_bcos(options):
         # convert schema, passing loaded bco, new file name, and mapping file (created by calling
         # parse_mapping_file)
         convert_schema(load_bco(options),
-                       basename + "[converted].json",
+                       basename + "_converted_.json",
                        parse_mapping_file(mapping_file,
                                           read_from_default_mapping,
                                           read_from_mapping_file))
 
-        options.bco = basename + "[converted].json"  # switch options.bco to new bco
+        options.bco = basename + "_converted_.json"  # switch options.bco to new bco
         validate_bco(options)  # validate bco
         if os.path.isfile("error.log"):  # if there were any errors
             create_mapping_file(options)  # create a mapping file for new bco
@@ -822,8 +845,8 @@ def map_bcos(options):
             print("BCO converted successfully. Converted BCO named " + options.bco +
                   "[converted.json]")
 
-    if os.path.isdir(options.bco):  # directory was provided
-
+    if os.path.isdir(options.bco):
+        print('directory was provided')
         output_directory = options.bco + "/converted"
         if not os.path.isdir(output_directory):
             os.mkdir(output_directory)
@@ -852,7 +875,7 @@ def map_bcos(options):
 
             # convert schema for bco
             convert_schema(load_bco(options),
-                           output_directory + "/" + bco_name + "[converted].json",
+                           output_directory + "/" + bco_name + "_converted_.json",
                            parse_mapping_file(
                                mapping_file[bco_name],
                                read_from_default_mapping,
