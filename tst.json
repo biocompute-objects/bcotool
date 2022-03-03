@@ -1,0 +1,598 @@
+{
+	"POST_read_object": [
+		{
+			"request_status": "SUCCESS",
+			"request_code": "200",
+			"message": "The object with ID 'https://beta.portal.aws.biochemistry.gwu.edu/BCO_DRAFT_706f97bdcafa4cd89056fbbfc9d5d325' was found on table 'bco_draft'.",
+			"content": {
+				"provenance_domain": {
+					"embargo": {
+					},
+					"name": "Standard Testing Pipeline to evaluate performance of HIVE-heptagon for base and SNP-calling of SRR1004397_2.fastq versus GrCH38.2 MARCH14-2016 alignment accompanied by quality and noise assessment profiles. ",
+					"license": "https://spdx.org/licenses/CC-BY-4.0.html",
+					"review": [
+						{
+							"date": "2020-01-29T00:00:00-0400",
+							"reviewer": {
+								"orcid": "https://orcid.org/0000-0003-1409-4549",
+								"affiliation": "George Washington University",
+								"contribution": [
+									"contributedBy"
+								],
+								"name": "Charles Hadley King",
+								"email": "hadley_king@gwu.edu"
+							},
+							"status": "unreviewed"
+						}
+					],
+					"version": "1.0.0",
+					"contributors": [
+						{
+							"orcid": "https://orcid.org/0000-0002-8824-4637",
+							"affiliation": "George Washington University",
+							"contribution": [
+								"createdBy"
+							],
+							"name": "Janisha Patel",
+							"email": "janishapatel@gwu.edu"
+						}
+					],
+					"created": "2020-012-31T00:00:00-0400",
+					"modified": "2020-12-31T00:00:00-0400"
+				},
+				"description_domain": {
+					"keywords": [
+						"HIVE-heptagon",
+						"SNP-calling",
+						"human",
+						"SQCC",
+						"test-computation"
+					],
+					"xref": [
+						{
+							"namespace": "PRJN",
+							"name": "BioProject",
+							"access_time": "2020-1-16T00:00:00-0400",
+							"ids": [
+								"222266"
+							]
+						}
+					],
+					"platform": [
+						"HIVE"
+					],
+					"pipeline_steps": [
+						{
+							"step_number": 1,
+							"description": "Engine to perform coverage analysis ,base-calling, SNP calling",
+							"name": "Sequence Profiling Engine",
+							"input_list": [
+								{
+									"uri": "https://hive.aws.biochemistry.gwu.edu/dna.cgi?cmd=objFile&ids=3260",
+									"filename": "Alignment",
+									"access_time": "2020-1-16T00:00:00-0400"
+								}
+							],
+							"output_list": [
+								{
+									"filename": "Profile",
+									"uri": "https://hive.aws.biochemistry.gwu.edu/dna.cgi?cmd=objFile&ids=3272&filename=ion#54#-#-relationTargetTypes.ion",
+									"access_time": "2020-1-16T00:00:00-0400"
+								}
+							],
+							"version": "babajanian.1"
+						}
+					]
+				},
+				"execution_domain": {
+					"environment_variables": {
+						"HOSTTYPE": "x86_64-linux"
+					},
+					"script": [
+						{
+							"uri": {
+								"filename": "Heptagon",
+								"uri": "http://hive.aws.biochemistry.gwu.edu/dna.cgi?cmd=dna-hexagon&cmdMode=-"
+							}
+						}
+					],
+					"software_prerequisites": [
+						{
+							"uri": {
+								"uri": "http://hive.aws.biochemistry.gwu.edu/dna.cgi?cmd=dna-hexagon&cmdMode=-",
+								"filename": "Sequence Profiling Engine"
+							},
+							"name": "Sequence Profiling Engine",
+							"version": "babajanian.1"
+						}
+					],
+					"external_data_endpoints": [
+						{
+							"name": "HIVE",
+							"url": "https://hive.aws.biochemistry.gwu.edu/dna.cgi?cmd=login"
+						}
+					],
+					"script_driver": "script_driver"
+				},
+				"io_domain": {
+					"input_subdomain": [
+						{
+							"uri": {
+								"uri": "https://hive.aws.biochemistry.gwu.edu/dna.cgi?cmd=objFile&ids=3260",
+								"filename": "Alignment",
+								"access_time": "2020-1-16T00:00:00-0400"
+							}
+						}
+					],
+					"output_subdomain": [
+						{
+							"uri": {
+								"uri": "https://hive.aws.biochemistry.gwu.edu/dna.cgi?cmd=objFile&ids=3272&filename=ion#54#-#-relationTargetTypes.ion",
+								"filename": "Profile",
+								"access_time": "2020-1-16T00:00:00-0400"
+							},
+							"mediatype": "ion"
+						}
+					]
+				},
+				"error_domain": {
+					"empirical_error": {
+						"Bacteroides fragilis": "3.7%"
+					},
+					"algorithmic_error": {
+						"not sure": "test"
+					}
+				},
+				"etag": "ffe3de98394e6520ebfe7cf87683ef95dbddd13e02f48dafd859dc2f7c7115cf",
+				"parametric_domain": [
+					{
+						"step": "1",
+						"value": "svc-profiler-heptagon",
+						"param": "_type"
+					},
+					{
+						"step": "1",
+						"value": "1_Profile based on alignment : SRR1004397_2.fastq versus GrCH38.2 MARCH14-2016 (3260)",
+						"param": "name"
+					},
+					{
+						"step": "1",
+						"value": "false",
+						"param": "collapseRpts"
+					},
+					{
+						"step": "1",
+						"value": "false",
+						"param": "countAAs"
+					},
+					{
+						"step": "1",
+						"value": "do not cut",
+						"param": "cutEnds"
+					},
+					{
+						"step": "1",
+						"value": "false",
+						"param": "directionalityInfo"
+					},
+					{
+						"step": "1",
+						"value": "0",
+						"param": "disbalanceFR"
+					},
+					{
+						"step": "1",
+						"value": "0",
+						"param": "entrCutoff"
+					},
+					{
+						"step": "1",
+						"value": "1",
+						"param": "filterZeros"
+					},
+					{
+						"step": "1",
+						"value": "true",
+						"param": "generateIon"
+					},
+					{
+						"step": "1",
+						"value": "0",
+						"param": "histograms"
+					},
+					{
+						"step": "1",
+						"value": "no cutoff",
+						"param": "lenPercCutoff"
+					},
+					{
+						"step": "1",
+						"value": "no cutoff",
+						"param": "maxLowQua"
+					},
+					{
+						"step": "1",
+						"value": "0",
+						"param": "maxMissmatchPercCutoff"
+					},
+					{
+						"step": "1",
+						"value": "3",
+						"param": "maxRptIns"
+					},
+					{
+						"step": "1",
+						"value": "0",
+						"param": "minCover"
+					},
+					{
+						"step": "1",
+						"value": "0",
+						"param": "minImportantEntropy"
+					},
+					{
+						"step": "1",
+						"value": "{\"noiseFilterParams\":\"none\",\"noiseProfileMax\":0.01,\"noiseProfileResolution\":0.0001}",
+						"param": "noise"
+					},
+					{
+						"step": "1",
+						"value": "0",
+						"param": "random_seed"
+					},
+					{
+						"step": "1",
+						"value": "false",
+						"param": "SEARCHFORREPEATS"
+					},
+					{
+						"step": "1",
+						"value": "1",
+						"param": "snpCompare"
+					},
+					{
+						"step": "1",
+						"value": "true",
+						"param": "supportedDeletions"
+					},
+					{
+						"step": "1",
+						"value": "{\"minFreqIgnoreSNP\":0,\"minFreqPercent\":0}",
+						"param": "thrSNP"
+					},
+					{
+						"step": "1",
+						"value": "20",
+						"param": "useQuaFilter"
+					}
+				],
+				"usability_domain": [
+					"This curated test computation evaluates the performance of Heptagon, a tool that performs base and SNP-calling for a previously computed alignment and provides quality and noise assessment profiles. ",
+					"Heptagon was used to identify SNPs from the previous Hexagon alignment of Whole Exome Sequencing of lung squamous carcinoma (SQCC) patients against human reference genome GRCh38."
+				],
+				"object_id": "https://beta.portal.aws.biochemistry.gwu.edu/builder/BCO_DRAFT_706f97bdcafa4cd89056fbbfc9d5d325",
+				"spec_version": "https://w3id.org/ieee/ieee-2791-schema/"
+			}
+		},
+		{
+			"request_status": "SUCCESS",
+			"request_code": "200",
+			"message": "The object with ID 'https://beta.portal.aws.biochemistry.gwu.edu/BCO_3/1.0' was found on table 'bco_publish'.",
+			"content": {
+				"object_id": "https://beta.portal.aws.biochemistry.gwu.edu/BCO_3/1.0",
+				"spec_version": "https://w3id.org/ieee/ieee-2791-schema/2791object.json",
+				"etag": "da45734cb076a163ee7c111ed7130778671185855dbf17d8736119b1585ab3a8",
+				"description_domain": {
+					"keywords": [
+						"dsBCO",
+						"virus",
+						"database curation",
+						"RVDB",
+						"FDA"
+					],
+					"platform": [
+						"CentOS7"
+					],
+					"pipeline_steps": [
+						{
+							"input_list": [
+								{
+									"uri": "https://rvdb.dbi.udel.edu/download/U-RVDBv18.0.fasta.gz",
+									"filename": "U-RVDBv18.0.fasta"
+								}
+							],
+							"prerequisite": [
+								{
+									"uri": {
+										"uri": "https://github.com/Merck/curation-open-source/blob/master/scripts/genome2pseudoreads.py"
+									},
+									"name": "genome2pesudoreads.py"
+								}
+							],
+							"step_number": 1,
+							"name": "genome2pseudoreads",
+							"description": "Conversion of genomes to pseudo reads",
+							"version": "1.0",
+							"output_list": [
+								{
+									"uri": "/tmp_files/pseudoreads.fasta",
+									"filename": "pseudoreads.fasta"
+								}
+							]
+						},
+						{
+							"step_number": 2,
+							"name": "Kraken2",
+							"description": "Alignment tool.",
+							"version": "2.0.8",
+							"prerequisite": [
+								{
+									"uri": {
+										"uri": "https://ccb.jhu.edu/software/kraken2/index.shtml?t=downloads"
+									},
+									"name": "Kraken2"
+								}
+							],
+							"input_list": [
+								{
+									"uri": "/tmp_files/pseudoreads.fasta"
+								}
+							],
+							"output_list": [
+								{
+									"uri": "/tmp_files/pseudoreads2kraken"
+								}
+							]
+						},
+						{
+							"step_number": 3,
+							"prerequisite": [
+								{
+									"uri": {
+										"uri": "https://www.ncbi.nlm.nih.gov/IEB/ToolBox/CPP_DOC/lxr/source/src/app/dustmasker/README.build"
+									},
+									"name": "DustMasker"
+								}
+							],
+							"name": "DustMasker",
+							"description": "Mask low complexity regions of pseudoreads.",
+							"version": "1.0",
+							"input_list": [
+								{
+									"uri": "/tmp_files/pseudoreads2kraken"
+								}
+							],
+							"output_list": [
+								{
+									"uri": "/tmp_files/pseudoreads_dustmasked.fasta"
+								}
+							]
+						},
+						{
+							"step_number": 4,
+							"prerequisite": [
+								{
+									"uri": {
+										"uri": "https://github.com/Merck/curation-open-source/blob/master/scripts/pseudoreads2masked.py"
+									},
+									"name": "pseudoreads2masked"
+								}
+							],
+							"description": "Mask viral genomes in database based on pseudoreads.",
+							"name": "pseudoreads2masked",
+							"version": "1.0",
+							"output_list": [
+								{
+									"uri": "https://github.com/Merck/curation-open-source/blob/master/output_files/HIVE_curated.fasta"
+								}
+							],
+							"input_list": [
+								{
+									"uri": "/tmp_files/pseudoreads_dustmasked.fasta"
+								}
+							]
+						}
+					]
+				},
+				"usability_domain": [
+					"A pipeline for curating the FDA's RVDB (v. 18) database of viral species. Pipeline was developed by Merck and Co., and is based on Lu and Salzberg (10.1371/journal.pcbi.1006277). Pipeline begins by i) converting viral genomes into pseudo reads, ii) alignment of pseudo reads to target database, iii) low-complexity masking, iv) masking viral genomes based on pseudo read classification, and v) addition of HIVE-specific sequence headers for integration into HIVE software. Pipeline includes a wrapper. See GitHub repository (linked in Extension Domain) for more information. The wrapper script reference (https://github.com/Merck/curation-open-source/blob/master/run_curation.sh) bundles the entire pipeline and enables execution in an HPC environment up to 200GB memory (which is required for Kraken2). This implementation was submitted using the qsub utility."
+				],
+				"execution_domain": {
+					"environment_variables": {
+						"Minimum_memory": "200GB"
+					},
+					"script": [
+						{
+							"uri": {
+								"uri": "https://github.com/Merck/curation-open-source/blob/master/run_curation.sh",
+								"filename": "run_curation.sh"
+							}
+						}
+					],
+					"script_driver": "shell",
+					"external_data_endpoints": [
+						{
+							"name": "University of Delaware RVDB repository",
+							"url": "https://rvdb.dbi.udel.edu/"
+						}
+					],
+					"software_prerequisites": [
+						{
+							"uri": {
+								"uri": "https://github.com/Merck/curation-open-source/blob/master/run_curation.sh"
+							},
+							"name": "Wrapper script",
+							"version": "1.0"
+						},
+						{
+							"uri": {
+								"uri": "https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1891-0"
+							},
+							"name": "Kraken2",
+							"version": "2.0.8"
+						},
+						{
+							"uri": {
+								"filename": "DustMasker",
+								"uri": "https://www.ncbi.nlm.nih.gov/books/NBK131777/"
+							},
+							"name": "blast+",
+							"version": "2.10.1"
+						},
+						{
+							"uri": {
+								"uri": "https://www.python.org/downloads/"
+							},
+							"name": "Python3",
+							"version": "3.9.0"
+						},
+						{
+							"uri": {
+								"uri": "https://github.com/Merck/curation-open-source/blob/master/scripts/pseudoreads2masked.py"
+							},
+							"name": "pseudoreads2masked.py",
+							"version": "1.0"
+						},
+						{
+							"uri": {
+								"uri": "https://github.com/Merck/curation-open-source/blob/master/scripts/genome2pseudoreads.py"
+							},
+							"version": "1.0",
+							"name": "genome2pseudoreads.py"
+						},
+						{
+							"uri": {
+								"uri": "https://github.com/Merck/curation-open-source/blob/master/scripts/RVDB2HIVE.py"
+							},
+							"name": "RVDB2HIVE.py",
+							"version": "1.0"
+						}
+					]
+				},
+				"extension_domain": [
+					{
+						"extension_schema": "https://w3id.org/biocompute/extension_domain/1.1.0/scm/scm_extension.json",
+						"scm_extension": {
+							"scm_repository": "https://github.com/Merck/curation-open-source",
+							"scm_type": "git",
+							"scm_commit": "2bba0fbcbb58dabf17b906981638ba4132cd364b",
+							"scm_path": "Merck/curation-open-source",
+							"scm_preview": "https://github.com/Merck/curation-open-source"
+						}
+					},
+					{
+						"extension_schema": "http://www.w3id.org/biocompute/extension_domain/1.1.0/dataset/dataset_extension.json",
+						"dataset_extension": {
+							"additional_license": {
+								"data_license": "https://creativecommons.org/licenses/by/4.0/",
+								"script_license": "https://www.gnu.org/licenses/gpl-3.0.en.html"
+							},
+							"dataset_categories": [
+								{
+									"category_value": "Homo sapiens",
+									"category_name": "species"
+								},
+								{
+									"category_value": "nucleic acid",
+									"category_name": "molecule"
+								},
+								{
+									"category_value": "virus",
+									"category_name": "tag"
+								},
+								{
+									"category_value": "fasta",
+									"category_name": "file_type"
+								},
+								{
+									"category_value": "reviewed",
+									"category_name": "status"
+								},
+								{
+									"category_value": "external",
+									"category_name": "scope"
+								}
+							]
+						}
+					}
+				],
+				"io_domain": {
+					"input_subdomain": [
+						{
+							"uri": {
+								"uri": "https://rvdb.dbi.udel.edu/download/U-RVDBv18.0.fasta.gz"
+							}
+						}
+					],
+					"output_subdomain": [
+						{
+							"uri": {
+								"uri": "https://github.com/Merck/curation-open-source/blob/master/output_files/HIVE_curated.fasta"
+							},
+							"mediatype": "text/plain"
+						}
+					]
+				},
+				"parametric_domain": [
+					{
+						"param": "command line arg",
+						"value": "-v",
+						"step": "1"
+					}
+				],
+				"provenance_domain": {
+					"name": "Merck RVDB (v18) Curation Pipeline",
+					"version": "1.0",
+					"license": "https://github.com/Merck/curation-open-source/blob/master/LICENSE.txt",
+					"contributors": [
+						{
+							"name": "Jonathon Keeney",
+							"affiliation": "George Washington University",
+							"contribution": [
+								"createdBy"
+							],
+							"email": "keeneyjg@gwu.edu",
+							"orcid": "https://orcid.org/0000-0002-7665-6204"
+						},
+						{
+							"name": "Jason Victor",
+							"affiliation": "Merck and Co.",
+							"contribution": [
+								"authoredBy"
+							]
+						}
+					],
+					"review": [
+						{
+							"status": "approved",
+							"reviewer_comment": "Approved by GW staff.",
+							"date": "2021-03-03T12:56:19-0500",
+							"reviewer": {
+								"name": "Hadley King",
+								"email": "hadley_king@gwmail.gwu.edu",
+								"affiliation": "George Washington University",
+								"contribution": [
+									"createdBy",
+									"curatedBy"
+								]
+							}
+						}
+					],
+					"created": "2020-11-10T21:35:15.014Z",
+					"modified": "2020-11-10T21:35:15.014Z"
+				},
+				"error_domain": {
+					"empirical_error": {
+						"input_genomes": "50",
+						"input_undefined_base_calls": "1",
+						"curated_genomes": "50",
+						"curated_undefined_base_calls": "12501"
+					},
+					"algorithmic_error": {
+						"psudeoreads": "3686"
+					}
+				}
+			}
+		}
+	]
+}
