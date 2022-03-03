@@ -12,13 +12,9 @@ inputs:
       position: 0
       prefix: '-db'
     secondaryFiles:
-      - .ndb
       - .nhr
       - .nin
-      - .not
       - .nsq
-      - .ntf
-      - .nto
   - id: query
     type: File
     inputBinding:

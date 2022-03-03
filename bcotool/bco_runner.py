@@ -84,36 +84,36 @@ def usr_args():
     # Create parent subparser. Note `add_help=False` & creation via `argparse.`
     parent_parser = argparse.ArgumentParser(add_help=False)
     parent_parser.add_argument('-b', '--bco',
-        required=True,
-        help="BioCompute json to process")
+                               required=True,
+                               help="BioCompute JSON to process.")
 
     parent_parser.add_argument('-s', '--schema',
-        # type = argparse.FileType('r'),
-        help="root json schema to validate against")
+                               # type = argparse.FileType('r'),
+                               help="Root json schema to validate against.")
 
     parent_parser.add_argument('-m', '--mappingFile',
-        # type = argparse.FileType('r'),
-        help="mapping file to convert BioCompute json with")
+                               # type = argparse.FileType('r'),
+                               help="Mapping file to convert BioCompute json with.")
 
     # Create a functions subcommand
     parser_listapps = subparsers.add_parser('functions',
-        help='list all available functions')
+                                            help='List all available functions.')
     parser_listapps.set_defaults(func=listapps)
 
     # Create the bco_license
     parser_license = subparsers.add_parser('license',
-        parents=[parent_parser],
-        help='Prints BCO License ')
+                                           parents=[parent_parser],
+                                           help='Saves HTML version of BCO License.')
     parser_license.set_defaults(func=bco_license)
 
     # Create a validate subcommand
     parser_validate = subparsers.add_parser('validate',
-        parents=[parent_parser],
-        help="Validation options. "
-        "Used to test a BCO against a JSON schema. "
-        "If no schema is supplied the ieee-2791-schema "
-        "is used as the "
-        "default")
+                                            parents=[parent_parser],
+                                            help="Validation options. "
+                                                 "Used to test a BCO against a JSON schema. "
+                                                 "If no schema is supplied the ieee-2791-schema "
+                                                 "is used as the "
+                                                 "default.")
     parser_validate.set_defaults(func=validate_bco)
 
     parser_validate = subparsers.add_parser('convert',
@@ -124,16 +124,23 @@ def usr_args():
         "provided, performs default conversions.")
     parser_validate.set_defaults(func=map_bcos)
 
-    parser_validate = subparsers.add_parser('map',
-        parents=[parent_parser],
-        help="Mapping options "
-        "Used to generate a mapping file for a bco/bcos.")
-    parser_validate.set_defaults(func=map_bcos)
+
+    parser_validate = subparsers.add_parser('update',
+                                            parents=[parent_parser],
+                                            help="Update option"
+                                                 "Updates last modified and etag on BCO. Updates modified time to current time.")
+    parser_validate.set_defaults(func=update_bco)
+
+    parser_map = subparsers.add_parser('map',
+                                            parents=[parent_parser],
+                                            help="Mapping options "
+                                                 "Used to generate a mapping file for a bco/bcos.")
+    parser_map.set_defaults(func=map_bcos)
 
     # Create a run_cwl subcommand
     parser_run_cwl = subparsers.add_parser('run_cwl',
-        parents=[parent_parser],
-        help='run a CWL ')
+                                           parents=[parent_parser],
+                                           help='Run a CWL described in a BCO.')
     parser_run_cwl.set_defaults(func=run_cwl)
 
     # Print usage message if no args are supplied.
@@ -182,6 +189,23 @@ def load_bco(options):
         sys.exit("Please provide a valid URI or PATH")
 
     return bco_dict
+
+#______________________________________________________________________________#
+def update_bco(options):
+    new_bco = load_bco(options)
+    try:
+        new_bco['provenance_domain'][
+            'modified'] = datetime.now().isoformat()  # change date to current
+
+        temp_bco = dict(new_bco)
+        del temp_bco['object_id'], temp_bco['etag'], temp_bco['spec_version']
+
+        new_bco['spec_version'] = "https://w3id.org/ieee/ieee-2791-schema/2791object.json"
+        new_bco["etag"] = sha256(json.dumps(temp_bco).encode('utf-8')).hexdigest()
+    except KeyError:  # Vital field was missing, will be caught by final error checker
+        pass
+    file = open(options.bco, "w")
+    json.dump(new_bco, file, indent=4)
 
 
 #______________________________________________________________________________#
@@ -1004,7 +1028,7 @@ def delete_key_HELPER(data_dict, key_list, key_to_delete):
     return data_dict
 
 
-#______________________________________________________________________________#
+#_____________________________________________________________________________#
 def get_key_from_dict_HELPER(data_dict, key_list):
     """
     Returns a value from a dictionary given a nested key list

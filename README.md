@@ -1,6 +1,7 @@
 # BCO-TOOL
 
-This is the BioCompute Tool. 
+
+This is a Command Line Tool that allows for the manipulation of [BioCompute Objects](https://www.biocomputeobject.org/). Serveral functionalites are provided (detailed more below in supported modes).
 
 ## To install:
 
@@ -14,63 +15,25 @@ Add the main bco-tool program to your path
 
 4. `cd bcotool`
 
-5. `cp bcotool/app_runner.py /usr/local/bin/bco`
+5. `pip install -r requirements.txt`
 
-6. `export PYTHONPATH=$(pwd)`
+6. `cp bco-tool/bco_runner.py  /usr/local/bin/bco`
 
 
-## Commands that are supported:
+## Supported modes
+* **convert** - takes a  BCO and converts it to the current BCO standard:  [ieee-2791-schema](https://opensource.ieee.org/2791-object/ieee-2791-schema). Can optionally provide a mapping file to specify mapping fields (template generated through **map** function), otherwise default mappingis performed.
+* **validate** - takes a BCO and validates it against a schema. Can provide a schema, otherwise ieee-2791-schema is used.
+* **map** - takes a BCO and generates a template mapping file to use for convert method.
+* **license** - takes a BCO and gives a license.
+* **functions** - Lists all functions in app.
+* **run_cwl** - taks a BCO describing a [CWL Workflow](https://www.commonwl.org/) and runs it
 
-```
-usage: bco [options]
+* **--help/-h** - gives detailed help message
+* **--version/-v** - gives information about version
 
-positional arguments:
-  {functions,license,validate,run_cwl}
-    functions           list all available functions
-    license             Prints BCO License
-    validate            Validation options. Used to test a BCO against a JSON                       schema. If no schema is supplied the ieee-2791-schema                       is used as the default
-    run_cwl             run a CWL
+### Optional arguments
+* **--schema/-s** - provides schema for the **validate**, **convert**, or **map** functions, to check BCO against. Default schema is ieee-2971-schema.
+* **--bco/b** - URL or path to JSON file of BCO to manipulate.
+* **--mappingFile/-m** - path to mapping file to use for **convert** function.
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -v, --version         show program's version number and exit
 
-```
-
-### BCO functions
-```
-usage: bco_runner.py [-h]
-
-optional arguments:
-  -h, --help  show this help message and exit
-```
-
-### BCO License
-```
-usage: bco [options] license [-h] -b BCO
-
-optional arguments:
-  -h, --help         show this help message and exit
-  -b BCO, --bco BCO  BioCompute json to process
-```
-
-### BCO validate
-```
-usage: bco [options] validate [-h] -b BCO [-s SCHEMA]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -b BCO, --bco BCO     json to validate
-  -s SCHEMA, --schema SCHEMA
-                        root json schema to validate against
-``` 
-
-### BCO run_cwl
-```
-usage: bco [options] run_cwl [-h] -b BCO
-
-optional arguments:
-  -h, --help         show this help message and exit
-  -b BCO, --bco BCO  json to extract CWL from
-
-```
