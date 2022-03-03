@@ -57,7 +57,7 @@ default_mapping = {
 }
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def usr_args():
     """
     functional arguments for process
@@ -131,11 +131,11 @@ def usr_args():
                                                  "Updates last modified and etag on BCO. Updates modified time to current time.")
     parser_validate.set_defaults(func=update_bco)
 
-    parser_validate = subparsers.add_parser('map',
+    parser_map = subparsers.add_parser('map',
                                             parents=[parent_parser],
                                             help="Mapping options "
                                                  "Used to generate a mapping file for a bco/bcos.")
-    parser_validate.set_defaults(func=map_bcos)
+    parser_map.set_defaults(func=map_bcos)
 
     # Create a run_cwl subcommand
     parser_run_cwl = subparsers.add_parser('run_cwl',
@@ -155,7 +155,7 @@ def usr_args():
         options.func(options)
 
 
-# ______________________________________________________________________________#
+#_____________________________________________________________________________#
 def load_bco(options):
     """
     Import of a BioCompute Object. Values can be a local file path or a URI.
@@ -190,7 +190,7 @@ def load_bco(options):
 
     return bco_dict
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def update_bco(options):
     new_bco = load_bco(options)
     try:
@@ -208,7 +208,7 @@ def update_bco(options):
     json.dump(new_bco, file, indent=4)
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def url_valid(url):
     """
     Validate a URL
@@ -221,7 +221,7 @@ def url_valid(url):
         return False
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def listapps(parser):
     """
     List all functions and options available in app
@@ -244,7 +244,7 @@ def listapps(parser):
     # print(parser.format_help())
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def bco_license(options):
     """
     Prints BCO bco_license
@@ -268,7 +268,7 @@ def bco_license(options):
     return bco_license_content
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def run_cwl(options):
     """
     run a CWL
@@ -317,7 +317,7 @@ def run_cwl(options):
     os.popen('cwltool' + workflow_definition + input_yaml).read()
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def validate_bco(options):
     """
     # Check for schema compliance.
@@ -407,7 +407,7 @@ def validate_bco(options):
               + '\n See "error.log" for more detail')
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def validate_extension(extension):
     """
     Validation of the extension domain if one is included.
@@ -449,7 +449,7 @@ def validate_extension(extension):
     return error_string, error_flag
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def bco_validator(schema, bco_dict):
     """
     Generalized JSON validation script
@@ -493,7 +493,7 @@ def bco_validator(schema, bco_dict):
     return error_string, error_flag
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def convert_schema(bco, filename, mapping_dict):
     """
     Converts a BCO dict according to a mapping_dict, and writes the result at filename
@@ -537,7 +537,7 @@ def convert_schema(bco, filename, mapping_dict):
     json.dump(new_bco, file, indent=4)
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def create_master_mapping_file(options, bcos_to_map):
     """
     Takes a list of bco's and creates a master mapping file
@@ -633,7 +633,7 @@ def create_master_mapping_file(options, bcos_to_map):
             masterfile.write("-----------------------\n")
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def parse_master_mapping_file(master_mapping_file, bcos):
     """
     Parses a mastering mapping file into individual mapping files for each
@@ -698,7 +698,7 @@ def parse_master_mapping_file(master_mapping_file, bcos):
     return list_files
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def parse_mapping_file(mapping_file, default, check_file):
     """
     Parses a mapping file into a dict.
@@ -772,7 +772,7 @@ def parse_mapping_file(mapping_file, default, check_file):
     return mapping_dict
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def map_bcos(options):
     """
     Function called when convert feature is called
@@ -886,7 +886,7 @@ def map_bcos(options):
                   "<mastermappingfile.txt>")
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def create_mapping_file(options):
     """
 
@@ -987,7 +987,7 @@ def create_mapping_file(options):
         return mapping_file.name
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def rename_dict_key_HELPER(data_dict, key_list, new_key_name):
     """
     Takes a dict, a key path, and renames the last key in the list
@@ -1007,7 +1007,7 @@ def rename_dict_key_HELPER(data_dict, key_list, new_key_name):
         set_key_in_dict_HELPER(data_dict, key_list, data)
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def delete_key_HELPER(data_dict, key_list, key_to_delete):
     """
     Deletes a key from a dictionary
@@ -1024,7 +1024,7 @@ def delete_key_HELPER(data_dict, key_list, key_to_delete):
     return data_dict
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def get_key_from_dict_HELPER(data_dict, key_list):
     """
     Returns a value from a dictionary given a nested key list
@@ -1043,7 +1043,7 @@ def get_key_from_dict_HELPER(data_dict, key_list):
     return data_dict
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def set_key_in_dict_HELPER(data_dict, key_list, value_to_add):
     """
     Sets a new key in a dictionary
@@ -1058,7 +1058,7 @@ def set_key_in_dict_HELPER(data_dict, key_list, value_to_add):
     data_dict[key_list[-1]] = value_to_add
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def add_or_update_list_HELPER(data_dict, key, value):
     """
     Takes a dictionary, key, and value. Creates a list containing the value with key
@@ -1070,7 +1070,7 @@ def add_or_update_list_HELPER(data_dict, key, value):
         data_dict[key] = [value]
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def reorder_dict_HELPER(dict, key_list):
     """
 
@@ -1094,7 +1094,7 @@ def reorder_dict_HELPER(dict, key_list):
     dict = temp_dict
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 def main():
     """
     Main function
@@ -1103,6 +1103,6 @@ def main():
     usr_args()
 
 
-# ______________________________________________________________________________#
+#______________________________________________________________________________#
 if __name__ == "__main__":
     main()
