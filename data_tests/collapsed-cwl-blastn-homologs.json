@@ -152,17 +152,17 @@
         "script": [
             {
                 "uri": {
-                    "uri": "https://raw.githubusercontent.com/HadleyKing/bco-tool/main/tests/blast/blastn.cwl"
+                    "uri": "https://raw.githubusercontent.com/biocompute-objects/bcotool/main/data_tests/blast/blastn.cwl"
                 }
             },
             {
                 "uri": {
-                    "uri": "https://raw.githubusercontent.com/HadleyKing/bco-tool/main/tests/blast/makeblastdb.cwl"
+                    "uri": "https://raw.githubusercontent.com/biocompute-objects/bcotool/main/data_tests/blast/makeblastdb.cwl"
                 }
             },
             {
                 "uri": {
-                    "uri": "https://raw.githubusercontent.com/HadleyKing/bco-tool/main/tests/blast/blastn-homologs.yml"
+                    "uri": "https://raw.githubusercontent.com/biocompute-objects/bcotool/main/data_tests/blast/blastn-homologs.yml"
                 }
             },
             {
