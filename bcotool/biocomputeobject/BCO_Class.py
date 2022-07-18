@@ -5,7 +5,6 @@ from pprint import pprint
 # import subprocess
 import json
 import requests
-
 # ************************************** BIOCOMPUTE + DOMAIN + HELPER CLASS DEFINITIONS  ***************************************
 
 class BioComputeObject:
@@ -198,7 +197,7 @@ class Meta:
 
     @property
     def e_tag(self):
-        return self.e_tag
+        return self.etag
 
     @e_tag.setter
     def e_tag(self, tag):
@@ -4387,6 +4386,7 @@ def compare(BCO1, BCO2):
     
 
 # more simple comparison made by user specified domain
+
 def compareByDomain(BCO1, BCO2):
     if not (isinstance(BCO1, BioComputeObject) and isinstance(BCO2, BioComputeObject)):
         print("Error please make sure inputs are of type BioComputeObject or json")
@@ -4426,7 +4426,6 @@ def compareByDomain(BCO1, BCO2):
         case other:
             print("Please check your spelling you entered the wrong domain. If you would like to exit type 'EXIT'")
             compareByDomain(BCO1, BCO2)
-
 def compareMeta(BCO1, BCO2):
     userIn = str.lower(input(print("What parts of the meta data would you like to view? Type 'Help' for keywords: ")))
     match userIn:
@@ -4498,15 +4497,76 @@ def compareProvenance(BCO1, BCO2):
         case other:
             print("Please check your spelling. To exit type 'EXIT'")
             compareProvenance(BCO1, BCO2)
+def compareExecution(BCO1, BCO2):
+    userIn = str.lower(input(print("What parts of the Execution data would you like to view? Type 'Help' for keywords: ")))
+    match userIn:
+        case 'all':
+            print("BCO 1: ", BCO1.execution)
+            print("BCO 2: ", BCO2.execution)
+        case 'script':
+            print("BCO 1: ", BCO1.execution_Domain.exScript)
+            print("BCO 2: ", BCO2.execution_Domain.exScript)
+        case 'scriptdriver': 
+            print("BCO 1: ", BCO1.execution_Domain.scriptDr)
+            print("BCO 2: ", BCO2.execution_Domain.scriptDr)
+        case 'prerequisites':
+            print("BCO 1: ", BCO1.execution_Domain.swPrereqs)
+            print("BCO 2: ", BCO2.execution_Domain.swPrereqs)
+        case 'enviornmentalvariable':
+            print("BCO 1: ", BCO1.execution_Domain.envVars)
+            print("BCO 2: ", BCO2.execution_Domain.envVars)
+        case 'externaldata':
+            print("BCO 1: ", BCO1.execution_Domain.extDataEP)
+            print("BCO 2: ", BCO2.execution_Domain.extDataEP)
+        case 'help':
+             print("You can view script, scriptdriver, prerequisites, externaldata, and environmentalvariables. For example, to view Environmental Variables type 'enviornmentalvariables' in the command line. To view ALL data type 'all' ")
+             compareExecution(BCO1, BCO2)
+        case 'exit':
+            print("Exiting method. Returning a value of 0")
+            return 0
+        case other:
+            print("Please check your spelling. To exit type 'EXIT'")
+            compareExecution(BCO1, BCO2)
+    
+def compareDescription(BCO1, BCO2):
+    userIn = str.lower(input(print("What parts of the Description data would you like to view? Type 'Help' for keywords: ")))
+    match userIn:
+        case 'all':
+            print("BCO 1: ", BCO1.description)
+            print("BCO 2: ", BCO2.description)
+        case 'help':
+             print("You can view keywords, pipeline, and xref. For example, to view pipeline type 'pipeline' in the command line. To view ALL data type 'all' ")
+             compareDescription(BCO1, BCO2)
+        case 'exit':
+            print("Exiting method. Returning a value of 0")
+            return 0
+        case 'keywords':
+            print("BCO 1: ", BCO1.description_Domain.descKeyword)
+            print("BCO 2: ", BCO2.description_Domain.descKeyword)
+        case 'pipeline':
+             print("BCO 1: ", BCO1.description_Domain.pipeLine)
+             print("BCO 2: ", BCO2.description_Domain.pipeLine)
+        case 'xref':
+            print("BCO 1: ", BCO1.description_Domain.descXref)
+            print("BCO 2: ", BCO2.description_Domain.descXref)
+        case other:
+            print("Please check your spelling. To exit type 'EXIT'")
+            compareDescription(BCO1, BCO2)
 
-def compareExecution():
-    return None
-
-def compareDescription():
-    return None
-
-def compareInputs():
-    return None
+def compareInputs(BCO1, BCO2):
+    userIn = str.lower(input(print("What parts of the Inputs data would you like to view? Type 'Help' for keywords: ")))
+    match userIn:
+        case 'all':
+            print("BCO 1: ", BCO1.io_Domain.input_Subdomain)
+            print("BCO 2: ", BCO2.io_Domain.input_Subdomain)
+        case 'help':
+             print("You can view all of the input subdomain data. To do so type 'all'. To exit type exit. ")
+             compareDescription(BCO1, BCO2)
+        case 'exit':
+            print("Exiting method. Returning a value of 0")
+            return 0
+        
+        
 
 def compareOutputs():
     return None
@@ -4516,6 +4576,10 @@ def compareError():
 
 def compareParameters():
     return None
+#EndChange
+# returns true if two BCOs are compatible for concatenation
+def ConcatCheck():
+    return False
 
 compareByDomain(BCO_000139, newBCO3)
 
