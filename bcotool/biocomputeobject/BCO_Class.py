@@ -1,3 +1,4 @@
+
 # Author(s): Rohan Panigrahi and Sean Keeney
 
 from ast import Str
@@ -7,9 +8,11 @@ from pprint import pprint
 import subprocess
 import json
 
+
 # ************************************** BIOCOMPUTE + DOMAIN + HELPER CLASS DEFINITIONS  ***************************************
 
 class BioComputeObject:
+
     """_summary_
     A class used to store the details of a BioComputeObject. The composition of this class is one with many other classes inside it. 
     To find specifics about a certain class please refer to that classes documentation. 
@@ -111,6 +114,7 @@ class BioComputeObject:
     
 
     """
+
     def __init__(self, metaData, usability_Domain, provenance_Domain, execution_Domain, extension_Domain, description_Domain, error_Domain, io_Domain, parametric_Domain):
         self.metaData = metaData                       
         self.usability_Domain = usability_Domain    
@@ -154,6 +158,7 @@ class BioComputeObject:
         print("VALID BIOCOMPUTE CLASS OBJECT")
         return True
 
+
     @property
     def meta(self):
         return self.metaData
@@ -189,11 +194,13 @@ class BioComputeObject:
         return self.execution_Domain
  
     @execution.setter
+
     def execution(self, exec):
         if exec is None:
             print("This is a required field")
             raise ValueError
         self.execution_Domain = exec
+
 
     @property
     def extension(self):
@@ -232,6 +239,8 @@ class BioComputeObject:
             print("This is a required field")
             raise ValueError
         self.io_Domain = IO
+    
+
     
     @property
     def parametric(self):
@@ -296,6 +305,7 @@ class Meta:
         self.etag = etag
         self.spec_Version = spec_Version
     
+
     def __repr__(self):
         return '{} {} {}'.format(self.bco_Id, self.etag, self.spec_Version)
     # TESTED
@@ -324,7 +334,9 @@ class Meta:
 
     @property
     def e_tag(self):
+
         return self.etag
+
 
     @e_tag.setter
     def e_tag(self, tag):
@@ -346,6 +358,8 @@ class Meta:
     
 
 class ProvenanceDomain:
+
+
     """_summary_
     The Provenance Domain defines the past of the BCO. That is the history, versions and status of the current BCO. 
     The domain must have a name, version, license, date created, date modified and the list of contributors. 
@@ -475,6 +489,7 @@ class ProvenanceDomain:
         Setter. Input can be set to None. 
     
     """
+
     def __init__(self, name, license, version, created, modified, contributors, review, embargo, obsolete_After, derived_From):
         self.name = name
         self.license = license
@@ -617,8 +632,107 @@ class ProvenanceDomain:
     def provDerived(self, drv):
         self.derived_From = drv
 
+    @property
+    def provName(self):
+        return self.name
+
+    @provName.setter
+    def provName(self, nm):
+        if nm is None:
+            print("This is a required field")
+            raise ValueError
+        self.name = nm
+
+    @property
+    def provLicense(self):
+        return self.license
+
+    @provLicense.setter
+    def provLicense(self, lnse):
+        if lnse is None:
+            print("This is a required field")
+            raise ValueError
+        self.license = lnse
+
+    @property
+    def provVersion(self):
+        return self.version
+
+    @provVersion.setter
+    def provVersion(self, versn):
+        if versn is None:
+            print("This is a required field")
+            raise ValueError
+        self.version = versn
+
+    @property
+    def provCreated(self):
+        return self.created
+
+    @provCreated.setter
+    def provCreated(self, create):
+        if create is None:
+            print("This is a required field")
+            raise ValueError
+        self.created = create
+
+    @property
+    def provModified(self):
+        return self.modified
+
+    @provModified.setter
+    def provModified(self, mod):
+        if mod is None:
+            print("This is a required field")
+            raise ValueError
+        self.modified = mod
+
+    @property
+    def provContributors(self):
+        return self.contributors
+
+    @provContributors.setter
+    def provContributors(self, cont):
+        if cont is None:
+            print("This is a required field")
+            raise ValueError
+        self.contributors = cont
+
+    @property
+    def provReview(self):
+        return self.review
+
+    @provReview.setter
+    def provReview(self, rev):
+        self.review = rev
+
+    @property
+    def provEmbargo(self):
+        return self.embargo
+
+    @provEmbargo.setter
+    def provEmbargo(self, emb):
+        self.embargo = emb
+
+    @property
+    def provObsolete(self):
+        return self.obsolete_After
+
+    @provObsolete.setter
+    def provObsolete(self, obs):
+        self.obsolete_After = obs
+
+    @property
+    def provDerived(self):
+        return self.derived_From
+
+    @provDerived.setter
+    def provDerived(self, drv):
+        self.derived_From = drv
+
 
 class Contributor:
+
     """_summary_
     Sub Class used to create a contributor for the Provenance Domain. 
     The Contributor should have a 
@@ -694,6 +808,7 @@ class Contributor:
     contOrcid(orc)
         Setter. Input can be None
     """
+
     def __init__(self, contribution, name, affiliation, email, orcid):
         self.contribution = contribution
         self.name = name
@@ -760,13 +875,18 @@ class Contributor:
     @property
     def contOrcid(self):
         return self.orcid
+
+
     #ToDo Validate if the orcid is valid
+
     @contOrcid.setter
     def contOrcid(self, orc):
         self.orcid = orc
 
 
 class Review:
+
+
     """_summary_
     Sub class used to create a reviewer for the Provenance Domain. 
     A reviewer should have a 
@@ -856,6 +976,7 @@ class Review:
         Setter. Input can be none.
     
     """
+
     def __init__(self, date, status, revName, reviewer_Comment, contribution, affiliation, email, orcid):
         self.date = date
         self.status = status
@@ -927,6 +1048,8 @@ class Review:
     @revComm.setter
     def revComm(self, rc):
         self.reviewer_Comment = rc
+        
+
     #Add rest of getters and setters
 
 class Embargo:
@@ -979,6 +1102,7 @@ class Embargo:
     def __repr__(self):
         return '{} {}'.format(self.start_Time, self.end_Time)
 
+
     # NOT TESTED
     def validate(self, start_Time, end_Time):
         argTypes = {
@@ -1015,6 +1139,8 @@ class Embargo:
 
 
 class ExecutionDomain:
+
+
     """_summary_
     The Execution Domain houses all the scripts, software and data necessary to replicate your expirement.
     The Domain must have a script, script_Driver, software_Prerequisites and external_Data_Endpoints.
@@ -1106,6 +1232,7 @@ class ExecutionDomain:
     envVars(enVrs)
         Setter. Input can be None.
     """
+
     def __init__(self, script, script_Driver, software_Prerequisites, external_Data_Endpoints, environment_Variables):
         self.script = script
         self.script_Driver = script_Driver
@@ -1190,6 +1317,8 @@ class ExecutionDomain:
 
 
 class EnvironmentVariable:
+
+
     """_summary_
     A sub class of the Execution Domain. Used to hold key value pairs of recreating the environment used 
     to create the expirement. 
@@ -1237,6 +1366,7 @@ class EnvironmentVariable:
         Setter. Input cannot be None.
         ValueError thrown if Input is None. 
     """
+
     def __init__(self, name, variable):
         self.name = name
         self.variable = variable
@@ -1280,6 +1410,8 @@ class EnvironmentVariable:
         self.variable = var
 
 class SoftwarePrerequisites:
+
+
     """_summary_
     A sub class of the Execution Domain. Used to hold the minimal necessary prerequisite, library and tool versions 
     to get a pipleline the same as that in the BCO.
@@ -1363,6 +1495,7 @@ class SoftwarePrerequisites:
     check(shCh)
         Setter. Input can be None.
     """
+
     def __init__(self, name, version, uri, filename, access_Time, sha1_Checksum):
         self.name = name
         self.version = version
@@ -1453,6 +1586,8 @@ class SoftwarePrerequisites:
         self.sha1_Checksum = shCh
 
 class ExternalDataEndpoints:
+
+
     """_summary_
     Sub Class for the Execution Domain. 
     Used to hold minimal necessary domain specific external data sources accessed 
@@ -1508,6 +1643,7 @@ class ExternalDataEndpoints:
     def __repr__(self):
         return '{} {}'.format(self.name, self.url)
 
+
     # TESTED
     def validate(self, name, url):
         argTypes = {
@@ -1532,6 +1668,8 @@ class ExternalDataEndpoints:
         self.name = nm
 
     @property
+
+
     def extUrl(self):
         return self.url
 
@@ -1589,6 +1727,7 @@ class ExtensionDomain:
         self.extension_scm = extension_scm
     def __repr__(self):
         return '{} {} '.format(self.extension_schema, self.extension_scm) 
+
     
     def validate(self, extension_schema, extension_scm):
         if extension_schema is None:
@@ -1596,6 +1735,7 @@ class ExtensionDomain:
         if extension_scm is None:
             return None
         
+
         if not extension_schema is None:
             if not isinstance(extension_schema, list):
                 return False
@@ -1603,6 +1743,7 @@ class ExtensionDomain:
                 return False
             return True
         
+
     
     @property
     def extensionSchema(self):
@@ -1619,6 +1760,7 @@ class ExtensionDomain:
     @extension_scm.setter
     def extension_scm(self, scm):
         self.extension_scm = scm
+
 
 
 class DescriptionDomain:                                                                                        
@@ -1692,6 +1834,7 @@ class DescriptionDomain:
     descXref(xr)
         Setter. Input cann be None.
     """
+
     def __init__(self, keywords, pipeline_Step, platform, xref):
         self.keywords = keywords
         self.pipeline_Step = pipeline_Step
@@ -1731,9 +1874,12 @@ class DescriptionDomain:
 
     @descKeyword.setter
     def descKeyword(self, kw):
+
+
         if kw is None:
             print("This is a required field")
             raise ValueError
+
         self.keywords = kw
 
     @property
@@ -1754,6 +1900,8 @@ class DescriptionDomain:
 
 
 class PipelineSteps:
+
+
     """_summary_
     Sub Class for Description Domain. Used to house all the pipeline steps. 
     Each tool and well defined script is represented as a step, at the discretion of the author. 
@@ -1837,6 +1985,7 @@ class PipelineSteps:
     psVersion(vrs)
         Setter. Input can be None. 
     """
+
     def __init__(self, step_Number, name, description, input_List, output_List, version, prerequisites_List):
         self.step_Number = step_Number
         self.name = name
@@ -1937,6 +2086,8 @@ class PipelineSteps:
 
     @psVersion.setter
     def psVersion(self, vrs):
+
+
         self.version = vrs
 
 
@@ -2010,6 +2161,7 @@ class Input:
         self.access_Time = access_Time
         self.sha1_Checksum = sha1_Checksum
 
+
     def __repr__(self):
         return '{} {} {} {}'.format(self.uri, self.filename, self.access_Time, self.sha1_Checksum)
 
@@ -2034,6 +2186,8 @@ class Input:
     def inUri(self):
         return self.uri
 
+
+
     @inUri.setter
     def inUri(self, URI):
         if URI is None:
@@ -2041,9 +2195,11 @@ class Input:
             raise ValueError
         self.uri = URI
 
+
     @property
     def inFilename(self):
         return self.filename
+
 
     @inFilename.setter
     def inFilename(self, fn):
@@ -2136,6 +2292,7 @@ class Output:
         self.access_Time = access_Time
         self.sha1_Checksum = sha1_Checksum
 
+
     def __repr__(self):
         return '{} {} {} {}'.format(self.uri, self.filename, self.access_Time, self.sha1_Checksum)
 
@@ -2193,6 +2350,7 @@ class Output:
 
 
 class Prerequisite:
+
     """_summary_
     Sub class of the Pipeline Steps Class. Holds the prerequisites needed to run a step in the pipeline.
     For example, if you were running an analysis on a file you would have that file in the prerequisite field.
@@ -2269,6 +2427,7 @@ class Prerequisite:
     shCheck(sc)
         Setter. Input can be None
     """
+
     def __init__(self, name, uri, filename, access_Time, sha1_Checksum):
         self.name = name
         self.uri = uri
@@ -2327,6 +2486,7 @@ class Prerequisite:
     @property
     def accessTime(self):
         return self.access_Time
+
 
     @accessTime.setter
     def accessTime(self, at):
@@ -2419,6 +2579,7 @@ class Xref:
     def __repr__(self):
         return '{} {} {} {}'.format(self.namespace, self.name, self.ids, self.access_Time)
 
+
     # NOT TESTED
     def validate(self, namespace, name, ids, access_Time):
         argTypes = {
@@ -2471,6 +2632,7 @@ class Xref:
 
 
 class ErrorDomain:
+
     """_summary_
     The error domain can be used to determine what range of input returns outputs 
     that are within the tolerance level defined in this subdomain and therefore can be used to optimize algorithm.
@@ -2521,6 +2683,7 @@ class ErrorDomain:
     def __repr__(self):
         return '{} {}'.format(self.empirical_Error, self.algorithmic_Error)
 
+
     # TESTED
     def validate(self, empirical_Error, algorithmic_Error):
         argTypes = [empirical_Error, algorithmic_Error]
@@ -2535,6 +2698,8 @@ class ErrorDomain:
     def empErr(self):
         return self.empirical_Error
 
+
+
     @empErr.setter
     def empErr(self, er):
         self.empirical_Error = er
@@ -2543,10 +2708,12 @@ class ErrorDomain:
     def algErr(self):
         return self.algorithmic_Error
 
+
     @algErr.setter
     def algErr(self, ae):
         self.algorithmic_Error = ae
         
+
 
 # 
 class EmpiricalError:
@@ -2603,9 +2770,11 @@ class EmpiricalError:
             return False
         return True
 
+
     @property
     def err(self):
         return self.empError
+
 
     @err.setter
     def err(self, er):
@@ -2663,10 +2832,13 @@ class AlgorithmicError:
     # NOT TESTED
     def validate(self, algError):
         if algError is None or not isinstance(algError, str):
+
             return False
         return True
 
     @property
+
+
     def err(self):
         return self.algError
 
@@ -2746,17 +2918,21 @@ class InputSubdomain:
         return '{} {} {} {}'.format(self.uri, self.filename, self.access_Time, self.checksum)
 
     def validate(self, uri, filename, access_Time, checksum):
+
         if uri is None or not isinstance(uri, URI):
             return False
         elif not filename is None and not isinstance(filename, str):
             return False
+
         elif not access_Time is None and not isinstance(access_Time, DateTime):
             return False
         elif not checksum is None and not isinstance(checksum, str):
+
             return False
         return True
 
     @property
+
     def isUri(self):
         return self.uri
 
@@ -2875,6 +3051,7 @@ class OutputSubdomain:
         return True
 
     @property
+
     def osUri(self):
         return self.uri
 
@@ -2964,6 +3141,7 @@ class IODomain:
         self.input_Subdomain = input_Subdomain
         self.output_Subdomain = output_Subdomain
 
+
     def __repr__(self):
         return '{} {}'.format(self.input_Subdomain, self.output_Subdomain)
 
@@ -3017,6 +3195,7 @@ class Utilities:
 
 # DateTime Object matches ISO 8601 format
 class DateTime:
+
     """_summary_
     Helper class used to store time. Used in almost all classes. 
     Time format : ISO 8601
@@ -3118,6 +3297,7 @@ class DateTime:
         ValueError raised if input is None. 
     
     """
+
     def __init__(self, year, month, day, hour, minute, second, secondFrac, timeZoneOffSet):
         self.year = year
         self.month = month
@@ -3142,7 +3322,7 @@ class DateTime:
             minute : int,
             second : int,
             secondFrac : float,
-            timeZoneOffSet : int
+            timeZoneOffSet : str
         }
 
         for x in argTypes:
@@ -3241,6 +3421,7 @@ class DateTime:
 
 
 class ObjectID:
+
     """_summary_
     MetaDomain Class helper. Used to hold the BCO ID string. 
     
@@ -3273,6 +3454,7 @@ class ObjectID:
         ValueError raised if input is None.
     
     """
+
     def __init__(self, BCO_Id_Str):
         self.BCO_Id_Str = BCO_Id_Str
 
@@ -3283,6 +3465,8 @@ class ObjectID:
     def validate(self, BCO_Id_Str):
         if BCO_Id_Str is None or not isinstance(BCO_Id_Str, str):
             return False
+
+
 
     @property
     def idStr(self):
@@ -3357,6 +3541,7 @@ class SemanticVersion:
         self.minor = minor
         self.patch = patch
 
+
     def __repr__(self):
         return '{} {} {}'.format(self.major, self.minor, self.patch)
 
@@ -3408,6 +3593,7 @@ class SemanticVersion:
 
 
 class URI:
+
     """_summary_
     Helper class used to house URIs. 
     A URI is is a short string containing a name or address which refers to an object in the "web."
@@ -3443,6 +3629,7 @@ class URI:
         ValueError thrown if input is None.
     
     """
+
     def __init__(self, uri_Str):
         self.uri_Str = uri_Str
 
@@ -3467,6 +3654,7 @@ class URI:
 
 
 class Script:
+
     """_summary_
     Helper class for the makeScript() method. 
     To learn more about the makeScript() method refer to its documentation.
@@ -3521,6 +3709,7 @@ class Script:
     shCheck(sc)
         Setter. Input can be None
     """
+
     def __init__(self, fileName, uri, accessTime, sha1_Checksum):
         self.fileName = fileName
         self.uri = uri
@@ -3569,6 +3758,7 @@ class Script:
     @AccessTime.setter
     def AccessTime(self, at):
         self.accessTime = at
+
 
     @property
     def shCheck(self):
@@ -3621,6 +3811,7 @@ class Parametric:
     val(valIn)
         Setter input can be None.  
     """
+
     def __init__(self, step, parameter, value):
         self.step = step
         self. parameter = parameter
@@ -3635,6 +3826,7 @@ class Parametric:
             if not isinstance(x, str) or x is None:
                 return False
         return True
+
     @property
     def stp(self):
         return self.step
@@ -3658,6 +3850,7 @@ class Parametric:
     @val.setter
     def val(self, valIn):
         self.value = valIn
+
      
 
 
@@ -3813,6 +4006,7 @@ softwrePrereq4_URI = URI("https://cutadapt.readthedocs.io/en/stable/")
 softwrePrereq5_URI = URI("https://pip.pypa.io/en/stable/")
 
 
+
 # Version validate already tested above. See lines 618, 619, 627, 628
 bow_Version = SemanticVersion(2, 2, 9)
 bed_Version = SemanticVersion(2, 17, 0)
@@ -3845,6 +4039,7 @@ scm = [scmRepo1, scmRepo2, scmCommit, scmPath, scmPreview]
 #extTest = ExtensionDomain(schema, scm)
 #print("Schema: ",schema)
 #print("scm",scm)
+
 # k = 1
 # for pre in softwrePrereqs:
 #     print("Software Prereq", k, pre.validate(pre.name, pre.version, pre.uri, pre.filename, pre.access_Time, pre.sha1_Checksum))
@@ -3932,8 +4127,10 @@ params_139 = None
 
 # BIOCOMPUTE CLASS OBJECT
 BCO_000139 = BioComputeObject(meta_139, use_139, prov_139, excn_139, None, descrpt_139, error_139, io_139, params_139)
+
 BCO_000139.validate(meta_139, use_139, prov_139, excn_139, None, descrpt_139, error_139, io_139, params_139)
 print("passed")
+
 # PRINT BIOCOMPUTE CLASS OBJECT
 # pprint(vars(BCO_000139))
 # pprint(vars(BCO_000139.description_Domain))
@@ -4126,6 +4323,8 @@ print("passed")
 
 
 # ***************************************** MAKE BCO CLASS OBJECT FUNCTION + HELPER FUNCTIONS *********************************************
+
+
 """_summary_
     Make BCO Class Object functions
     --------------------------------
@@ -4148,6 +4347,7 @@ def makeMeta():
     Returns:
         Meta : Meta Domain object
     """
+
     print("META DATA:")
     newEtag = makeEtag()
     newBCOid = makeBCOid()
@@ -4168,39 +4368,46 @@ def makeMeta():
 
 
 def makeBCOid():
+
     """_summary_
     Helper Method for makeMeta domain. 
     Used to create a BCOid. 
     Returns:
         ObjectID: BCOid
     """
+
     id = input("Enter the BCO id: ")
     BCOid = ObjectID(id)
     return BCOid
 
 def makeSpecVersion():
+
     """_summary_
     Helper method for makeMeta domain.
     Used to create a SpecVersion.
     Returns:
         URI: Spec
     """
+
     temp = input("Enter spec version uri: ")
     newSpec = URI(temp)
     return newSpec
 
 def makeEtag():
+
     """_summary_
     Helper Method for makeMeta domain.
     Used to create a Etag.
     Returns:
         Str: etag
     """
+
     tag = input("Enter the etag generated by the BioCompute Object builder: ")
     return tag
 
 
 def makeExt():
+
     """_summary_
     The make function for the Extension Domain. This is not a required domain
     When you call it you will be prompted to enter a Schema, and UserList. 
@@ -4212,6 +4419,7 @@ def makeExt():
     Returns:
         ExtensionDomain : Extension Domain object
     """
+
     print("EXTENSION DOMAIN")
     numSchema = int(input("Enter the number of Schemas (Can be 0): "))
     numUserList = int(input("Enter the number of User Defined Attributes used (Can be 0): "))
@@ -4234,29 +4442,34 @@ def makeExt():
     return newExt
 
 def makeExtensionSchema():
+
     """_summary_
     Helper Method for the makeExtension Domain.
     Used to create a Schema. 
     Returns:
         ExtensionDomain: Schema
     """
+
     schemaLink = input("Enter schemaLink: ")
     schemaReturn = ExtensionDomain(schemaLink, None)
     return schemaReturn
     
 def makeScmExt():
+
     """_summary_
     Helper Method for the makeExtension Domain.
     Used to create a SchemaExtrension. 
     Returns:
         ExtensionDomain: ExtensionSchema
     """
+
     userIn = input("Enter the additional fields: ")
     return userIn
 
 
 #Provenance Domain
 def makeProv():
+
     """_summary_
     The make function for the Provenance Domain. This is a required domain. 
     When you call it you will be prompted to enter the number of reviewers and contributors. 
@@ -4272,6 +4485,7 @@ def makeProv():
     Returns:
         Provenance : Provenance Domain object
     """
+
     print("PROVENANCE DOMAIN")
     #loop through number of contributors needed and call makeContributor inside loop, put them in list
     #same with reviewer
@@ -4310,12 +4524,14 @@ def makeProv():
         makeProv()
 
 def makeCreated():
+
     """_summary_
     Helper Method for the makeProv Domain.
     Used to create the creation date for the Provenance. 
     Returns:
         DateTime: Time of Domain Creation
     """
+
     year = int(input("(int) Enter the year the BioCompute Object was created: "))
     month = int(input("(int) Enter the month the BioCompute Object was created: "))
     day = int(input("(int) Enter the day the BioCompute Object was created: "))
@@ -4335,12 +4551,14 @@ def makeCreated():
 
 
 def makeModified():
+
     """_summary_
     Helper Method for the makeProv Domain.
     Used to create the modified date for the Provenance. 
     Returns:
         DateTime: Time of Domain Modification
     """
+
     year = int(input("(int) Enter the year the BioCompute Object was modified: "))
     month = int(input("(int) Enter the month the BioCompute Object was modified: "))
     day = int(input("(int) Enter the day the BioCompute Object was modified: "))
@@ -4361,12 +4579,14 @@ def makeModified():
 
 
 def makeVersion():
+
     """_summary_
     Helper Method for the makeProv Domain.
     Used to create the version date
     Returns:
         SemanticVersion: Version of Prov domain
     """
+
     print("Semantic Versioning used (major. minor. patch)")
     major = int(input("(int) Enter the major: "))
     minor = int(input("(int) Enter the minor: "))
@@ -4382,6 +4602,7 @@ def makeVersion():
 
 
 def makeContributor():
+
     """_summary_
     Helper Method for the makeProv Domain.
     Used to create the information of a contributor for the Provenance Domain.
@@ -4389,6 +4610,7 @@ def makeContributor():
     Returns:
         Contributor: Information of the contributor
     """
+
     print("Contributor Information")
     contName = input("Enter the contributor's name: ")
     cont = input("Enter contribution ('createdBy', 'authoredBy', 'contributedBy', 'createdAt', 'createdWith', 'curatedBy') or 'None':  ")
@@ -4421,6 +4643,7 @@ def makeContributor():
 
 
 def makeReviewer():
+
     """_summary_
     Helper Method for the makeProv Domain.
     Used to create the information of a reviewer for the Provenance Domain.
@@ -4428,6 +4651,7 @@ def makeReviewer():
     Returns:
         Reviewer: Information of the Reviewer
     """
+
     print("Reviewer Information")
     noDate = input("Is there a date with the review? (y/n): ")
     if noDate == 'n':
@@ -4482,6 +4706,7 @@ def makeReviewer():
             return None
 
 def makeEmbargo():
+
     """_summary_
     Helper Method for the makeProv Domain.
     Used to create the time of an Embargo for the Provenance Domain.
@@ -4489,6 +4714,7 @@ def makeEmbargo():
     Returns:
         Embargo: Start and end date of an Embargo
     """
+
     print("Embargo Information")
     isNone = input("Enter 'None' if there is no embargo field: ")
     if isNone == 'None':
@@ -4532,6 +4758,7 @@ def makeEmbargo():
 
 
 def makeObsoleteDate():
+
     """_summary_
     Helper Method for the makeProv Domain.
     Used to create the time of an Obsolete date for the Provenance Domain.
@@ -4539,6 +4766,7 @@ def makeObsoleteDate():
     Returns:
         DateTime: The Date the BCO becomes Obsolete
     """
+
     isNone = input("Enter 'None' if there is no obsolete time field: ")
     if isNone == 'None':
         return None
@@ -4565,12 +4793,14 @@ def makeObsoleteDate():
             return None
 
 def makeDerivedID():
+
     """_summary_
     Helper Method for the makeProv Domain.
     Holds the parent BCO.
     Returns:
         ObjectID: Parent Class of BCO
     """
+
     parentID = input("Enter the parent BCO ID or 'None' if BCO is not derived from another object: ")
     if parentID == 'None':
         return None
@@ -4579,6 +4809,7 @@ def makeDerivedID():
 
 
 def makeExDataEndPts():
+
     """_summary_
     Helper Method for the makeExec Domain.
     Holds External Data Endpoints. 
@@ -4586,6 +4817,7 @@ def makeExDataEndPts():
     Returns:
         ExternalDataEndpoints: List of External Data accessed
     """
+
     print("External Data Endpoints Information")
     fn = input("Enter the name of the external data endpoint: ")
     url = input("Enter the URL of the external data endpoint: ")
@@ -4594,6 +4826,7 @@ def makeExDataEndPts():
     return dataEndPt
 
 def makeEnvironmentVars():
+
     """_summary_
     Helper Method for the makeExec Domain.
     Holds Environment Variables. 
@@ -4602,6 +4835,7 @@ def makeEnvironmentVars():
         EnvironmentVariable: Key value pairs of recreating the environment used 
                              to create the expirement
     """
+
     print("Environment Variables Information")
     isNone = input("Enter 'None' if Environment Variables are not included in BCO, otherwise, enter any key: ")
     if isNone == 'None':
@@ -4620,6 +4854,7 @@ def makeEnvironmentVars():
 
 
 def makeExecution():
+
     """_summary_
     The make function for the Execution Domain. This is a required domain. 
     When you call it you will be prompted to enter the number of External Data Endpoints, Software Prerequisites and Scripts. 
@@ -4633,6 +4868,7 @@ def makeExecution():
     Returns:
         Extension : Extension Domain object
     """
+
     print("EXECUTION DOMAIN")
     numExtPts = int(input("Enter the number of External Data Endpoints your BCO has: "))
     numPrereqs = int(input("Enter the number of Software Prerequisites your BCO has: "))
@@ -4674,6 +4910,7 @@ def makeExecution():
 
     
 def makeScript():
+
     """_summary_
     Helper Method for makeExecution. 
     Used to create the script used to execute the pipeline. 
@@ -4685,6 +4922,7 @@ def makeScript():
     Returns:
         Script: A script with all the necessary information provided by the user. 
     """
+
     print("Script(s) Information")
     isAccess = input("Does your script have an access time? (y/n): ")
     if isAccess == 'n':
@@ -4716,6 +4954,7 @@ def makeScript():
 
 
 def makeDateTime():
+
     """_summary_
     General Helper Method. Used for a variety of methods. 
     Creates a datetime object. The Time format is ISO 8601.
@@ -4723,6 +4962,7 @@ def makeDateTime():
     Returns:
         DateTime: Time in yr/mm/dd/hr/min/sec/secFrac/timezone
     """
+
     year = int(input("(int) Enter the year: "))
     month = int(input("(int) Enter the month: "))
     day = int(input("(int) Enter the day: "))
@@ -4745,6 +4985,7 @@ def makeDateTime():
             return None
 
 def makeURI():
+
     """_summary_
     General Helper Method.
     Calls URI class to make a URI. 
@@ -4752,11 +4993,13 @@ def makeURI():
     Returns:
         URI: Stores the URI 
     """
+
     newUri = input("Enter uri: ")
     newURI = URI(newUri)
     return newURI
 
 def makeSoftwarePrereqs():
+
     """_summary_
     Helper Method for the ExecutionDomain. 
     Houses steps to get a pipeline up and running.
@@ -4766,6 +5009,7 @@ def makeSoftwarePrereqs():
     Returns:
         SoftwarePrerequisites: Steps required to run a pipeline
     """
+
     print("Software Prerequisite Information")
     tempName = input("Enter name of software prerequisite: ")
     tempFileName = input("Enter 'None' if there is no filename, otherwise enter the filename of sofetware prerequisite: ")
@@ -4796,6 +5040,7 @@ def makeSoftwarePrereqs():
 
 
 def makeInputSubdomain():
+
     """_summary_
     Helper Method for the IODomain. 
     Each input file is to be listed as a URI. 
@@ -4803,6 +5048,7 @@ def makeInputSubdomain():
     Returns:
         InputSubdomain: Holds references and input files for the entire pipeline.
     """
+
     print("Input Subdomain Information")
     inAccessTime = input("Is there an access time? Enter (y/n): ")
     if inAccessTime == 'y':
@@ -4830,6 +5076,7 @@ def makeInputSubdomain():
 
 
 def makeOutputSubdomain():
+
     """_summary_
     Helper Method for the IODomain. 
     Used to hold references and output files for the entire pipeline.
@@ -4837,6 +5084,7 @@ def makeOutputSubdomain():
     Returns:
         OutputSubdomain : This field records the outputs for the entire pipeline. 
     """
+
     print("Output Subdomain Information")
     outAccessTime = input("Is there an access time? Enter (y/n): ")
     if outAccessTime == 'y':
@@ -4869,6 +5117,7 @@ def makeOutputSubdomain():
 
 
 def makeIO():
+
     """_summary_
     The io_domain represents the list of global input and output files created by the computational workflow.
     These fields are pointers to objects that can reside in the system performing the computation or any other accessible system. 
@@ -4879,6 +5128,7 @@ def makeIO():
     Returns:
         IODomain: List of global input and output files
     """
+
     print("IO DOMAIN")
     numIns = int(input("Enter the number of inputs: "))
     numOuts = int(input("Enter the number of outputs: "))
@@ -4911,6 +5161,7 @@ def makeIO():
 
 
 def makeDescription():
+
     """_summary_
     The Description Domain contains structured field for description of external references, 
     the pipeline steps, and the relationship of I/O objects.
@@ -4918,6 +5169,7 @@ def makeDescription():
     Returns:
         DescriptionDomain: A domain with keywords, pipeline steps, platforms and Xrefs. 
     """
+
     print("DESCRIPTION DOMAIN")
     numSteps = int(input("Enter the number of pipeline steps you have: "))
     step = 0
@@ -4944,6 +5196,7 @@ def makeDescription():
             return None
 
 def makeXRefs():
+
     """_summary_
     Helper Method for makeDesc()
     The field contains a list of the databases and/or ontology IDs that are cross-referenced in the BCO.
@@ -4955,6 +5208,7 @@ def makeXRefs():
     Returns:
         List: A list of all external references used by the BCO.
     """
+
     print("Xref Information")
     xrefList = []
     numXrefs = int(input("Enter the number of X Refs your BCO has: "))
@@ -4965,6 +5219,7 @@ def makeXRefs():
     return xrefList
 
 def makeKeywords():
+
     """_summary_
     Helper method for makeDesc()
     The list of keywords is stored as a string. 
@@ -4972,6 +5227,7 @@ def makeKeywords():
     Returns:
        List : Keywords that describe the BCO
     """
+
     keywordsList = []
     numWords = int(input("Enter the number of keywords your BCO has: "))
     k = 0
@@ -4984,6 +5240,7 @@ def makeKeywords():
 
 
 def makePipelineSteps():
+
     """_summary_
     Each tool and well defined script is represented as a step, at the discretion of the author. 
     Minor steps can be placed in the Usability Domain. 
@@ -4993,6 +5250,7 @@ def makePipelineSteps():
     Returns:
         PipelineSteps: List of steps to get a pipeline up and running
     """
+
     print("Pipeline Step Information")
     stepNum = int(input("(int) Enter the step number of the pipeline step: "))
     pipeName = input("Enter the name of the pipeline step: ")
@@ -5041,6 +5299,7 @@ def makePipelineSteps():
 
 # pipeline argument
 def makePrereqs():
+
     """_summary_
     Helper Method for pipleline steps. 
     Holds the prerequisites needed to run a step in the pipeline.
@@ -5050,6 +5309,7 @@ def makePrereqs():
     Returns:
         Input: List of prerequisites. 
     """
+
     print("Pipeline Step Prerequisites")
     prereqName = input("Enter 'None' if the name is not included, otherwise enter the name of the prerequisite: ")
     if prereqName == 'None':
@@ -5087,6 +5347,7 @@ def makePrereqs():
 # pipeline argument
 # make the actual list in the makePipeline() function
 def makeInputList():
+
     """_summary_
     Helper Method for makeDesc()
     Houses the inputs taken in to replicate the pipline.
@@ -5094,6 +5355,7 @@ def makeInputList():
     Returns:
         Input: Class object with details provided by user. 
     """
+
     print("Pipeline Step Inputs")
     inFilename = input("Enter 'None' if the filename is not included, otherwise enter the filename of the input file: ")
     if inFilename == 'None':
@@ -5127,6 +5389,7 @@ def makeInputList():
 
 # pipeline argument
 def makeOutputList():
+
     """_summary_
     Helper Method for makeDesc()
     Houses the outputs given by scripts to replicate the pipline.
@@ -5134,6 +5397,7 @@ def makeOutputList():
     Returns:
         Input: Class object with details provided by user. 
     """
+
     print("Pipeline Step Outputs")
     outFilename = input("Enter 'None' if the filename is not included, otherwise enter the filename of the output file: ")
     if outFilename == 'None':
@@ -5166,6 +5430,7 @@ def makeOutputList():
 
 
 def makePlatform():
+
     """_summary_
     Helper Method for makeDesc()
     Lists the platform that can be used to reproduce the BCO. For reference only. 
@@ -5173,6 +5438,7 @@ def makePlatform():
     Returns:
         List: List of platforms your BCO has
     """
+
     print("Platform Information")
     platformsList = []
     numP = int(input("Enter the number of platforms your BCO has: "))
@@ -5185,6 +5451,7 @@ def makePlatform():
     return platformsList
 
 def makeXref():
+
     """_summary_
     Helper Method for makeDesc()
     The field contains a list of the databases and/or ontology IDs that are cross-referenced in the BCO.
@@ -5196,6 +5463,7 @@ def makeXref():
     Returns:
         List: A list of all external references used by the BCO.
     """
+    
     print("Xref Information")
     nameSpace = input("Enter the Namespace of the X Ref: ")
     xName = input("Enter the Name of the X Ref")
@@ -5215,6 +5483,7 @@ def makeXref():
             return None
 
 def makeError():
+
     """_summary_
     The error domain can be used to determine what range of input returns outputs 
     that are within the tolerance level defined in this subdomain and therefore can be used to optimize algorithm.
@@ -5222,6 +5491,7 @@ def makeError():
     Returns:
         ErrorDomain: List of errors that can be encountered by replicating the BCO. 
     """
+
     print("ERROR DOMAIN")
     numEmp = int(input("Enter the number of Empirical errors your BCO has: "))
     numAlg = int(input("Enter the number of Algorithmic errors your BCO has: "))
@@ -5253,6 +5523,7 @@ def makeError():
 
 
 def makeEmpiricalError():
+
     """_summary_
     Helper Method for makeError(). Used to empirically determined values such as limits of detectability, false positives, 
     false negatives, statistical confidence of outcomes, etc.
@@ -5265,10 +5536,12 @@ def makeEmpiricalError():
         EmipricalError: The value of the EmpiricalError
     """
     empirical = str(input("Enter empirical error: "))
+
     empError = EmpiricalError(empirical)
     return empError
 
 def makeAlgorithmicError():
+
     """_summary_
     Helper Method for makeError(). The Domain is descriptive of errors that originate by fuzziness of the algorithms, driven by stochastic processes, 
     in dynamically parallelized multi-threaded executions, or in machine learning methodologies where the state of the machine can affect the outcome. 
@@ -5280,11 +5553,13 @@ def makeAlgorithmicError():
         AlgorithmicError: The value of AlgorithmicError
     """
     algorithmic = str(input("Enter algorithmic error: "))
+
     algError = AlgorithmicError(algorithmic)
     return algError
 
 
 def makeParametric():
+
     """_summary_
     The Parametric Class represents the list of parameters customizing the 
     computational flow which can affect the output of the calculations.
@@ -5294,6 +5569,7 @@ def makeParametric():
     Returns:
         Parametric: List of customizable parameters. 
     """
+
     print("PARAMETRIC DOMAIN")
     numParams = int(input("How many Parameters does your BioCompute Object have? "))
     p = 0
@@ -5314,6 +5590,7 @@ def makeParametric():
 
 
 def makeBCO():
+
     """_summary_
     The method all users should be using. 
     You will make a
@@ -5327,6 +5604,7 @@ def makeBCO():
     Returns:
         BioComputeObject: A complete Bio Compute Object
     """
+
     newMeta = makeMeta()
     print("USABILITY DOMAIN")
     newUse = str(input("Enter the Usability: "))
@@ -5374,6 +5652,7 @@ def makeBCO():
 
 # turns string to DateTime class object
 def strToDateTime(dateStr):
+
     """_summary_
     General Helper method.
     Used to convert a string date into a numeric date where each part 
@@ -5390,6 +5669,7 @@ def strToDateTime(dateStr):
     Returns:
         DateTime: yr/mm/dd/hr/min/sec/secFrac/timezone
     """
+
 
     # separate numbers of the date string from formatting chars ('-', ':', 'T', '.', '+')
     # pass numbers in to make DateTime object
@@ -5448,6 +5728,7 @@ def strToDateTime(dateStr):
 
 # takes in string and returns Version object
 def strToVersion(strVers):
+
     """_summary_
     General helper method.
     Takes in a string version and returns it as a Version object.
@@ -5457,6 +5738,7 @@ def strToVersion(strVers):
     Returns:
         SemanticVersion: Version 
     """
+
     # separate numbers of the version string from formatting chars ('.')
     # pass numbers in to make Version object
     # Handle different formats with ifs, try-catch and 'None' (Major.Minor.Patch) and (Major.Minor)
@@ -5498,6 +5780,7 @@ def strToVersion(strVers):
 
 #THIS IS NOT COMPLETE. STILL NEEDS A LOT OF WORK. AS OF NOW IT EXPORTS JSON JUST FINE. HOWEVER, IT IS VERY VERY HARD TO READ 
 def exportJSON(BCOin):
+
     """_summary_
     Domain Exporting tool.
     After you've finished making your BCO call this with the BCO as an input to convert it to JSON.
@@ -5508,6 +5791,7 @@ def exportJSON(BCOin):
     Returns:
         None: None
     """
+
     #Converts all Domains to a dictionary
     if isinstance(BCOin, BioComputeObject):
         Set = {
@@ -5526,6 +5810,7 @@ def exportJSON(BCOin):
     return None
 
 def importJSON(filepath):
+
     """_summary_
     General helper function.
     Allows user to import a BCO. 
@@ -5535,6 +5820,7 @@ def importJSON(filepath):
     Returns:
         BioComputeObject: A BCO
     """
+
     try:
         outputBCO = JSONtoClass(filepath)
     except FileNotFoundError:
@@ -5543,6 +5829,7 @@ def importJSON(filepath):
 
 #read in JSON file, create bco class instance from json
 def JSONtoClass(jsonFn):
+
     """_summary_
     Takes in a JSON file and converts it to a BCO class object. 
     Works great with most parts except the Extension Domain.
@@ -5552,6 +5839,7 @@ def JSONtoClass(jsonFn):
     Args:
         jsonFn (JSON): A JSON file with a complete BCO input. 
     """
+
     f = open(jsonFn, 'r')
 
     data = json.load(f)
@@ -5940,7 +6228,9 @@ def JSONtoClass(jsonFn):
     jExtension = None
     #print(extensionSchema)
     #print(userData)
+
     #IMPORTANT COMPLETELY BROKE PLEASE FIX
+
     #jExtension = ExtensionDomain(extensionSchema, userData)
 
 
@@ -6074,7 +6364,9 @@ def JSONtoClass(jsonFn):
 
 # newBCO1 = JSONtoClass("/Users/Panig/Desktop/extensionDomanText.json")
 # newBCO2 = JSONtoClass("/Users/seanc/Desktop/CopyNumberCounterBCO.json")
+
 # newBCO3 = JSONtoClass("/Users/Panig/Desktop/extensionDomanText.json") # Modified pipeline to test areToolsRegistered() and alignSteps()
+
 
 
 
@@ -6088,6 +6380,7 @@ def JSONtoClass(jsonFn):
 
 # sets BCO inputted to None. Needs more. Can be done once a container is made, a way to save out the BCO. 
 def deleteBCO(BCOin):
+
     """_summary_
     Unfinished please don't call this
     Args:
@@ -6096,11 +6389,13 @@ def deleteBCO(BCOin):
     Returns:
         _type_: _description_
     """
+
     BCOin = None
     return BCOin
 
 # returns true if the two BCOs are the same BCO 
 def isSameBCO(BCO1, BCO2):
+
     """_summary_
     Alignment Helper function.
     Takes in 2 BCOs and determines if they are the same BCO with the meta tags. 
@@ -6111,6 +6406,7 @@ def isSameBCO(BCO1, BCO2):
     Returns:
         Boolean: True or False
     """
+
     if isinstance(BCO1, BioComputeObject):
         meta1 = BCO1.meta
     if isinstance(BCO2, BioComputeObject):
@@ -6130,6 +6426,7 @@ def isSameBCO(BCO1, BCO2):
 
 # returns true if one BCO is derived from the other
 def isParentBCO(BCO1, BCO2):
+
     """_summary_
     Alignment Helper Function
     Takes in 2 BCOs and determines if one is derived from another with derived from, meta and BCO ID.
@@ -6141,6 +6438,7 @@ def isParentBCO(BCO1, BCO2):
     Returns:
         Boolean: True or False
     """
+
     if isinstance(BCO1, BioComputeObject):
         meta1 = BCO1.meta
         prov1 = BCO1.provenance_Domain
@@ -6212,6 +6510,7 @@ def test2(BCO1, BCO2):
 
 # compares the prerequisites, script driver, and external data endpoints needed to run each pipeline
 def comparePrereqs(BCO1, BCO2):
+
     """_summary_
     Alignment Helper Function
     Takes in 2 BCOs and compares the prerequisites, script driver, and external data endpoints needed to run each pipeline.
@@ -6223,6 +6522,7 @@ def comparePrereqs(BCO1, BCO2):
     Returns:
         Boolean: True or False
     """
+
     if isinstance(BCO1, BioComputeObject):
         execution1 = BCO1.execution_Domain
     if isinstance(execution1, ExecutionDomain):
@@ -6286,6 +6586,7 @@ def comparePrereqs(BCO1, BCO2):
     return False
 
 def getToolType(toolName):
+
     """_summary_
     General Helper method.
     Gets the toolType of a tool. For example Bowtie2 would return aligner as the tooltype. 
@@ -6295,6 +6596,7 @@ def getToolType(toolName):
     Returns:
         Str: Type of the tool
     """
+
     # query toolType database in git and return string type
     targetFile = 'https://raw.github.com/biocompute-objects/-Tool-Type-Dictionary/main/toolsDictionary.json'
     req = requests.get(targetFile)
@@ -6309,11 +6611,13 @@ def getToolType(toolName):
     return toolType
 
 def alignLogic():
+
     """_summary_
     
     Returns:
         _type_: _description_
     """
+
     wfl1 = ["Alignment", "Variant Calling", "Annotation", "Enrichment"]
     wfl2 = ["Alignment", "Variant Calling", "Filtering", "Annotation"]
     overlap = []
@@ -6353,6 +6657,7 @@ def alignLogic():
 # alignLogic()
 
 def alignSteps(BCO1, BCO2):
+
     """_summary_
     Main alignment function. Alignment is creating a graphic with the overlap of workflows between 2 BCOs.
     Creates two lists containing the tooltype used in each step.
@@ -6366,6 +6671,7 @@ def alignSteps(BCO1, BCO2):
     Returns:
         List: An output list with the overlapped list and the regular pipeline lists of both BCOs. 
     """
+
     # NOTE: can assume tools are registered in toolType dictionary 
 
     if isinstance(BCO1, BioComputeObject):
@@ -6428,10 +6734,12 @@ def alignSteps(BCO1, BCO2):
 # alignSteps(BCO_000139, newBCO3)
 
 def alignedOutput():
+
     """_summary_
     Alignment helper method.
     Displays the workflow overlap between two BCOs. 
     """
+
     lists = alignSteps(BCO_000139, newBCO3)
     print('\n')
     print('{:50} {:50} {:50}'.format("Workflow Overlap", "BCO 1", "BCO 2"))
@@ -6439,12 +6747,15 @@ def alignedOutput():
     for x, y, z in zip(*lists):
         print('{:50} {:50} {:50}'.format(x, y, z))
 
+
 #alignedOutput()
+
 
 
 # Loops through pipeline steps for both BCOs and checks if the tool used in each step is registered in the toolType repo
 # Retruns true if tools of ALL steps of BOTH bcos are registered, false otherwise
 def areToolsRegistered(BCO1, BCO2):
+
     """_summary_
     Alignment Helper method.
     Checks if a tool type used by a BCO is registered in a dictionary.
@@ -6456,6 +6767,7 @@ def areToolsRegistered(BCO1, BCO2):
     Returns:
         Boolean: True or false depending if the tool is registerd
     """
+
     # targetFile2 = 'https://raw.github.com/skeeney01/-Tool-Type-Dictionary/main/toolsDictionary.json'
     targetFile = 'https://raw.github.com/biocompute-objects/-Tool-Type-Dictionary/main/toolsDictionary.json'
     req = requests.get(targetFile)
@@ -6595,6 +6907,7 @@ def areToolsRegistered(BCO1, BCO2):
 # outputs simple side by side comparison of bco workflows if either one contains a tool not registered in the toolType Dictionary
 # Shows the step number and name
 def sideBySideWorkflows(BCO1, BCO2):
+
     """_summary_
     Prints a side by side comparison of the two BCOs workflows 
     if either one contains a tool not registered in the toolType Dictionary
@@ -6607,6 +6920,7 @@ def sideBySideWorkflows(BCO1, BCO2):
     Returns:
         None: None
     """
+
     if isinstance(BCO1, BioComputeObject):
         desc_BCO1 = BCO1.description_Domain
     if isinstance(BCO2, BioComputeObject):
@@ -6647,6 +6961,7 @@ def sideBySideWorkflows(BCO1, BCO2):
 # compares software prereqs, checks if two BCOs are the same or if one is derived from the other
 # can take in BCO class object and json (any combination of the two)
 def simpleStats(BCO1, BCO2):
+
     """_summary_
     Compares software prereqs, checks if two BCOs are the same or if one is derived from the other
     can take in BCO class object and json (any combination of the two)
@@ -6658,6 +6973,7 @@ def simpleStats(BCO1, BCO2):
     Returns:
         None: None
     """
+
     if isinstance(BCO1, BioComputeObject) and isinstance(BCO2, BioComputeObject):
         if isSameBCO(BCO1, BCO2):
             print("These two BioCompute Class Objects are the same")
@@ -6715,6 +7031,7 @@ def simpleStats(BCO1, BCO2):
 # will output graphic of aligned steps + workflow overlap 
 # otherwise command line side by side of workflows is output
 def compare(BCO1, BCO2):
+
     """_summary_
     Compare function takes in two BCOs in either class object or json (any combination)
     checks if tools are registered in type tool repo
@@ -6729,6 +7046,7 @@ def compare(BCO1, BCO2):
     Returns:
         None: None
     """
+
     if isinstance(BCO1, BioComputeObject) and isinstance(BCO2, BioComputeObject):
         if areToolsRegistered(BCO1, BCO2):
             alignSteps(BCO1, BCO2)
@@ -6779,6 +7097,7 @@ def compareByDomain(BCO1, BCO2):
         print("Error please make sure inputs are of type BioComputeObject or json")
         return 0
     userIn = str.lower(input("Please enter which domains you would like to compare. Enter 'Help' for keywords: "))
+
     match userIn:
         case 'help':
             print("With this command you can compare two areas of a domain. The domains being Meta, Provenace, Execution, Description, Inputs, Outputs, Error and Parameters. Extension is not supported as the Extension domain is a user defined type.  To compare two domains type the name of the domain. For example, to compare two Parameter domains type 'Parameter'. To exit type 'EXIT'")
@@ -6813,6 +7132,7 @@ def compareByDomain(BCO1, BCO2):
         case other:
             print("Please check your spelling you entered the wrong domain. If you would like to exit type 'EXIT'")
             compareByDomain(BCO1, BCO2)
+
 def compareMeta(BCO1, BCO2):
     """_summary_
     Compares the two Meta Domains
@@ -6822,6 +7142,7 @@ def compareMeta(BCO1, BCO2):
 
     """
     userIn = str.lower(input("What parts of the meta data would you like to view? Type 'Help' for keywords: "))
+
     match userIn:
         case 'help':
             print("You can view both BCOs Etags, BCOid, SpecVersions by typing their respective names. For example, if you wanted to view BCOids type 'BCOid'. To view all of them by typing 'ALL'. ")
@@ -6847,6 +7168,7 @@ def compareMeta(BCO1, BCO2):
     return None
 
 def compareProvenance(BCO1, BCO2):
+
      """_summary_
      Compares provenance Domains.
      Args:
@@ -6855,6 +7177,7 @@ def compareProvenance(BCO1, BCO2):
 
      """
      userIn = str.lower(input("What parts of the Provenance data would you like to view? Type 'Help' for keywords: "))
+
      match userIn:
         case 'help':
             print("You can view Name, License, Version, Created, Modified, Contributors, Review, Embargo, Obsolete, Derived_From by typing their respective names. For example, if you wanted to view name type 'Name'. To view all of them by typing 'ALL'. ")
@@ -6898,6 +7221,7 @@ def compareProvenance(BCO1, BCO2):
         case other:
             print("Please check your spelling. To exit type 'EXIT'")
             compareProvenance(BCO1, BCO2)
+
 def compareExecution(BCO1, BCO2):
     """_summary_
      Compares Execution Domains.
@@ -7066,6 +7390,7 @@ def compareParameters(BCO1, BCO2):
 # returns true if two BCOs are compatible for concatenation
 def ConcatCheck():
     return False
+
 
 
 # returns true if two BCOs are compatible for concatenation
@@ -7546,6 +7871,7 @@ def run(templateIn):
 #print(testTemplate.BCOin)
 
 #bcoTemplate(newBCO3)
+
 
 # ****************************************************************** TASKS + NOTES ******************************************************************
 
