@@ -1,14 +1,120 @@
-# Author(s):
 
+# Author(s): Rohan Panigrahi and Sean Keeney
+
+from ast import Str
 import itertools
+from pickle import TRUE
 from pprint import pprint
-# import subprocess
+import subprocess
 import json
-import requests
+
 
 # ************************************** BIOCOMPUTE + DOMAIN + HELPER CLASS DEFINITIONS  ***************************************
 
 class BioComputeObject:
+
+    """_summary_
+    A class used to store the details of a BioComputeObject. The composition of this class is one with many other classes inside it. 
+    To find specifics about a certain class please refer to that classes documentation. 
+    ...
+    Attributes
+    ----------
+    metaData : Meta
+        Stores the BCO Identification, Etag and the spec version. 
+    usabilityDomain : Str
+        Stores the plain language description of what was done in the workflow. 
+        It should read like an abstract and have Need, Methods, Results and How the results can be used. 
+    ProvenanceDomain : ProvenanceDomain
+        Defines the history, version and status of the BCO as part of the review process. 
+    ExecutionDomain : ExecutionDomain
+        Contains the fields required to execute the BCO. 
+    ExtensionDomain : ExtensionDomain
+        The user defined type. A space for the user to add additional structured information that is not defined in the BioComputeObject. 
+    DescriptionDomain : DescriptionDomain
+        Contains structured fields for description of external references, the pipeline steps, and the relationship between I/O objects
+    ErrorDomain : ErrorDomain
+        Defines the limits of your BCO. 
+    IODomain : IODomain
+        Represents the list of all inputs and outputs created by the workflow 
+    ParametricDomain : Parametric
+        List of parameters customizing the computational workflow. These can affect the output of calculations. 
+
+    Methods
+    -------
+    _repr_()
+        Prints out all the attributes. 
+        LIMITATION: Not easily legible, needs some more work
+
+    validate(metaData, usability_Domain, provenance_Domain, execution_Domain, extension_Domain, description_Domain, error_Domain, io_Domain, parametric_Domain)
+        Validates the inputted BioComputeObject to make sure it follows the guidelines set by IEEE 2791-2020. 
+        If you are unsure of what you are missing refer to the guidelines here: 
+        https://standards.ieee.org/ieee/2791/7337/
+        https://opensource.ieee.org/2791-object/ieee-2791-schema
+        The required fields include Usability, Provenance, Execution, Description and IO. Using all domains is recommended 
+    
+    Getters and Setters
+    -------------------
+    MetaData
+    .meta()
+        Getter
+    .meta(metaObj)
+        Setter. Input can be set to None
+
+    UsabilityDomain
+    .use()
+        Getter
+    .use(usability)
+        Setter. Input cannot be set to None. 
+    
+    ProvenaceDomain
+    .prov()
+        Getter
+    .prov(prov)
+        Setter. Input cannot be set to None.
+        Throws ValueError if input is None.
+
+    ExecutionDomain
+    .execution()
+        Getter
+    .execution(exec)
+        Setter. Input cannot be set to None
+        Throws ValueError if input is None.
+
+    ExtensionDomain
+    .extension()
+        Getter
+    .extension(ext)
+        Setter. Input can be None
+    
+    DescriptionDomain
+    .description()
+        Getter
+    .description(desc)
+        Setter. Input cannot be set to None. 
+        Throws ValueError if input is None.
+        
+    ErroDomain
+    .error()
+        Getter
+    .error(err)
+        Setter. Input can be set to None
+    
+    IoDomain
+    .io()
+        Getter
+    .io(IO)
+        Setter. Input cannot be set to None. 
+        Throws ValueError if input is None.
+
+    ParametricDomain
+    .parametric()
+        Getter
+    .parametric(param)
+        Setter. Input can be set to None. 
+    
+
+    """
+
     def __init__(self, metaData, usability_Domain, provenance_Domain, execution_Domain, extension_Domain, description_Domain, error_Domain, io_Domain, parametric_Domain):
         self.metaData = metaData                       
         self.usability_Domain = usability_Domain    
@@ -37,7 +143,8 @@ class BioComputeObject:
             extension_Domain : ExtensionDomain,
             description_Domain : DescriptionDomain,
             error_Domain : ErrorDomain,
-            io_Domain : IODomain
+            io_Domain : IODomain,
+            parametric_Domain : Parametric
         }
 
         for x in argTypes:
@@ -51,7 +158,6 @@ class BioComputeObject:
         print("VALID BIOCOMPUTE CLASS OBJECT")
         return True
 
-    
 
     @property
     def meta(self):
@@ -88,11 +194,13 @@ class BioComputeObject:
         return self.execution_Domain
  
     @execution.setter
-    def execution(self, execution):
-        if execution is None:
+
+    def execution(self, exec):
+        if exec is None:
             print("This is a required field")
             raise ValueError
-        self.execution_Domain = execution
+        self.execution_Domain = exec
+
 
     @property
     def extension(self):
@@ -131,45 +239,73 @@ class BioComputeObject:
             print("This is a required field")
             raise ValueError
         self.io_Domain = IO
-        
-    def updateMeta(self, newMeta):
-        self.meta = newMeta
-        return self.metaData
     
-    def updateProvenance(self, newProv):
-        self.prov = newProv
-        return self.provenance_Domain
 
-    def updateUsability(self, newUse):
-        self.use = newUse
-        return self.usability_Domain
-
-    def updateExecution(self, newExe):
-        self.execution = newExe
-        return self.execution_Domain
-
-    def updateExtention(self, newExt):
-        self.extension = newExt
-        return self.extension_Domain
-
-    def updateDescription(self, newDesc):
-        self.description = newDesc
-        return self.description_Domain
-
-    def updateError(self, newErr):
-        self.error = newErr
-        return self.error_Domain
-
-    def updateIO(self, newIO):
-        self.io = newIO
-        return self.io_Domain
-
+    
+    @property
+    def parametric(self):
+        return self.parametric_Domain
+    
+    @parametric.setter
+    def parametric(self, param):
+        self.parametric_Domain = param
+        
 class Meta:
+    """_summary_
+    Class used to store the MetaData of the BioComputeObject. Stores the BCOID, Etag and Spec version. The MetaData is the unique identifier of your BCO. 
+    Please make sure it's accurate
+    ...
+    Attributes
+    ----------
+    bcoID : ObjectID
+        A unique identifier that should be applied to each IEEE-2791 Object instance. IDs should never be reused. 
+    etag : str
+        The "ETag" header field in a response provides the current entity-tag for the selected 
+        representation, as determined at the conclusion of handling the request. 
+        Taken from https://datatracker.ietf.org/doc/html/rfc7232#section-2.3
+        It is reccommended that etags are to be deleted or updated if the Object is changed.  
+    specVersion : URI
+        Version of the IEEE-2791 specification used to define this document. 
+        To learn more about the URI object refer to its documentation. 
+    Methods
+    -------
+    _repr_()
+        Prints out all the attributes. 
+        
+    validate(bcoID, etag, specVersion)
+        Validates if the Meta object created is valid. An object is invalid if false is returned. 
+        If you have an invalid object please check that the types are correct for each attribute. 
+        To see the types of each attribute go to the Attributes section of the Meta Documentation. 
+    
+    Getters and Setters
+    -------------------
+    bcoID:
+    .bcoID()
+        Getter
+    .bcoID(id)
+        Setter. Input cannot be set to None. 
+        Throws ValueError if Input is None.
+    
+    etag:
+    .e_tag()
+        Getter
+    .e_tag(tag)
+        Setter. Input cannot be set to None. 
+        Throws ValueError if Input is None.
+
+    specVersion:
+    .version()
+        Getter
+    .version(specVer)
+        Setter. Input cannot be set to None. 
+        Throws ValueError if Input is None.
+    """
     def __init__(self, bco_Id, etag, spec_Version):
         self.bco_Id = bco_Id
         self.etag = etag
         self.spec_Version = spec_Version
     
+
     def __repr__(self):
         return '{} {} {}'.format(self.bco_Id, self.etag, self.spec_Version)
     # TESTED
@@ -198,7 +334,9 @@ class Meta:
 
     @property
     def e_tag(self):
-        return self.e_tag
+
+        return self.etag
+
 
     @e_tag.setter
     def e_tag(self, tag):
@@ -220,6 +358,138 @@ class Meta:
     
 
 class ProvenanceDomain:
+
+
+    """_summary_
+    The Provenance Domain defines the past of the BCO. That is the history, versions and status of the current BCO. 
+    The domain must have a name, version, license, date created, date modified and the list of contributors. 
+    It is also highly recommended to have a list of reviewers. 
+    ...
+    Attributes
+    ----------
+    Name : str
+        Stores the name of the BCO. The name should use common biological research terms supporting the terms used in the Usability Domain. 
+        It is reccommended that the names be short and to the point. 
+    license : str
+        A space for creative commons license or other license information.
+    Version : SemanticVersion
+        Records the versioning of the BCO instance object. The rules for versioning is as follows
+            Given a version number MAJOR.MINOR.PATCH, increment the:
+            1. MAJOR version when you make incompatible API changes,
+            2. MINOR version when you add functionality in a backwards-compatible manner, and
+            3. PATCH version when you make backwards-compatible bug fixes. 
+               Additional labels for pre-release and build metadata are available as extensions to the MAJOR.MINOR.PATCH format.
+        BCO versioning should adhere to Semantic Versioning. Major patches should result in creation of a new BCO. 
+        To learn more about Semantic Versioning refer to its documentation. 
+    Created : DateTime
+        The time of initial creation for the BCO. The time is recorded in the ISO-8601 format. 
+        To learn more about the DateTime class refer to its documentation. 
+    Modified : DateTime
+        The time of the most recent modification. The time is recorded in the ISO-8601 format. 
+        To learn more about the DateTime class refer to its documentation. 
+    Contributors : List of Contributor object
+        The Contributors is a list of the contributor object. 
+        The list is to hold contributor identifiers and a description of their type of contribution. 
+        The required fields are name, affiliation, email, contribution, and orcid. 
+        The ORCID identifiers must be valid and have the prefix https://orcid.org/. 
+        The contribution type is taken from PAV ontology. 
+        To learn more about making a Contributor Object refer to the documentation for the Contributor class. 
+    Review : List of Review objects
+        Similar to the Contributors attribute Review is also a list of reviewers. 
+        The fields for a reviewer are name, affiliation, email and their type of contribution. 
+        To learn more about the specifics of what goes into making a reviewer object refer to the documentation for the class. 
+    Embargo : Embargo
+        An optional field. Holds a period of time when the object is meant to be private. 
+        To learn more about the specifics of the Embargo Class refer to the documentation for the Embargo class. 
+    ObsoleteAfter : DateTime
+        An optional field. If an object has an expiration date that time is stored here. 
+        To learn more about the DateTime class refer to its documentation. 
+    DerivedFrom : ObjectID
+        If the object is derived from another this field will act as a reference to the parent object. 
+        To learn more about the ObjectID class refer to its documentation. 
+    
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes.
+        
+    validate(name, license, version, created, modified, contributors, review, embargo, obsolete_After, derived_From)
+        Validates if the Provenance object created is valid. An object is invalid if false is returned. 
+        If you have an invalid object please check that the types are correct for each attribute. 
+        To see the types of each attribute go to the Attributes section of the Provenance Documentation. 
+        Please also check that you have all the required fields. 
+        To reiterate the required fields are name, license, version, created, modified, and contributors. 
+        
+    Getters and Setters
+    -------------------
+    Name:
+    provName()
+        Getter
+    provName(nm)
+        Setter. Input cannot be set to None. 
+        Throws ValueError if Input is None. 
+    
+    License:
+    provLicense()
+        Getter
+    provLicense(lnse)
+        Setter. Input cannot be set to None. 
+        Throws ValueError if Input is None. 
+    
+    Version:
+    provVersion()
+        Getter
+    provVersion(versn)
+        Setter. Input cannot be set to None. 
+        Throws ValueError if Input is None. 
+    
+    Created:
+    provCreated()
+        Getter
+    provCreated(create)
+        Setter. Input cannot be set to None. 
+        Throws ValueError if Input is None. 
+    
+    Modified: 
+    provModified()
+        Getter
+    provModified(mod)
+        Setter. Input cannot be set to None. 
+        Throws ValueError if Input is None. 
+    
+    Contributors: 
+    provContributors()
+        Getter
+    provContributors(cont)
+        Setter. Input cannot be set to None. 
+        Throws ValueError if Input is None. 
+        
+    Review: 
+    provReview()
+        Getter
+    provReview(rev)
+        Setter. Input can be set to None. 
+    
+    Embargo: 
+    provEmbargo()
+        Getter
+    provEmbargo(emb)
+        Setter. Input can be set to None. 
+    
+    Obsolete:
+    provObsolete()
+        Getter
+    provObsolete(obs)
+        Setter. Input can be set to None. 
+        
+    Derived: 
+    provDerived()
+        Getter
+    provDerived(drv)
+        Setter. Input can be set to None. 
+    
+    """
+
     def __init__(self, name, license, version, created, modified, contributors, review, embargo, obsolete_After, derived_From):
         self.name = name
         self.license = license
@@ -250,7 +520,7 @@ class ProvenanceDomain:
             modified : DateTime,
             embargo : Embargo,
             obsolete_After : DateTime,
-            derived_From : ObjectID
+            derived_From : ObjectID,
         }
 
         for x in argTypes:
@@ -263,6 +533,104 @@ class ProvenanceDomain:
         elif not isinstance(review, list) and not review is None:
             return False
         return True
+    
+    @property
+    def provName(self):
+        return self.name
+
+    @provName.setter
+    def provName(self, nm):
+        if nm is None:
+            print("This is a required field")
+            raise ValueError
+        self.name = nm
+
+    @property
+    def provLicense(self):
+        return self.license
+
+    @provLicense.setter
+    def provLicense(self, lnse):
+        if lnse is None:
+            print("This is a required field")
+            raise ValueError
+        self.license = lnse
+
+    @property
+    def provVersion(self):
+        return self.version
+
+    @provVersion.setter
+    def provVersion(self, versn):
+        if versn is None:
+            print("This is a required field")
+            raise ValueError
+        self.version = versn
+
+    @property
+    def provCreated(self):
+        return self.created
+
+    @provCreated.setter
+    def provCreated(self, create):
+        if create is None:
+            print("This is a required field")
+            raise ValueError
+        self.created = create
+
+    @property
+    def provModified(self):
+        return self.modified
+
+    @provModified.setter
+    def provModified(self, mod):
+        if mod is None:
+            print("This is a required field")
+            raise ValueError
+        self.modified = mod
+
+    @property
+    def provContributors(self):
+        return self.contributors
+
+    @provContributors.setter
+    def provContributors(self, cont):
+        if cont is None:
+            print("This is a required field")
+            raise ValueError
+        self.contributors = cont
+
+    @property
+    def provReview(self):
+        return self.review
+
+    @provReview.setter
+    def provReview(self, rev):
+        self.review = rev
+
+    @property
+    def provEmbargo(self):
+        return self.embargo
+
+    @provEmbargo.setter
+    def provEmbargo(self, emb):
+        self.embargo = emb
+
+    @property
+    def provObsolete(self):
+        return self.obsolete_After
+
+    @provObsolete.setter
+    def provObsolete(self, obs):
+        self.obsolete_After = obs
+
+    @property
+    def provDerived(self):
+        return self.derived_From
+
+    @provDerived.setter
+    def provDerived(self, drv):
+        self.derived_From = drv
 
     @property
     def provName(self):
@@ -364,6 +732,83 @@ class ProvenanceDomain:
 
 
 class Contributor:
+
+    """_summary_
+    Sub Class used to create a contributor for the Provenance Domain. 
+    The Contributor should have a 
+        Name: 
+        Affiliation: 
+        Email: 
+        Contribution:
+        ORCID: 
+    An Example contributor object would look like contr = Contributor("authoredBy", "Rohan Panigrahi", "George Washington University", "rohan.panigrahi@example", "https://orcid.org/example")
+        The output would be 
+        Name : Rohan Panigrahi
+        Affiliation: George Washington University
+        Email: Rohan.panigrahi@example
+        Contribution: authoredBy
+        ORCID: https://orcid.org/example
+    If you are confused about how to determine contribution visit: http://pav-ontology.github.io/pav/pav.rdf
+    This is where all the types of Contributions were derived from. 
+    ...
+    Attributes
+    ----------
+    Contribution : str
+        Holds contributor identifiers. What they did for the project. 
+        To determine contribution visit http://pav-ontology.github.io/pav/pav.rdf.
+    Name : str
+        The full legal name of the contributor
+    Affiliation : str
+        What university / company the person in question is related to. 
+    email : str
+        The persons work email 
+    ORCID : str
+        An identifier to record author information. These must be valid. 
+        A valid ORCID starts with https://orcid.org/
+    
+    Methods 
+    -------
+    _repr_()
+        Prints out all attributes.
+    
+    validate(contribution, name, affiliation, email, orcid)
+        Validates if the Contibutor object is valid. False is retuned if the object is not valid. 
+        If your object fails validation please check if the name field is filled and all attributes have the correct type. 
+    
+    Getters and Setters
+    -------------------
+    Name:
+    contName()
+        Getter
+    contName(n)
+        Setter. Input cannot be None. 
+        ValueError thrown if Input is None
+        
+    Contribution:
+    contContribution()
+        Getter
+    contContribution(contr)
+        Setter. Input can be None
+    
+    Affiliation:
+    contAffiliation()
+        Getter
+    contAffiliation(aff)
+        Setter. Input can be None
+    
+    Email:
+    contEmail()
+        Getter
+    contEmail(em)
+        Setter. Input can be None
+    
+    Orcid:
+    contOrcid()
+        Getter
+    contOrcid(orc)
+        Setter. Input can be None
+    """
+
     def __init__(self, contribution, name, affiliation, email, orcid):
         self.contribution = contribution
         self.name = name
@@ -431,12 +876,107 @@ class Contributor:
     def contOrcid(self):
         return self.orcid
 
+
+    #ToDo Validate if the orcid is valid
+
     @contOrcid.setter
     def contOrcid(self, orc):
         self.orcid = orc
 
 
 class Review:
+
+
+    """_summary_
+    Sub class used to create a reviewer for the Provenance Domain. 
+    A reviewer should have a 
+        Date:
+        Status:
+        ReviewerComment:
+        Name:
+        Contribution:
+        Affiliation:
+        Email:
+        ORCID:
+    The Status key determines the status of an object in the review process. 
+    The possible values are:
+        unreviewed: The object has been submitted but no evaluation or verification has occurred. 
+        in-review: verification is underway 
+        approved: BCO has been verified and reviewed
+        suspended: A once valid object now considered invalid
+        rejected: error or inconsistency detected in the BCO and it has been removed or rejected.
+    An Example Review object would look like rev = Review(None, "unreviewed", "Rohan Panigrahi:", None, "createdBy", "George Washington University", Rohan.panigrahi@example, "https://orcid/example")
+        The output would be 
+        Date: None
+        Status: unreviewed
+        Name : Rohan Panigrahi
+        reviewerComment: None
+        Contribution: CreatedBy 
+        Affiliation: George Washington University
+        Email: Rohan.panigrahi@example
+        ORCID: https://orcid.org/example 
+    If you are confused about how to determine contribution visit: http://pav-ontology.github.io/pav/pav.rdf
+    This is where all the types of Contributions were derived from. 
+    ...
+    Attributes
+    ----------
+    Date : DateTime
+        Holds the review date. To learn more about the DateTime Class refer to its documentation
+    Status : Str
+        Holds the current status of the BCO
+    revName : str
+        Holds the name of the reviewer
+    reviewerComment : str
+        Holds the comments given by the reviewer
+    Contribution : str
+        Holds the contributions given by the reviewer
+    Affiliation : str
+        Holds what univeristy or company the reviewer belongs to 
+    email : str
+        Email of the reviewer
+    orcid : str
+        ORCID identifier of the reviewer. 
+    
+    Methods
+    -------
+     _repr_()
+        Prints out all attributes.
+    
+    validate(self, date, status, revName, reviewer_Comment, contribution, affiliation, email, orcid):
+        Validates if the Review object is legal. Returns false if the object is invalid. 
+        If your object is invalid please make sure it has Review Status and the Contributors Name.
+        Please also make sure all the attribute types are correct. 
+        
+    Getters and Setters
+    -------------------
+    Status:
+    revStatus()
+        Getter
+    revStatus(stat)
+        Setter. Input cannot be none. 
+        Throws ValueError if input is none.
+    
+    Contributor
+    revContributor()
+        Getter
+    revContributor(con)
+        Setter. Input cannot be none. 
+        Throws ValueError if input is none.
+    
+    Date
+    revDate()
+        Getter
+    revDate(dt)
+        Setter. Input can be none.
+        
+    ReviewerComment
+    revComm()
+        Getter
+    revComm(rc)
+        Setter. Input can be none.
+    
+    """
+
     def __init__(self, date, status, revName, reviewer_Comment, contribution, affiliation, email, orcid):
         self.date = date
         self.status = status
@@ -508,15 +1048,60 @@ class Review:
     @revComm.setter
     def revComm(self, rc):
         self.reviewer_Comment = rc
+        
 
+    #Add rest of getters and setters
 
 class Embargo:
+    """_summary_
+    A sub class of the Provenance Domain used to hold start and end embargo times. 
+    Time is stored in DateTime objects. If your object has no embargos ignore this field. 
+    
+    Creating an Embargo Object
+    test = Embargo(startTime, endTime) 
+    startTime and endTime are both DateTime objects. 
+    startTime must be before endTime
+    ...
+    Attributes
+    ----------
+    StartTime : DateTime
+        The start of the embargo. For specifics about DateTime class refer to its documentation
+    EndTime : DateTime
+        The end of the embargo. 
+    
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes.
+    validate(self, start_Time, end_Time)
+        Validates the Embargo Object. False is returned if the Embargo object is not valid. 
+        If your object is invalid please make sure it has both startTime, endTime and 
+        also that they are DateTime objects. 
+    
+    Getters and Setters
+    -------------------
+    startTime
+    start()
+        Getter
+    start(st)
+        Setter. Input cannot be None.
+        Throws ValueError if input is None
+    
+    endTime
+    end()
+        Getter
+    end(et)
+        Setter. Input cannot be None.
+        Throws ValueError if input is None
+    
+    """
     def __init__(self, start_Time, end_Time):
         self.start_Time = start_Time
         self.end_Time = end_Time
 
     def __repr__(self):
         return '{} {}'.format(self.start_Time, self.end_Time)
+
 
     # NOT TESTED
     def validate(self, start_Time, end_Time):
@@ -554,6 +1139,100 @@ class Embargo:
 
 
 class ExecutionDomain:
+
+
+    """_summary_
+    The Execution Domain houses all the scripts, software and data necessary to replicate your expirement.
+    The Domain must have a script, script_Driver, software_Prerequisites and external_Data_Endpoints.
+    
+    Making an ExecutionDomain Object
+    excn_139 = ExecutionDomain(scripts, "Shell", softwrePrereqs, extDataEndPts, environment_Variables)
+    The output of the excn_139 Object is as such
+    script: A list of URIs containing the various scripts 
+    scriptDriver: Shell. The script was run through shell
+    softwarePrerequisites: A list of softwarePrequisites Class objects. 
+    externalDataEndpoints: A list of ExternalDataEndpoints Class objects. 
+    EnvironmentalVariables: A list of EnvironmentVariable Class objects. 
+    
+    To learn more about any of the specific classes refer to their documentation. 
+    ...
+    Attributes
+    ----------
+    script : List of URIs 
+        The script field is an array containing pointers to a script object or class. 
+        These can be internal or external references to the objects used to perform 
+        computations for this BCO instance. 
+        These may be references to an object in GitHub, a computational service, 
+        or any other type of script.
+        
+    scriptDriver : Str
+        This field provides a field to enter what you executed the script through. 
+        
+    softwarePrerequisites : A list of SoftwarePrerequisites
+        An array with the minimal necessary prerequisites, library, and tool versions
+        needed to successfully recreate the pipeline. 
+        To learn more about making a SoftwarePrerequisites class object refer to is documentation
+
+    externalDataEndpoints : A list of ExternalDataEndpoints
+        An array listing the minimal necessary domain specific external data sources
+        required accessed to successfully run the workflow. 
+        To learn more about making an ExternalDataEndpoints class object refer to is documentation
+    
+    environmentVariables : A list of EnvironmentVariable
+        Array of key value pairs. Used to configure the execution environment.
+        For example, one might specify the number of compute cores, or available memory use of the script. 
+        The possible keys are specific to each platform. The “value” should be a JSON string. 
+        (Taken from https://docs.biocomputeobject.org/execution-domain/)
+        
+        To learn more about making an environmentVariables class object refer to is documentation
+
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes.
+    validate(script, script_Driver, software_Prerequisites, external_Data_Endpoints, environment_Variables)'
+         Validates if the ExecutionDomain object is valid. False is retuned if the object is not valid. 
+         If you are unsure why you are getting an invalid object make sure the object has: 
+         script, script_Driver, software_Prerequisites and external_Data_Endpoints.
+         Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    Script
+    exScript()
+        Getter
+    exScript(scrpt)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None. 
+    
+    ScriptDriver
+    scriptDr()
+        Getter
+    scriptDr(sd)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None. 
+    
+    SoftwarePrerequisites
+    swPrereqs()
+        Getter
+    swPrereqs(swp)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None. 
+    
+    ExternalDataEndpoints
+    extDataEP()
+        Getter
+    extDataEP(edep)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None. 
+    
+    EnvironmentalVariables
+    envVars()
+        Getter
+    envVars(enVrs)
+        Setter. Input can be None.
+    """
+
     def __init__(self, script, script_Driver, software_Prerequisites, external_Data_Endpoints, environment_Variables):
         self.script = script
         self.script_Driver = script_Driver
@@ -638,6 +1317,56 @@ class ExecutionDomain:
 
 
 class EnvironmentVariable:
+
+
+    """_summary_
+    A sub class of the Execution Domain. Used to hold key value pairs of recreating the environment used 
+    to create the expirement. 
+    
+    Object Creation
+    To create an EnvironmentalVariable Object:
+    env_Var1 = EnvironmentVariable("HOSTTYPE: ", "x86_64-linux")
+    name : HOSTTYPE
+    variable : x86_64-linux
+    env_Var2 = EnvironmentVariable("EDITOR: ", "vim")
+    
+    This creates two environmental variable objects. 
+    From there to input them into the Execution Domain put both of the newly created objects into a list. 
+    ...
+    Attributes
+    ----------
+    Name : Str
+        Holds the key. 
+    Variable : Str
+        Holds the value. 
+    
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes.
+    validate(name, variable)         
+        Validates if the EnvironmentalDomain object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object make sure the object has both: 
+         Name and Variable
+         Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    Name
+    envVarName()
+        Getter
+    envVarName(n)
+        Setter. Input cannot be None.
+        ValueError thrown if Input is None. 
+    
+    Variable
+    envVariable()
+        Getter
+    envVariable(var)
+        Setter. Input cannot be None.
+        ValueError thrown if Input is None. 
+    """
+
     def __init__(self, name, variable):
         self.name = name
         self.variable = variable
@@ -681,6 +1410,92 @@ class EnvironmentVariable:
         self.variable = var
 
 class SoftwarePrerequisites:
+
+
+    """_summary_
+    A sub class of the Execution Domain. Used to hold the minimal necessary prerequisite, library and tool versions 
+    to get a pipleline the same as that in the BCO.
+    The keys are name, version and uri. 
+    
+    Object Creation
+    To create a Software Prerequisites Object call the class as such
+    softwrePrereq1 = SoftwarePrerequisites("Bowtie2", bow_Version, softwrePrereq1_URI, None, None, None)
+    softwrePrereq1_URI = URI("http://bowtie-bio.sourceforge.net/bowtie2/index.shtml")
+    Name : Bowtie2
+    Version : bow_version
+    URI : softwrePrereq1_URI
+    File name : None
+    Access time : None
+    sha1 Checksum : None
+    ...
+    Attributes
+    ----------
+    Name : str
+        Holds the name of the software used
+    Version : SemanticVersion
+        Holds the current version of the file. 
+        To learn more about the SemanticVersion class refer to its documentation. 
+    uri : URI
+        Holds the a string of characters used to identify a resource on a computer network.
+        To learn more about the URI class refer to its documentation.
+    Access Time : DateTime
+        Holds the time of when the site was accessed. 
+        To learn more about the DateTime class refer to its documentation.
+    sha1 Checksum : str
+        Used to verify if a file has been unaltered. 
+    
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes.
+    validate(name, variable)         
+        Validates if the SoftwarePrerequisites object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object make sure the object has: 
+         Name, Version, and URI
+         Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    Name
+    spName()
+        Getter
+    spName(nm)
+        Setter. Input cannot be None.
+        ValueError thrown if Input is None. 
+    
+    Version
+    spVersion()
+        Getter
+    spVersion(vers)
+        Setter. Input cannot be None.
+        ValueError thrown if Input is None. 
+    
+    URI
+    spUri()
+        Getter
+    spUri(URI)
+        Setter. Input cannot be None.
+        ValueError thrown if Input is None. 
+    
+    FileName
+    spFileName()
+        Getter
+    spFileName(fn)
+        Setter. Input cann be None.
+            
+    AccessTime
+    spAccess()
+        Getter
+    spAccess(at)
+        Setter. Input cann be None.
+    
+    sha1 Checksum
+    check()
+        Getter
+    check(shCh)
+        Setter. Input can be None.
+    """
+
     def __init__(self, name, version, uri, filename, access_Time, sha1_Checksum):
         self.name = name
         self.version = version
@@ -771,12 +1586,63 @@ class SoftwarePrerequisites:
         self.sha1_Checksum = shCh
 
 class ExternalDataEndpoints:
+
+
+    """_summary_
+    Sub Class for the Execution Domain. 
+    Used to hold minimal necessary domain specific external data sources accessed 
+    in order to successfully run the workflow described by the BCO.
+    
+    Object Creation
+    To create an ExternalDataEndpoints Object call the class as such
+    edep_URI = URI("https://www.internationalgenome.org/")
+    externalDataEndpoint1 = ExternalDataEndpoints("IGSR", edep_URI)
+    The first variable is to hold the URI of the site you're storing. 
+    The output would be as such:
+    Name : IGSR
+    URL : https://www.internationalgenome.org/
+    ...
+    Attributes
+    ----------
+    Name : Str
+        Holds the name of the URL you are directing the user to
+    URL : Str
+        Holds the redirect or port location you are directing the user to. 
+    
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes.
+    validate(name, url)         
+        Validates if the ExternalDataEndpoints object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object make sure the object has: 
+         Name, and URI
+         Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    Name
+    extName()
+        Getter
+    extName(nm)
+        Setter. Input cannot be None.
+        ValueError is raised if input is None. 
+    
+    URL
+    extUrl()
+        Getter
+    extUrl(URL)
+        Setter. Input cannot be None.
+        ValueError is raised if input is None. 
+    
+    """
     def __init__(self, name, url):
         self.name = name
         self.url = url
 
     def __repr__(self):
         return '{} {}'.format(self.name, self.url)
+
 
     # TESTED
     def validate(self, name, url):
@@ -802,23 +1668,66 @@ class ExternalDataEndpoints:
         self.name = nm
 
     @property
-    def extUri(self):
-        return self.uri
 
-    @extUri.setter
-    def extUri(self, URI):
-        if URI is None:
+
+    def extUrl(self):
+        return self.url
+
+    @extUrl.setter
+    def extUrl(self, URL):
+        if URL is None:
             print("This is a required field")
             raise ValueError
-        self.uri = URI
+        self.url = URL
 
-
+# Needs to be tested some more
 class ExtensionDomain:
-    def _init_(self, extension_schema, extension_scm):
+    """_summary_
+    The Extension domain is a field for user defined types. 
+    They can add extra structured information that is not defined within the Biocompute schema.
+    
+    IMPORTANT: The extension domain is not defined by IEEE-2791-2020, each extension in the extension domain 
+               must provide a reference to the schema that defines it in order to validate. 
+    
+    Object Creation: 
+    ERROR MAJOR ISSUE. ExtensionDomain apperantly does not take any arguments
+    ...
+    Attributes
+    _repr_()
+        Prints out all attributes.
+    validate(self, extension_schema, extension_scm)      
+        Validates if the ExtensionDomain object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The types of all attributes is correct. 
+    ----------
+    extensionSchema : List of URIs
+        Takes in a list of URIs. Where you put the reference to the schema that defines it 
+    extensionScm : List of Str
+        Area for the user to add all the additional things they need. 
+    
+    Methods
+    -------
+    
+    Getters and Setters
+    -------------------
+    ExtensionSchema
+    extensionSchema()
+        Getter
+    extensionSchema(sch)
+        Setter. Input can be None
+
+    ExtensionScm
+    extension_scm()
+        Getter
+    extension_scm(scm)
+        Setter. Input can be None. 
+    """
+    def __init__(self, extension_schema, extension_scm):
         self.extension_schema = extension_schema
         self.extension_scm = extension_scm
     def __repr__(self):
-        return '{} {} {} {}'.format(self.extension_schema, self.extension_scm) 
+        return '{} {} '.format(self.extension_schema, self.extension_scm) 
+
     
     def validate(self, extension_schema, extension_scm):
         if extension_schema is None:
@@ -826,12 +1735,15 @@ class ExtensionDomain:
         if extension_scm is None:
             return None
         
-        argTypes = [extension_schema]
+
         if not extension_schema is None:
-             for x in argTypes:
-                 if not isinstance(x, list) and not x is None:
-                    return False
-             return True
+            if not isinstance(extension_schema, list):
+                return False
+            elif not isinstance(extension_scm , list):
+                return False
+            return True
+        
+
     
     @property
     def extensionSchema(self):
@@ -850,7 +1762,79 @@ class ExtensionDomain:
         self.extension_scm = scm
 
 
-class DescriptionDomain:
+
+class DescriptionDomain:                                                                                        
+    """_summary_
+    The Description Domain contains structured field for description of external references, 
+    the pipeline steps, and the relationship of I/O objects.
+    
+    Object Creation: 
+    keywordsArr = ["Copy Number Variation", "CNV", "DUF1220", "Genome Informatics", "Next-generation sequencing", "Bioinformatics"]
+    pipelineStp = PipelineSteps(0, "Bowtie2", "self script downloads the fastq files for each sample from the 1000 Genomes site as specified in a sample_index file", inputArr0, outputArr0, None, prereqList0)
+    descrpt_139 = DescriptionDomain(keywordsArr, pipelineStp, None, None)
+    
+    DescriptionDomain takes in a list of keywords, a list of pipeline steps, the platform and the xrefs. 
+    The output of the above example would be
+    Keywords : Values in keywordsArr
+    pipeline_Step : Values in pipelineStp
+    platform : None
+    xref : None.
+    
+    The required inputs are pipeline steps, and keywords. 
+    ...
+    Attributes
+    ----------
+    Keywords : List of Strings
+        The list of keywords is stored as a string. 
+        This is a list of keywords to aid in search-ability and description of the experiment. 
+    pipelineSteps : List of PipelineSteps class 
+        Required list of structured steps to get a pipeline up and running. 
+        To learn more about making a pipeline object refer to its documentation. 
+    platform : Str
+        Lists the platform that can be used to reproduce the BCO. For reference only. 
+    Xref : List of Xrefs 
+        List of databases and/or ontology IDs that are cross referenced in the BCO. 
+        To learn more about the specifics of making an Xref list refer to its documentation. 
+    
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes
+    validate(keywords, pipeline_Step, platform, xref)     
+        Validates if the DescriptionDomain object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    Pipeline
+    pipeLine()
+        Getter
+    pipeLine(pipe)
+        Setter. Input cannot be None.
+        ValueError is thrown is input is None. 
+    
+    Keywords
+    descKeyword()
+        Getter
+    descKeyword(kw)
+        Setter. Input cannot be None.
+        ValueError is thrown is input is None. 
+    
+    Platform
+    descPlatform()
+        Getter
+    descPlatform(pf)
+        Setter. Input cann be None.
+    
+    Xref
+    descXref()
+        Getter
+    descXref(xr)
+        Setter. Input cann be None.
+    """
+
     def __init__(self, keywords, pipeline_Step, platform, xref):
         self.keywords = keywords
         self.pipeline_Step = pipeline_Step
@@ -890,6 +1874,12 @@ class DescriptionDomain:
 
     @descKeyword.setter
     def descKeyword(self, kw):
+
+
+        if kw is None:
+            print("This is a required field")
+            raise ValueError
+
         self.keywords = kw
 
     @property
@@ -910,6 +1900,92 @@ class DescriptionDomain:
 
 
 class PipelineSteps:
+
+
+    """_summary_
+    Sub Class for Description Domain. Used to house all the pipeline steps. 
+    Each tool and well defined script is represented as a step, at the discretion of the author. 
+    Minor steps can be placed in the Usability Domain. 
+    Since steps can run in parralel its up to the author to determine which step comes before the next. 
+    However, DO NOT repeat steps. 
+    Even if you run 2 an analysis and an alignment at the same time do not label them as the same step. 
+    
+    Object Creation:
+    PipelineStp = PipelineSteps(0, "BowTie2", "Downloads fastq models", inputList, outputList, "1.0", prereqList)
+    As you can see to make a single step in your pipeline you will need many lists. 
+    The input list is made with the input class and the output list is made with the output class.
+    To learn how to make them visit their documentation. 
+    The prereq list is also a list of a class. The Prerequisite class. 
+    To view how to make a Prerequisite list refer to its documentation. 
+    
+    Once you've made all your pipeline steps add every step to a list. 
+    Such as: pipelineSteps = [pipelineStp, pipelinStp1...]
+    So after making all the lists what output do you get:
+    
+    stepNumber : 0
+    Name : BowTie2
+    Description : Downloads fastq models
+    inputList = [list]
+    outputList = [list]
+    version = 1.0
+    preprequsites = [list]
+    
+    The required fields are step_Number, name, description, input_List, output_List
+    ...
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes
+    validate(step_Number, name, description, input_List, output_List, version, prerequisites_List)
+        Validates if the PipelineSteps object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct. ]
+    
+    Getters and Setters
+    -------------------
+    Steps
+    step()
+        Getter
+    step(sn)
+        Setter. Input cannot be None. 
+        ValueError thrown if input is None. 
+    
+    Name
+    psName()
+        Getter
+    psName(nm)
+        Setter. Input cannot be None. 
+        ValueError thrown if input is None. 
+    
+    Description
+    psDescription()
+        Getter
+    psDescription(desc)
+        Setter. Input cannot be None. 
+        ValueError thrown if input is None. 
+    
+    Inputs
+    input()
+        Getter
+    input(inlst)
+        Setter. Input cannot be None. 
+        ValueError thrown if input is None. 
+    
+    Outputs
+    output()
+        Getter
+    output(outlst)
+        Setter. Input cannot be None. 
+        ValueError thrown if input is None. 
+        
+    Version
+    psVersion()
+        Getter
+    psVersion(vrs)
+        Setter. Input can be None. 
+    """
+
     def __init__(self, step_Number, name, description, input_List, output_List, version, prerequisites_List):
         self.step_Number = step_Number
         self.name = name
@@ -1010,18 +2086,81 @@ class PipelineSteps:
 
     @psVersion.setter
     def psVersion(self, vrs):
-        if vrs is None:
-            print("This is a required field")
-            raise ValueError
+
+
         self.version = vrs
 
 
 class Input:
+    """_summary_
+    Sub Class of the PipelineSteps Class. Used to hold inputs for the pipeline steps. 
+    The only required field is the URI
+    
+    Object Creation: 
+    inputURI = URI("https://github.com/dpastling/plethora/blob/master/code/1000genomes/1_download.sh")
+    inputObj = (inputURI, "1000genomes", None, None)
+    
+    Output:
+    URI : inputURI
+    filename : 1000genomes
+    access_time : None
+    sha1_checksum : None
+    ...
+    Attributes
+    ----------
+    uri : URI
+        Holds the input uri. Can be a file location as well. 
+        To learn more about the URI class visit the relavent documentation.
+    filename : str
+        Holds the name of the file you are referecing in the URI
+    AccessTime : DateTime
+        Holds the time the file was first accessed by the author
+    sha1_Checksum : str
+        Holds validation key
+        
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes
+    validate(uri, filename, access_Time, sha1_Checksum)    
+        Validates if the Input object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    URI
+    inURI()
+        Getter
+    inURI(URI)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None
+    
+    FileName
+    inFilename()
+        Getter
+    inFilename(fn)
+        Setter. Input can be None
+    
+    AccessTime
+    accessTime()
+        Getter
+    accessTime(at)
+        Setter. Input can be None
+    
+    Sha1-Checksum
+    shCheck()
+        Getter
+    shCheck(sc)
+        Setter. Input can be None
+    """
     def __init__(self, uri, filename, access_Time, sha1_Checksum):
         self.uri = uri
         self.filename = filename
         self.access_Time = access_Time
         self.sha1_Checksum = sha1_Checksum
+
 
     def __repr__(self):
         return '{} {} {} {}'.format(self.uri, self.filename, self.access_Time, self.sha1_Checksum)
@@ -1047,6 +2186,8 @@ class Input:
     def inUri(self):
         return self.uri
 
+
+
     @inUri.setter
     def inUri(self, URI):
         if URI is None:
@@ -1054,9 +2195,11 @@ class Input:
             raise ValueError
         self.uri = URI
 
+
     @property
     def inFilename(self):
         return self.filename
+
 
     @inFilename.setter
     def inFilename(self, fn):
@@ -1080,11 +2223,75 @@ class Input:
 
 
 class Output:
+    """_summary_
+    Sub Class of the PipelineSteps Class. Used to hold outputs for the pipeline steps. 
+    The only required field is the URI
+    
+    Object Creation: 
+    outputURI = URI("https://github.com/dpastling/plethora/blob/master/code/1000genomes/1_download.sh")
+    outputObj = (outputURI, "2000genomes", None, None)
+    
+    Output:
+    URI : outputURI
+    filename : 2000genomes
+    access_time : None
+    sha1_checksum : None
+    ...
+    Attributes
+    ----------
+    uri : URI
+        Holds the input uri. Can be a file location as well. 
+        To learn more about the URI class visit the relavent documentation.
+    filename : str
+        Holds the name of the file you are referecing in the URI
+    AccessTime : DateTime
+        Holds the time the file was first accessed by the author
+    sha1_Checksum : str
+        Holds validation key
+        
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes
+    validate(uri, filename, access_Time, sha1_Checksum)    
+        Validates if the Output object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    URI
+    outUri()
+        Getter
+    outUri(URI)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None
+    
+    FileName
+    outFilename()
+        Getter
+    outFilename(fn)
+        Setter. Input can be None
+    
+    AccessTime
+    accessTime()
+        Getter
+    accessTime(at)
+        Setter. Input can be None
+    
+    Sha1-Checksum
+    shCheck()
+        Getter
+    shCheck(sc)
+        Setter. Input can be None
+    """
     def __init__(self, uri, filename, access_Time, sha1_Checksum):
         self.uri = uri
         self.filename = filename
         self.access_Time = access_Time
         self.sha1_Checksum = sha1_Checksum
+
 
     def __repr__(self):
         return '{} {} {} {}'.format(self.uri, self.filename, self.access_Time, self.sha1_Checksum)
@@ -1143,6 +2350,84 @@ class Output:
 
 
 class Prerequisite:
+
+    """_summary_
+    Sub class of the Pipeline Steps Class. Holds the prerequisites needed to run a step in the pipeline.
+    For example, if you were running an analysis on a file you would have that file in the prerequisite field.
+    
+    The only required field is the URI. 
+    
+    Object Creation: 
+    prereqURI0 = URI("https://github.com")
+    prereq0 = Prerequisite("Prerequisite 0", prereqURI0, None, None, None)
+
+    Output :
+    Name : Prerequisite 0
+    URI : prereqURI0
+    filename : None
+    accessTime : None
+    sha1_Checksum : None
+    
+    Note: The prerequisite must be the same step as the step number. 
+          If you have a step that requires a file that file goes at the same step as the pipeline step. 
+    ...
+    Attributes
+    ----------
+    Name : Str
+        Holds the step name
+    uri : URI
+        Holds the input uri. Can be a file location as well. 
+        To learn more about the URI class visit the relavent documentation.
+    filename : str
+        Holds the name of the file you are referecing in the URI
+    AccessTime : DateTime
+        Holds the time the file was first accessed by the author
+    sha1_Checksum : str
+        Holds validation key
+        
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes
+    validate(name, uri, filename, access_Time, sha1_Checksum)    
+        Validates if the Prerequisite object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    URI
+    preUri()
+        Getter
+    preUri(URI)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None
+    Name
+    preName()
+        Getter
+    preName(nm)
+        Setter. Input can be None. 
+        
+    FileName
+    preFilename()
+        Getter
+    preFilename(fn)
+        Setter. Input can be None
+    
+    AccessTime
+    accessTime()
+        Getter
+    accessTime(at)
+        Setter. Input can be None
+    
+    Sha1-Checksum
+    shCheck()
+        Getter
+    shCheck(sc)
+        Setter. Input can be None
+    """
+
     def __init__(self, name, uri, filename, access_Time, sha1_Checksum):
         self.name = name
         self.uri = uri
@@ -1202,6 +2487,7 @@ class Prerequisite:
     def accessTime(self):
         return self.access_Time
 
+
     @accessTime.setter
     def accessTime(self, at):
         self.access_Time = at
@@ -1215,6 +2501,75 @@ class Prerequisite:
         self.sha1_Checksum = sc
 
 class Xref:
+    """_summary_
+     A sub class of the Description Domian. 
+     The field contains a list of the databases and/or ontology IDs that are cross-referenced in the BCO.
+     Full path to resource is not necessary, only namespace and identifier.
+     The external references are stored in the form of prefixed identifiers. 
+     These CURIEs map directly to the URIs maintained by identifiers.org.
+     Therefore, cross-referenced resources need to be available in the public domain. 
+     (https://docs.biocomputeobject.org/description-domain/)
+     
+     There are no required fields
+     
+     Object Creation: 
+     xref0 = Xref("pubchem.compound", "Pubchem-compounds", 67505836, None)
+     Output
+     namespace : pubchem.compound
+     name : Pubchem-compound
+     ID : 67505836
+     AccessTime : None
+     ...
+     Attributes
+     ----------
+     Namespace : str
+         Compact identifier from identifier.org
+     name : str
+         Im not sure come back to later #Important
+     IDs : int or List of Ints
+         Identifier on the site. For example the Pubchem CID
+         You can have multiple identifers. 
+         If you reference multiple Pubchem articles have them all as a list for IDs
+     accessTime : DateTime
+         Holds the time the file was first accessed by the author
+    
+     Methods
+     -------
+     _repr_()
+        Prints out all attributes
+     validate(uri, filename, access_Time, sha1_Checksum)    
+        Validates if the Output object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct. 
+     
+     Getters and Setters
+     -------------------
+     Name
+     xName()
+        Getter
+     xName(nm)
+        Setter. Input can be None.
+        
+     Namespace
+     nspace()
+        Getter
+     nspace(ns)
+        Setter. Input can be None.
+        
+     AccessTime
+     accessTime()
+        Getter
+     accessTime(at)
+        Setter. Input can be None.
+     ID
+     id()
+        Getter
+     id(ID)
+        Setter. Input can be None.
+    
+     
+    """
     def __init__(self, namespace, name, ids, access_Time):
         self.namespace = namespace
         self.name = name
@@ -1223,6 +2578,7 @@ class Xref:
 
     def __repr__(self):
         return '{} {} {} {}'.format(self.namespace, self.name, self.ids, self.access_Time)
+
 
     # NOT TESTED
     def validate(self, namespace, name, ids, access_Time):
@@ -1276,12 +2632,57 @@ class Xref:
 
 
 class ErrorDomain:
+
+    """_summary_
+    The error domain can be used to determine what range of input returns outputs 
+    that are within the tolerance level defined in this subdomain and therefore can be used to optimize algorithm.
+    The Error domain contains 2 subdomains.
+    Emperical Error and Algorithmic Error.
+    To learn more about them refer to the documentation for their classes. 
+    This is not a required field. 
+    
+    Object Creation: 
+    errT = ErrorDomain(emp,alg)
+    emp is an EmpiricalError Object and Alg is an AlgorithmicError Object.
+    ...
+    Attributes
+    ----------
+    empiricalError : EmpiricalError
+        Contains empirically determined values. 
+    algorithmicError : AlgorithmicError
+        Contains descriptions of errors that originate by fuzziness of the algorithms.
+    
+    Methods
+    -------
+     _repr_()
+        Prints out all attributes
+    validate(empirical_Error, algorithmic_Error)   
+        Validates if the ErrorDomain object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        Make sure the types of all attributes is correct. 
+        
+    Getters and Setters
+    -------------------
+    Empricial
+    empErr()
+        Getter
+    empErr(er)
+        Setter. Input can be None. 
+    
+    Algorithmic
+    algErr()
+        Getter
+    algErr(ae)
+        Setter. Input can be None. 
+    
+    """
     def __init__(self, empirical_Error, algorithmic_Error):
         self.empirical_Error = empirical_Error
         self.algorithmic_Error = algorithmic_Error
 
     def __repr__(self):
         return '{} {}'.format(self.empirical_Error, self.algorithmic_Error)
+
 
     # TESTED
     def validate(self, empirical_Error, algorithmic_Error):
@@ -1297,6 +2698,8 @@ class ErrorDomain:
     def empErr(self):
         return self.empirical_Error
 
+
+
     @empErr.setter
     def empErr(self, er):
         self.empirical_Error = er
@@ -1305,13 +2708,56 @@ class ErrorDomain:
     def algErr(self):
         return self.algorithmic_Error
 
+
     @algErr.setter
     def algErr(self, ae):
         self.algorithmic_Error = ae
         
 
-# empirically determined values such as limits of detectability, false positives, false negatives, statistical confidence of outcomes, etc.
+
+# 
 class EmpiricalError:
+    """_summary_
+    The Domain empirically determined values such as limits of detectability, false positives, 
+    false negatives, statistical confidence of outcomes, etc.
+    This can be measured by running the algorithm on multiple data samples 
+    of the usability domain or through the use of carefully designed in-silico data.
+    For example, a set of spiked, well-characterized samples can be run through the algorithm to 
+    determine the false positives, negatives, and limits of detection.
+    (https://docs.biocomputeobject.org/error-domain/)
+    
+    Object Creation: 
+    EmpT = EmpricalError("Con1: 1.55")
+    Output
+    EmpError : Con1: 1.55
+    
+    The EmpiricalError value is required
+    ...
+    Attributes
+    ----------
+    empError : str
+        Stores the error value
+    
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes
+     validate(empError)
+        Validates if the EmpiricalError object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    empErr
+    err()
+        Getter
+    err(er)
+        Setter. Input cannot be None.
+        ValueError raised if input is None. 
+    
+    """
     def __init__(self, empError):
         self.empError = empError
 
@@ -1324,9 +2770,11 @@ class EmpiricalError:
             return False
         return True
 
+
     @property
     def err(self):
         return self.empError
+
 
     @err.setter
     def err(self, er):
@@ -1337,6 +2785,44 @@ class EmpiricalError:
 
 
 class AlgorithmicError:
+    """_summary_
+    The Domain is descriptive of errors that originate by fuzziness of the algorithms, driven by stochastic processes, 
+    in dynamically parallelized multi-threaded executions, or in machine learning methodologies where the state of the machine can affect the outcome. 
+    This can be measured by taking a random subset of the data and re-running the analysis, or using some rigorous mathematical 
+    modeling of the accumulated errors and providing confidence values.
+    For example, bootstrapping is frequently used with stochastic simulation based algorithms to accumulate 
+    sets of outcomes and estimate statistically significant variability for the results.
+    Object Creation: 
+    AlgT = AlgorithmicError("Con1: 0.0005")
+    Output
+    AlgErr : Con1: 0.0005
+    
+    The AlgorithmicError value is required
+    ...
+    Attributes
+    ----------
+    algErr : str
+        Stores the error value
+    
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes
+     validate(empError)
+        Validates if the AlgorithmicError object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    algErr
+    err()
+        Getter
+    err(ag)
+        Setter. Input cannot be None.
+        ValueError raised if input is None. 
+    """
     def __init__(self, algError):
         self.algError = algError
 
@@ -1346,10 +2832,13 @@ class AlgorithmicError:
     # NOT TESTED
     def validate(self, algError):
         if algError is None or not isinstance(algError, str):
+
             return False
         return True
 
     @property
+
+
     def err(self):
         return self.algError
 
@@ -1362,27 +2851,88 @@ class AlgorithmicError:
 
 
 class InputSubdomain:
-    def __init__(self, uri, filename, accessTime, checksum):
+    """_summary_
+    Sub Class for the IODomain. Used to hold references and input files for the entire pipeline.
+    Each input file is to be listed as a URI. 
+    For data integration workflows, the input files can be a table downloaded from a 
+    specific source which is then filtered for modified using rules described in the BCO.
+    
+    Object Creation: 
+    inputSub1_URI = URI("https://github.com/dpastling/plethora/blob/master/fastq/test_1.fastq.gz")
+    inputSub1 = InputSubdomain(inputSub1_URI, "Test", None, None)
+    
+    Output:
+    URI : inputSub1_URI
+    filename : Test
+    AccessTime : None
+    Checksum : None
+    ...
+    Attributes
+    ----------
+     Name : Str
+        Holds the step name
+    uri : URI
+        Holds the input uri. Can be a file location as well. 
+        To learn more about the URI class visit the relavent documentation.
+    filename : str
+        Holds the name of the file you are referecing in the URI
+    AccessTime : DateTime
+        Holds the time the file was first accessed by the author
+    sha1_Checksum : str
+        Holds validation key
+    Getters and Setters
+    ----------
+    isUri()
+        Getter
+    isUri(URI)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None
+        
+    FileName
+    isFilename()
+        Getter
+    isFilename(fn)
+         Setter. Input cannot be None.
+        ValueError thrown if input is None
+    
+    AccessTime
+    accessTime()
+        Getter
+    accessTime(at)
+        Setter. Input can be None
+    
+    Sha1-Checksum
+    shCheck()
+        Getter
+    shCheck(sc)
+        Setter. Input can be None
+    """
+     
+    def __init__(self, uri, filename, access_Time, checksum):
         self.uri = uri
         self.filename = filename
-        self.accessTime = accessTime
+        self.access_Time = access_Time
         self.checksum = checksum
 
     def __repr__(self):
-        return '{} {} {} {}'.format(self.uri, self.filename, self.accessTime, self.checksum)
+        return '{} {} {} {}'.format(self.uri, self.filename, self.access_Time, self.checksum)
 
-    def validate(self, uri, filename, accessTime, checksum):
+    def validate(self, uri, filename, access_Time, checksum):
+
         if uri is None or not isinstance(uri, URI):
             return False
         elif not filename is None and not isinstance(filename, str):
             return False
-        elif not accessTime is None and not isinstance(accessTime, DateTime):
+
+        elif not access_Time is None and not isinstance(access_Time, DateTime):
             return False
         elif not checksum is None and not isinstance(checksum, str):
+
             return False
         return True
 
     @property
+
     def isUri(self):
         return self.uri
 
@@ -1403,20 +2953,91 @@ class InputSubdomain:
             print("This is a required field")
             raise ValueError
         self.filename = fn
+    @property
+    def accessTime(self):
+        return self.access_Time
 
+    @accessTime.setter
+    def accessTime(self, at):
+        self.access_Time = at
+
+    @property
+    def shCheck(self):
+        return self.sha1_Checksum
+
+    @shCheck.setter
+    def shCheck(self, sc):
+        self.sha1_Checksum = sc
 
 class OutputSubdomain:
-    def __init__(self, uri, filename, checksum, mediatype, accessTime):
+    """_summary_
+    Sub Class for the IODomain. Used to hold references and output files for the entire pipeline.
+    This field records the outputs for the entire pipeline. 
+    Each output object is represented as a uri with the addition of a mediatype value.
+    
+    Object Creation: 
+    outputSub1_URI = URI("https://github.com/dpastling/plethora/blob/master/fastq/test_1.fastq.gz")
+    outputSub1 = OutputSubdomain(outputSub1_URI, "TestOut", None, None)
+    
+    Output:
+    URI : outputSub1_URI
+    filename : TestOut
+    AccessTime : None
+    Checksum : None
+    ...
+    Attributes
+    ----------
+     Name : Str
+        Holds the step name
+    uri : URI
+        Holds the input uri. Can be a file location as well. 
+        To learn more about the URI class visit the relavent documentation.
+    filename : str
+        Holds the name of the file you are referecing in the URI
+    AccessTime : DateTime
+        Holds the time the file was first accessed by the author
+    sha1_Checksum : str
+        Holds validation key
+    
+    Getters and Setters
+    -------------------
+    URI
+    osUri()
+        Getter
+    osUri(URI)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None
+        
+    FileName
+    isFilename()
+        Getter
+    isFilename(fn)
+         Setter. Input cannot be None.
+        ValueError thrown if input is None
+    
+    AccessTime
+    accessTime()
+        Getter
+    accessTime(at)
+        Setter. Input can be None
+    
+    Sha1-Checksum
+    shCheck()
+        Getter
+    shCheck(sc)
+        Setter. Input can be None
+    """
+    def __init__(self, uri, filename, checksum, mediatype, access_Time):
         self.uri = uri
         self.filename = filename
         self.checksum = checksum
         self.mediatype = mediatype
-        self.accessTime = accessTime
+        self.access_Time = access_Time
 
     def __repr__(self):
-        return '{} {} {} {}'.format(self.uri, self.filename, self.checksum, self.mediatype, self.accessTime)
+        return '{} {} {} {}'.format(self.uri, self.filename, self.checksum, self.mediatype, self.access_Time)
 
-    def validate(self, uri, filename, checksum, mediatype, accessTime):
+    def validate(self, uri, filename, checksum, mediatype, access_Time):
         if uri is None or not isinstance(uri, URI):
             return False
         elif not filename is None and not isinstance(filename, str):
@@ -1425,11 +3046,12 @@ class OutputSubdomain:
             return False
         elif not checksum is None and not isinstance(checksum, str):
             return False
-        elif not accessTime is None and not isinstance(accessTime, DateTime):
+        elif not access_Time is None and not isinstance(access_Time, DateTime):
             return False
         return True
 
     @property
+
     def osUri(self):
         return self.uri
 
@@ -1450,12 +3072,75 @@ class OutputSubdomain:
             print("This is a required field")
             raise ValueError
         self.filename = fn
+    
+    @property
+    def accessTime(self):
+        return self.access_Time
+
+    @accessTime.setter
+    def accessTime(self, at):
+        self.access_Time = at
+
+    @property
+    def shCheck(self):
+        return self.sha1_Checksum
+
+    @shCheck.setter
+    def shCheck(self, sc):
+        self.sha1_Checksum = sc
 
 
 class IODomain:
+    """_summary_
+    The io_domain represents the list of global input and output files created by the computational workflow.
+    These fields are pointers to objects that can reside in the system performing the computation or any other accessible system. 
+    Just like the Parametric Domain these fields are expected to vary depending on the specific
+    BCO implementation. 
+    
+    Object creation: 
+    inputSubDmn = [inputSub1, inputSub2] <-- Created from the InputSubDomain Class.
+    outputSubDmn = [outputSub] <-- Created from the OutputSubDomian Class. 
+    io_139 = IODomain(inputSubDmn, outputSubDmn)
+    
+    The required fields are both an input and an output. 
+    ...
+    Attributes
+    ----------
+    inputSubdomain : List of InputSubDomain Class Objects
+        This field is to hold the references and input files for the whole pipeline. 
+    outputSubdomain : List of OutputSubDomain Class Objects.
+        This field records the outputs for the entire pipeline
+    
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes
+     validate(empError)
+        Validates if the IODomain object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    inputSubDomain
+    inputSD()
+        Getter
+    inputSD(isd)
+        Setter. Input cannot be None.
+        ValueError raised if input is None. 
+    
+    OutputSubDomain
+    outputSD()
+        Getter
+    outputSD(osd)
+        Setter. Input cannot be None.
+        ValueError raised if input is None. 
+    """
     def __init__(self, input_Subdomain, output_Subdomain):
         self.input_Subdomain = input_Subdomain
         self.output_Subdomain = output_Subdomain
+
 
     def __repr__(self):
         return '{} {}'.format(self.input_Subdomain, self.output_Subdomain)
@@ -1510,6 +3195,109 @@ class Utilities:
 
 # DateTime Object matches ISO 8601 format
 class DateTime:
+
+    """_summary_
+    Helper class used to store time. Used in almost all classes. 
+    Time format : ISO 8601
+    
+    Object Creation:
+    DateTimeTest = DateTime(2022, 11, 5, 09, 12, 51, 0.21, 0)
+    
+    Output
+    Year : 2022
+    Month : 11
+    Day : 5
+    Hour : 09
+    Minute : 12
+    Second : 51
+    SecondFraction : 0.21
+    TimezoneOffset : 0
+    
+    All fields are required
+    ...
+    Attributes
+    ----------
+    year : int
+    month : int
+    day : int
+    hour : int
+    minute : int
+    second : int
+    secondFrac : float
+    timeZoneOffSet : int
+        Holds how far away your time is from EST. 
+        For example if you live in the Pacific Coast your offset would be 0300
+    
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes
+    validate(year, month, day, hour, minute, second, secondFrac, timeZoneOffSet)
+        Validates if the DateTime object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    Year
+    dtYear()
+        Getter
+    dtYear(yr)
+        Setter. Input cannot be None.
+        ValueError raised if input is None. 
+    
+    Month
+    dtMonth()
+        Getter
+    dtMonth(m)
+        Setter. Input cannot be None.
+        ValueError raised if input is None. 
+        
+    Day
+    dtDay()
+        Getter
+    dtDay(d)
+        Setter. Input cannot be None.
+        ValueError raised if input is None. 
+        
+    Hour
+    dtHour()
+        Getter
+    dtHour(hr)
+        Setter. Input cannot be None.
+        ValueError raised if input is None. 
+        
+    Minute
+    dtMinute()
+        Getter
+    dtMinute(min)
+        Setter. Input cannot be None.
+        ValueError raised if input is None. 
+    
+    Second
+    dtSecond()
+        Getter
+    dtSecond(isd)
+        Setter. Input cannot be None.
+        ValueError raised if input is None. 
+    
+    Fraction of a Second
+    dtSecFraction()
+        Getter
+    dtSecFraction(sf)
+        Setter. Input cannot be None.
+        ValueError raised if input is None. 
+    
+    TimeZoneOffset
+    tzone()
+        Getter
+    tzone(isd)
+        Setter. Input cannot be None.
+        ValueError raised if input is None. 
+    
+    """
+
     def __init__(self, year, month, day, hour, minute, second, secondFrac, timeZoneOffSet):
         self.year = year
         self.month = month
@@ -1539,6 +3327,7 @@ class DateTime:
 
         for x in argTypes:
             if not isinstance(x, argTypes[x]) or x is None:
+                print(argTypes[x])
                 return False
         return True
 
@@ -1632,6 +3421,40 @@ class DateTime:
 
 
 class ObjectID:
+
+    """_summary_
+    MetaDomain Class helper. Used to hold the BCO ID string. 
+    
+    Object Creation: 
+    meta_ObjId = ObjectID("https://portal.aws.biochemistry.gwu.edu/bco/BCO_00067092")
+    BCOID is a required field
+    ...
+    Attributes
+    ----------
+    BCOIDSTR : str
+        Holds the link to the BCO
+    
+    Methods
+    -------
+     _repr_()
+        Prints out all attributes
+    validate(self, BCO_Id_Str)
+        Validates if the DateTime object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct. 
+    
+    Getters and Setters
+    -------------------
+    BCOID
+    idStr()
+        Getter
+    idStr(BCOid)
+        Setter. Input cannot be None.
+        ValueError raised if input is None.
+    
+    """
+
     def __init__(self, BCO_Id_Str):
         self.BCO_Id_Str = BCO_Id_Str
 
@@ -1642,6 +3465,8 @@ class ObjectID:
     def validate(self, BCO_Id_Str):
         if BCO_Id_Str is None or not isinstance(BCO_Id_Str, str):
             return False
+
+
 
     @property
     def idStr(self):
@@ -1656,10 +3481,66 @@ class ObjectID:
 
 
 class SemanticVersion:
+    """_summary_
+    General SubClass. Used to hold the versions of scripts and programs used for creating the pipeline.
+    
+    Object Creation:
+    version1 = SemanticVersion(3, 0, 0)
+    Creates a version called 3.0.0
+    Major : 3
+    Minor : 0
+    Patch : 0
+    
+    All fields are required
+    ...
+    Attributes
+    ----------
+    Major : Int
+        Holds the major number of the version. Leading number. 
+    Minor : Int
+        Holds the minor number of the version. Middle number. 
+    Patch : Int
+        Holds the patch number of the version. Last number. 
+    
+    Methods
+    -------
+    _repr_()
+        Prints out all attributes
+    validate(major, minor, patch)
+        Validates if the SemanticVersion object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct.
+    
+    Getters and Setters
+    -------------------
+    Major
+    svMajor()
+        Getter
+    svMajor(mjr)
+        Setter. Input cannot be None.
+        ValueError raised if input is None.
+    
+    Minor
+    svMinor()
+        Getter
+    svMinor(mnr)
+        Setter. Input cannot be None.
+        ValueError raised if input is None.
+    
+    Patch
+    svPatch()
+        Getter
+    svPatch(pch)
+        Setter. Input cannot be None.
+        ValueError raised if input is None.
+     
+    """
     def __init__(self, major, minor, patch):
         self.major = major
         self.minor = minor
         self.patch = patch
+
 
     def __repr__(self):
         return '{} {} {}'.format(self.major, self.minor, self.patch)
@@ -1712,6 +3593,43 @@ class SemanticVersion:
 
 
 class URI:
+
+    """_summary_
+    Helper class used to house URIs. 
+    A URI is is a short string containing a name or address which refers to an object in the "web."
+    
+    Object Creation:
+    meta_URI = URI("https://w3id.org/ieee/ieee-2791-schema/")
+    You do use the URI in more than the meta domain this is just an example.
+    Stores the URI in a string.
+    
+    All fields required
+    ...
+    Attributes
+    ----------
+    URI : Str
+    
+    Methods
+    --------
+    __repr__()
+        Prints out all attributes
+    validate(self, uri_str)
+        Validates if the URI object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct.
+    
+    Getters and Setters
+    -------------------
+    URI
+    uri()
+        Getter
+    uri(URI)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None.
+    
+    """
+
     def __init__(self, uri_Str):
         self.uri_Str = uri_Str
 
@@ -1736,6 +3654,62 @@ class URI:
 
 
 class Script:
+
+    """_summary_
+    Helper class for the makeScript() method. 
+    To learn more about the makeScript() method refer to its documentation.
+    
+    Object Creation
+    testURI = URI(example.com)
+    testScript = Script("makeFile", testURI, None, None)
+    
+    Output
+    Filename : makeFile
+    URI : testURI
+    accessTime : None
+    sha1_checksum : None
+    
+    No required fields
+    ...
+    Methods
+    -------
+    __repr__()
+        Prints out all attributes
+    validate(self, fileName, uri, accessTime, sha1_Checksum)
+        Validates if the URI object is valid. False is retuned if the object is not valid. 
+        If you are unsure why you are getting an invalid object to check: 
+        The required steps are there
+        Please also make sure the types of all attributes is correct.
+    
+    Getters and Setters
+    -------------------
+    URI
+    sptURI()
+        Getter
+    sptURI(newURI)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None
+        
+    FileName
+    filename()
+        Getter
+    filename(FileName)
+         Setter. Input cannot be None.
+        ValueError thrown if input is None
+    
+    AccessTime
+    accessTime()
+        Getter
+    accessTime(at)
+        Setter. Input can be None
+    
+    Sha1-Checksum
+    shCheck()
+        Getter
+    shCheck(sc)
+        Setter. Input can be None
+    """
+
     def __init__(self, fileName, uri, accessTime, sha1_Checksum):
         self.fileName = fileName
         self.uri = uri
@@ -1786,8 +3760,58 @@ class Script:
         self.accessTime = at
 
 
-# TODO add getter setter behavior (@property, @____.setter)
-class Parametric():
+    @property
+    def shCheck(self):
+        return self.sha1_Checksum
+
+    @shCheck.setter
+    def shCheck(self, sc):
+        self.sha1_Checksum = sc
+        
+class Parametric:
+    """_summary_
+    The Parametric Class represents the list of parameters customizing the 
+    computational flow which can affect the output of the calculations.
+    These fields can be custom to each kind of analysis and are tied to a particular pipeline implementation.
+    Please refer to documentation of individual scripts and specific BCO descriptions for details. 
+    This is an optional domain. 
+    
+    Object Creation:
+    ParamT = Parametric(1, "seed" , 14)
+    Step : 1
+    Parameter : Seed
+    Value : 14
+    
+    Attributes
+    -----------
+    Step : Int
+        Holds 
+    Parameter : Str
+        Holds
+    Value : Int
+        Holds
+    
+    Getters and Setter
+    ------------------
+    Step
+    stp()
+        Getter
+    stp(stepIn)
+        Setter input can be None.   
+    
+    Parameter
+    param()
+        Getter
+    param(paramIn)
+        Setter input can be None. 
+    
+    Value
+    val()
+        Getter
+    val(valIn)
+        Setter input can be None.  
+    """
+
     def __init__(self, step, parameter, value):
         self.step = step
         self. parameter = parameter
@@ -1802,6 +3826,30 @@ class Parametric():
             if not isinstance(x, str) or x is None:
                 return False
         return True
+
+    @property
+    def stp(self):
+        return self.step
+
+    @stp.setter
+    def stp(self, stepIn):
+        self.fileName = stepIn
+
+    @property
+    def param(self):
+        return self.parameter
+
+    @param.setter
+    def param(self, paramIn):
+        self.parameter = paramIn
+    
+    @property
+    def val(self):
+        return self.value
+
+    @val.setter
+    def val(self, valIn):
+        self.value = valIn
 
      
 
@@ -1957,6 +4005,8 @@ softwrePrereq3_URI = URI("http://samtools.sourceforge.net/")
 softwrePrereq4_URI = URI("https://cutadapt.readthedocs.io/en/stable/")
 softwrePrereq5_URI = URI("https://pip.pypa.io/en/stable/")
 
+
+
 # Version validate already tested above. See lines 618, 619, 627, 628
 bow_Version = SemanticVersion(2, 2, 9)
 bed_Version = SemanticVersion(2, 17, 0)
@@ -1975,6 +4025,20 @@ softwrePrereq5 = SoftwarePrerequisites('pip3', pip_Version, softwrePrereq5_URI, 
 badPrereq1 = SoftwarePrerequisites("bad prereq", None, softwrePrereq1_URI, None, None, None) # required error
 badPrereq2 = SoftwarePrerequisites("Bowtie 2", bow_Version, "http://bowtie-bio.sourceforge.net/bowtie2/index.shtml", None, None, None) # type error
 softwrePrereqs = [softwrePrereq1, softwrePrereq2, softwrePrereq3, softwrePrereq4, softwrePrereq5]
+
+# EXTENSION DOMAIN
+schemaList1 = "https://w3id.org/biocompute/extension_domain/1.1.0/scm/scm_extension.json"
+scmRepo1 = "https://github.com/example/repo1"
+scmRepo2 = "git"
+scmCommit = "c9ffea0b60fa3bcf8e138af7c99ca141a6b8fb21"
+scmPath = "workflow/hive-viral-mutation-detection.cwl"
+scmPreview = "https://github.com/example/repo1/blob/c9ffea0b60fa3bcf8e138af7c99ca141a6b8fb21/workflow/hive-viral-mutation-detection.cwl"
+schema = [schemaList1]
+scm = [scmRepo1, scmRepo2, scmCommit, scmPath, scmPreview]
+
+#extTest = ExtensionDomain(schema, scm)
+#print("Schema: ",schema)
+#print("scm",scm)
 
 # k = 1
 # for pre in softwrePrereqs:
@@ -2063,6 +4127,10 @@ params_139 = None
 
 # BIOCOMPUTE CLASS OBJECT
 BCO_000139 = BioComputeObject(meta_139, use_139, prov_139, excn_139, None, descrpt_139, error_139, io_139, params_139)
+
+BCO_000139.validate(meta_139, use_139, prov_139, excn_139, None, descrpt_139, error_139, io_139, params_139)
+print("passed")
+
 # PRINT BIOCOMPUTE CLASS OBJECT
 # pprint(vars(BCO_000139))
 # pprint(vars(BCO_000139.description_Domain))
@@ -2256,7 +4324,30 @@ BCO_000139 = BioComputeObject(meta_139, use_139, prov_139, excn_139, None, descr
 
 # ***************************************** MAKE BCO CLASS OBJECT FUNCTION + HELPER FUNCTIONS *********************************************
 
+
+"""_summary_
+    Make BCO Class Object functions
+    --------------------------------
+    These assortment of functions are to help you make your own BCO class in the compiler itself.
+    
+    You can make an entire BCO like this.
+    Once you've made a BCO you can export it with the exportToJSON() function. 
+    To learn more about how to make a specific domain refer to its documentation. 
+"""
+
 def makeMeta():
+    """_summary_
+    The make function for the meta domain. 
+    When you call it you will be prompted to enter an Etag, BCOID, and SpecVersion. 
+    To learn if they are required refer to the Meta Class. 
+    Suggested to somewhat familiarize yourself with each Domain before using the make functions. 
+    
+    If you get an invalid object please make sure all the required arugments are in place. 
+     
+    Returns:
+        Meta : Meta Domain object
+    """
+
     print("META DATA:")
     newEtag = makeEtag()
     newBCOid = makeBCOid()
@@ -2277,21 +4368,58 @@ def makeMeta():
 
 
 def makeBCOid():
+
+    """_summary_
+    Helper Method for makeMeta domain. 
+    Used to create a BCOid. 
+    Returns:
+        ObjectID: BCOid
+    """
+
     id = input("Enter the BCO id: ")
     BCOid = ObjectID(id)
     return BCOid
 
 def makeSpecVersion():
+
+    """_summary_
+    Helper method for makeMeta domain.
+    Used to create a SpecVersion.
+    Returns:
+        URI: Spec
+    """
+
     temp = input("Enter spec version uri: ")
     newSpec = URI(temp)
     return newSpec
 
 def makeEtag():
+
+    """_summary_
+    Helper Method for makeMeta domain.
+    Used to create a Etag.
+    Returns:
+        Str: etag
+    """
+
     tag = input("Enter the etag generated by the BioCompute Object builder: ")
     return tag
 
 
 def makeExt():
+
+    """_summary_
+    The make function for the Extension Domain. This is not a required domain
+    When you call it you will be prompted to enter a Schema, and UserList. 
+    To learn if they are required refer to the Extension Class. 
+    Suggested to somewhat familiarize yourself with each Domain before using the make functions. 
+    
+    If you get an invalid object please make sure all the required arugments are in place. 
+     
+    Returns:
+        ExtensionDomain : Extension Domain object
+    """
+
     print("EXTENSION DOMAIN")
     numSchema = int(input("Enter the number of Schemas (Can be 0): "))
     numUserList = int(input("Enter the number of User Defined Attributes used (Can be 0): "))
@@ -2314,17 +4442,50 @@ def makeExt():
     return newExt
 
 def makeExtensionSchema():
+
+    """_summary_
+    Helper Method for the makeExtension Domain.
+    Used to create a Schema. 
+    Returns:
+        ExtensionDomain: Schema
+    """
+
     schemaLink = input("Enter schemaLink: ")
     schemaReturn = ExtensionDomain(schemaLink, None)
     return schemaReturn
     
 def makeScmExt():
+
+    """_summary_
+    Helper Method for the makeExtension Domain.
+    Used to create a SchemaExtrension. 
+    Returns:
+        ExtensionDomain: ExtensionSchema
+    """
+
     userIn = input("Enter the additional fields: ")
     return userIn
 
 
 #Provenance Domain
 def makeProv():
+
+    """_summary_
+    The make function for the Provenance Domain. This is a required domain. 
+    When you call it you will be prompted to enter the number of reviewers and contributors. 
+    
+    From there you will be promted to enter the pipeline name, the version, ID, 
+    Creation, modification, Obselete date, and Embargo date of the pipeline.
+    
+    To learn if they are required refer to the ProvenanceDomain Class. 
+    Suggested to somewhat familiarize yourself with each Domain before using the make functions. 
+    
+    If you get an invalid object please make sure all the required arugments are in place. 
+     
+    Returns:
+        Provenance : Provenance Domain object
+    """
+
     print("PROVENANCE DOMAIN")
     #loop through number of contributors needed and call makeContributor inside loop, put them in list
     #same with reviewer
@@ -2363,6 +4524,14 @@ def makeProv():
         makeProv()
 
 def makeCreated():
+
+    """_summary_
+    Helper Method for the makeProv Domain.
+    Used to create the creation date for the Provenance. 
+    Returns:
+        DateTime: Time of Domain Creation
+    """
+
     year = int(input("(int) Enter the year the BioCompute Object was created: "))
     month = int(input("(int) Enter the month the BioCompute Object was created: "))
     day = int(input("(int) Enter the day the BioCompute Object was created: "))
@@ -2382,6 +4551,14 @@ def makeCreated():
 
 
 def makeModified():
+
+    """_summary_
+    Helper Method for the makeProv Domain.
+    Used to create the modified date for the Provenance. 
+    Returns:
+        DateTime: Time of Domain Modification
+    """
+
     year = int(input("(int) Enter the year the BioCompute Object was modified: "))
     month = int(input("(int) Enter the month the BioCompute Object was modified: "))
     day = int(input("(int) Enter the day the BioCompute Object was modified: "))
@@ -2402,6 +4579,14 @@ def makeModified():
 
 
 def makeVersion():
+
+    """_summary_
+    Helper Method for the makeProv Domain.
+    Used to create the version date
+    Returns:
+        SemanticVersion: Version of Prov domain
+    """
+
     print("Semantic Versioning used (major. minor. patch)")
     major = int(input("(int) Enter the major: "))
     minor = int(input("(int) Enter the minor: "))
@@ -2417,6 +4602,15 @@ def makeVersion():
 
 
 def makeContributor():
+
+    """_summary_
+    Helper Method for the makeProv Domain.
+    Used to create the information of a contributor for the Provenance Domain.
+    To learn more about contributors reference the Contributor Documentation. 
+    Returns:
+        Contributor: Information of the contributor
+    """
+
     print("Contributor Information")
     contName = input("Enter the contributor's name: ")
     cont = input("Enter contribution ('createdBy', 'authoredBy', 'contributedBy', 'createdAt', 'createdWith', 'curatedBy') or 'None':  ")
@@ -2449,6 +4643,15 @@ def makeContributor():
 
 
 def makeReviewer():
+
+    """_summary_
+    Helper Method for the makeProv Domain.
+    Used to create the information of a reviewer for the Provenance Domain.
+    To learn more about reviewers reference the Reviewer Documentation. 
+    Returns:
+        Reviewer: Information of the Reviewer
+    """
+
     print("Reviewer Information")
     noDate = input("Is there a date with the review? (y/n): ")
     if noDate == 'n':
@@ -2503,6 +4706,15 @@ def makeReviewer():
             return None
 
 def makeEmbargo():
+
+    """_summary_
+    Helper Method for the makeProv Domain.
+    Used to create the time of an Embargo for the Provenance Domain.
+    To learn more about Embargos reference the Emargo Documentation. 
+    Returns:
+        Embargo: Start and end date of an Embargo
+    """
+
     print("Embargo Information")
     isNone = input("Enter 'None' if there is no embargo field: ")
     if isNone == 'None':
@@ -2546,6 +4758,15 @@ def makeEmbargo():
 
 
 def makeObsoleteDate():
+
+    """_summary_
+    Helper Method for the makeProv Domain.
+    Used to create the time of an Obsolete date for the Provenance Domain.
+    To learn more about Obsolete Dates reference the Provenance Domain Documentation. 
+    Returns:
+        DateTime: The Date the BCO becomes Obsolete
+    """
+
     isNone = input("Enter 'None' if there is no obsolete time field: ")
     if isNone == 'None':
         return None
@@ -2572,6 +4793,14 @@ def makeObsoleteDate():
             return None
 
 def makeDerivedID():
+
+    """_summary_
+    Helper Method for the makeProv Domain.
+    Holds the parent BCO.
+    Returns:
+        ObjectID: Parent Class of BCO
+    """
+
     parentID = input("Enter the parent BCO ID or 'None' if BCO is not derived from another object: ")
     if parentID == 'None':
         return None
@@ -2580,6 +4809,15 @@ def makeDerivedID():
 
 
 def makeExDataEndPts():
+
+    """_summary_
+    Helper Method for the makeExec Domain.
+    Holds External Data Endpoints. 
+    To learn more about External Data Endpoints refer to its documentation.
+    Returns:
+        ExternalDataEndpoints: List of External Data accessed
+    """
+
     print("External Data Endpoints Information")
     fn = input("Enter the name of the external data endpoint: ")
     url = input("Enter the URL of the external data endpoint: ")
@@ -2588,6 +4826,16 @@ def makeExDataEndPts():
     return dataEndPt
 
 def makeEnvironmentVars():
+
+    """_summary_
+    Helper Method for the makeExec Domain.
+    Holds Environment Variables. 
+    To learn more about Environment Variables refer to its documentation.
+    Returns:
+        EnvironmentVariable: Key value pairs of recreating the environment used 
+                             to create the expirement
+    """
+
     print("Environment Variables Information")
     isNone = input("Enter 'None' if Environment Variables are not included in BCO, otherwise, enter any key: ")
     if isNone == 'None':
@@ -2606,6 +4854,21 @@ def makeEnvironmentVars():
 
 
 def makeExecution():
+
+    """_summary_
+    The make function for the Execution Domain. This is a required domain. 
+    When you call it you will be prompted to enter the number of External Data Endpoints, Software Prerequisites and Scripts. 
+    From there you will be promted to enter the Script Driver.
+    
+    To learn if they are required refer to the ExecutionDomain Class. 
+    Suggested to somewhat familiarize yourself with each Domain before using the make functions. 
+    
+    If you get an invalid object please make sure all the required arugments are in place. 
+     
+    Returns:
+        Extension : Extension Domain object
+    """
+
     print("EXECUTION DOMAIN")
     numExtPts = int(input("Enter the number of External Data Endpoints your BCO has: "))
     numPrereqs = int(input("Enter the number of Software Prerequisites your BCO has: "))
@@ -2647,6 +4910,19 @@ def makeExecution():
 
     
 def makeScript():
+
+    """_summary_
+    Helper Method for makeExecution. 
+    Used to create the script used to execute the pipeline. 
+    A script is a URI that contains what is needed to run and create the pipeline. 
+    
+    You are required to list the Scripts URI.
+    The Filename, access time and SHA1 Checksum are not required. 
+    Filename is reccommended. 
+    Returns:
+        Script: A script with all the necessary information provided by the user. 
+    """
+
     print("Script(s) Information")
     isAccess = input("Does your script have an access time? (y/n): ")
     if isAccess == 'n':
@@ -2678,6 +4954,15 @@ def makeScript():
 
 
 def makeDateTime():
+
+    """_summary_
+    General Helper Method. Used for a variety of methods. 
+    Creates a datetime object. The Time format is ISO 8601.
+    
+    Returns:
+        DateTime: Time in yr/mm/dd/hr/min/sec/secFrac/timezone
+    """
+
     year = int(input("(int) Enter the year: "))
     month = int(input("(int) Enter the month: "))
     day = int(input("(int) Enter the day: "))
@@ -2700,11 +4985,31 @@ def makeDateTime():
             return None
 
 def makeURI():
+
+    """_summary_
+    General Helper Method.
+    Calls URI class to make a URI. 
+    
+    Returns:
+        URI: Stores the URI 
+    """
+
     newUri = input("Enter uri: ")
     newURI = URI(newUri)
     return newURI
 
 def makeSoftwarePrereqs():
+
+    """_summary_
+    Helper Method for the ExecutionDomain. 
+    Houses steps to get a pipeline up and running.
+    To learn about the specifics of the SoftwarePrerequisites class refer to its documentation.
+    
+    You are required to have a Name, Version and URI. 
+    Returns:
+        SoftwarePrerequisites: Steps required to run a pipeline
+    """
+
     print("Software Prerequisite Information")
     tempName = input("Enter name of software prerequisite: ")
     tempFileName = input("Enter 'None' if there is no filename, otherwise enter the filename of sofetware prerequisite: ")
@@ -2735,6 +5040,15 @@ def makeSoftwarePrereqs():
 
 
 def makeInputSubdomain():
+
+    """_summary_
+    Helper Method for the IODomain. 
+    Each input file is to be listed as a URI. 
+    
+    Returns:
+        InputSubdomain: Holds references and input files for the entire pipeline.
+    """
+
     print("Input Subdomain Information")
     inAccessTime = input("Is there an access time? Enter (y/n): ")
     if inAccessTime == 'y':
@@ -2762,6 +5076,15 @@ def makeInputSubdomain():
 
 
 def makeOutputSubdomain():
+
+    """_summary_
+    Helper Method for the IODomain. 
+    Used to hold references and output files for the entire pipeline.
+    
+    Returns:
+        OutputSubdomain : This field records the outputs for the entire pipeline. 
+    """
+
     print("Output Subdomain Information")
     outAccessTime = input("Is there an access time? Enter (y/n): ")
     if outAccessTime == 'y':
@@ -2794,6 +5117,18 @@ def makeOutputSubdomain():
 
 
 def makeIO():
+
+    """_summary_
+    The io_domain represents the list of global input and output files created by the computational workflow.
+    These fields are pointers to objects that can reside in the system performing the computation or any other accessible system. 
+    Just like the Parametric Domain these fields are expected to vary depending on the specific
+    BCO implementation. 
+    
+    The required fields are both an input and an output. 
+    Returns:
+        IODomain: List of global input and output files
+    """
+
     print("IO DOMAIN")
     numIns = int(input("Enter the number of inputs: "))
     numOuts = int(input("Enter the number of outputs: "))
@@ -2826,6 +5161,15 @@ def makeIO():
 
 
 def makeDescription():
+
+    """_summary_
+    The Description Domain contains structured field for description of external references, 
+    the pipeline steps, and the relationship of I/O objects.
+    The required inputs are pipeline steps, and keywords. 
+    Returns:
+        DescriptionDomain: A domain with keywords, pipeline steps, platforms and Xrefs. 
+    """
+
     print("DESCRIPTION DOMAIN")
     numSteps = int(input("Enter the number of pipeline steps you have: "))
     step = 0
@@ -2852,6 +5196,19 @@ def makeDescription():
             return None
 
 def makeXRefs():
+
+    """_summary_
+    Helper Method for makeDesc()
+    The field contains a list of the databases and/or ontology IDs that are cross-referenced in the BCO.
+     Full path to resource is not necessary, only namespace and identifier.
+     The external references are stored in the form of prefixed identifiers. 
+     These CURIEs map directly to the URIs maintained by identifiers.org.
+     Therefore, cross-referenced resources need to be available in the public domain. 
+     (https://docs.biocomputeobject.org/description-domain/)
+    Returns:
+        List: A list of all external references used by the BCO.
+    """
+
     print("Xref Information")
     xrefList = []
     numXrefs = int(input("Enter the number of X Refs your BCO has: "))
@@ -2862,6 +5219,15 @@ def makeXRefs():
     return xrefList
 
 def makeKeywords():
+
+    """_summary_
+    Helper method for makeDesc()
+    The list of keywords is stored as a string. 
+    This is a list of keywords to aid in search-ability and description of the experiment. 
+    Returns:
+       List : Keywords that describe the BCO
+    """
+
     keywordsList = []
     numWords = int(input("Enter the number of keywords your BCO has: "))
     k = 0
@@ -2874,6 +5240,17 @@ def makeKeywords():
 
 
 def makePipelineSteps():
+
+    """_summary_
+    Each tool and well defined script is represented as a step, at the discretion of the author. 
+    Minor steps can be placed in the Usability Domain. 
+    Since steps can run in parralel its up to the author to determine which step comes before the next. 
+    However, DO NOT repeat steps. 
+    Even if you run 2 an analysis and an alignment at the same time do not label them as the same step. 
+    Returns:
+        PipelineSteps: List of steps to get a pipeline up and running
+    """
+
     print("Pipeline Step Information")
     stepNum = int(input("(int) Enter the step number of the pipeline step: "))
     pipeName = input("Enter the name of the pipeline step: ")
@@ -2922,6 +5299,17 @@ def makePipelineSteps():
 
 # pipeline argument
 def makePrereqs():
+
+    """_summary_
+    Helper Method for pipleline steps. 
+    Holds the prerequisites needed to run a step in the pipeline.
+    For example, if you were running an analysis on a file you would have that file in the prerequisite field.
+    The only required field is the URI. 
+
+    Returns:
+        Input: List of prerequisites. 
+    """
+
     print("Pipeline Step Prerequisites")
     prereqName = input("Enter 'None' if the name is not included, otherwise enter the name of the prerequisite: ")
     if prereqName == 'None':
@@ -2959,6 +5347,15 @@ def makePrereqs():
 # pipeline argument
 # make the actual list in the makePipeline() function
 def makeInputList():
+
+    """_summary_
+    Helper Method for makeDesc()
+    Houses the inputs taken in to replicate the pipline.
+    URI Is required
+    Returns:
+        Input: Class object with details provided by user. 
+    """
+
     print("Pipeline Step Inputs")
     inFilename = input("Enter 'None' if the filename is not included, otherwise enter the filename of the input file: ")
     if inFilename == 'None':
@@ -2992,6 +5389,15 @@ def makeInputList():
 
 # pipeline argument
 def makeOutputList():
+
+    """_summary_
+    Helper Method for makeDesc()
+    Houses the outputs given by scripts to replicate the pipline.
+    URI Is required
+    Returns:
+        Input: Class object with details provided by user. 
+    """
+
     print("Pipeline Step Outputs")
     outFilename = input("Enter 'None' if the filename is not included, otherwise enter the filename of the output file: ")
     if outFilename == 'None':
@@ -3024,6 +5430,15 @@ def makeOutputList():
 
 
 def makePlatform():
+
+    """_summary_
+    Helper Method for makeDesc()
+    Lists the platform that can be used to reproduce the BCO. For reference only. 
+
+    Returns:
+        List: List of platforms your BCO has
+    """
+
     print("Platform Information")
     platformsList = []
     numP = int(input("Enter the number of platforms your BCO has: "))
@@ -3036,6 +5451,19 @@ def makePlatform():
     return platformsList
 
 def makeXref():
+
+    """_summary_
+    Helper Method for makeDesc()
+    The field contains a list of the databases and/or ontology IDs that are cross-referenced in the BCO.
+     Full path to resource is not necessary, only namespace and identifier.
+     The external references are stored in the form of prefixed identifiers. 
+     These CURIEs map directly to the URIs maintained by identifiers.org.
+     Therefore, cross-referenced resources need to be available in the public domain. 
+     (https://docs.biocomputeobject.org/description-domain/)
+    Returns:
+        List: A list of all external references used by the BCO.
+    """
+    
     print("Xref Information")
     nameSpace = input("Enter the Namespace of the X Ref: ")
     xName = input("Enter the Name of the X Ref")
@@ -3055,6 +5483,15 @@ def makeXref():
             return None
 
 def makeError():
+
+    """_summary_
+    The error domain can be used to determine what range of input returns outputs 
+    that are within the tolerance level defined in this subdomain and therefore can be used to optimize algorithm.
+    The Error domain contains 2 subdomains.
+    Returns:
+        ErrorDomain: List of errors that can be encountered by replicating the BCO. 
+    """
+
     print("ERROR DOMAIN")
     numEmp = int(input("Enter the number of Empirical errors your BCO has: "))
     numAlg = int(input("Enter the number of Algorithmic errors your BCO has: "))
@@ -3086,17 +5523,53 @@ def makeError():
 
 
 def makeEmpiricalError():
-    empirical = input("Enter empirical error: ")
+
+    """_summary_
+    Helper Method for makeError(). Used to empirically determined values such as limits of detectability, false positives, 
+    false negatives, statistical confidence of outcomes, etc.
+    This can be measured by running the algorithm on multiple data samples 
+    of the usability domain or through the use of carefully designed in-silico data.
+    For example, a set of spiked, well-characterized samples can be run through the algorithm to 
+    determine the false positives, negatives, and limits of detection.
+    (https://docs.biocomputeobject.org/error-domain/)
+    Returns:
+        EmipricalError: The value of the EmpiricalError
+    """
+    empirical = str(input("Enter empirical error: "))
+
     empError = EmpiricalError(empirical)
     return empError
 
 def makeAlgorithmicError():
-    algorithmic = input("Enter algorithmic error: ")
+
+    """_summary_
+    Helper Method for makeError(). The Domain is descriptive of errors that originate by fuzziness of the algorithms, driven by stochastic processes, 
+    in dynamically parallelized multi-threaded executions, or in machine learning methodologies where the state of the machine can affect the outcome. 
+    This can be measured by taking a random subset of the data and re-running the analysis, or using some rigorous mathematical 
+    modeling of the accumulated errors and providing confidence values.
+    For example, bootstrapping is frequently used with stochastic simulation based algorithms to accumulate 
+    sets of outcomes and estimate statistically significant variability for the results.
+    Returns:
+        AlgorithmicError: The value of AlgorithmicError
+    """
+    algorithmic = str(input("Enter algorithmic error: "))
+
     algError = AlgorithmicError(algorithmic)
     return algError
 
 
 def makeParametric():
+
+    """_summary_
+    The Parametric Class represents the list of parameters customizing the 
+    computational flow which can affect the output of the calculations.
+    These fields can be custom to each kind of analysis and are tied to a particular pipeline implementation.
+    Please refer to documentation of individual scripts and specific BCO descriptions for details. 
+    This is an optional domain.
+    Returns:
+        Parametric: List of customizable parameters. 
+    """
+
     print("PARAMETRIC DOMAIN")
     numParams = int(input("How many Parameters does your BioCompute Object have? "))
     p = 0
@@ -3117,6 +5590,21 @@ def makeParametric():
 
 
 def makeBCO():
+
+    """_summary_
+    The method all users should be using. 
+    You will make a
+    Meta Domain
+    Usability Domain
+    Provenance Domain
+    Execution Domain
+    Error Domain
+    IO Domain
+    and Parametric Domain
+    Returns:
+        BioComputeObject: A complete Bio Compute Object
+    """
+
     newMeta = makeMeta()
     print("USABILITY DOMAIN")
     newUse = str(input("Enter the Usability: "))
@@ -3164,6 +5652,24 @@ def makeBCO():
 
 # turns string to DateTime class object
 def strToDateTime(dateStr):
+
+    """_summary_
+    General Helper method.
+    Used to convert a string date into a numeric date where each part 
+    of the date is seperated. 
+    For example:
+    If you take in 2022/07/25
+    it will be split up as 
+    Year : 2022
+    Month : 07
+    Day : 25
+    Args:
+        dateStr (Str): Takes in a string date
+
+    Returns:
+        DateTime: yr/mm/dd/hr/min/sec/secFrac/timezone
+    """
+
 
     # separate numbers of the date string from formatting chars ('-', ':', 'T', '.', '+')
     # pass numbers in to make DateTime object
@@ -3223,6 +5729,16 @@ def strToDateTime(dateStr):
 # takes in string and returns Version object
 def strToVersion(strVers):
 
+    """_summary_
+    General helper method.
+    Takes in a string version and returns it as a Version object.
+    Args:
+        strVers (Str): String verison
+
+    Returns:
+        SemanticVersion: Version 
+    """
+
     # separate numbers of the version string from formatting chars ('.')
     # pass numbers in to make Version object
     # Handle different formats with ifs, try-catch and 'None' (Major.Minor.Patch) and (Major.Minor)
@@ -3264,6 +5780,18 @@ def strToVersion(strVers):
 
 #THIS IS NOT COMPLETE. STILL NEEDS A LOT OF WORK. AS OF NOW IT EXPORTS JSON JUST FINE. HOWEVER, IT IS VERY VERY HARD TO READ 
 def exportJSON(BCOin):
+
+    """_summary_
+    Domain Exporting tool.
+    After you've finished making your BCO call this with the BCO as an input to convert it to JSON.
+    As of now this is unfinished. All the JSON exports properly however it is not formatted. 
+    Args:
+        BCOin (BioComputeObject): Complete BCO input
+
+    Returns:
+        None: None
+    """
+
     #Converts all Domains to a dictionary
     if isinstance(BCOin, BioComputeObject):
         Set = {
@@ -3282,6 +5810,17 @@ def exportJSON(BCOin):
     return None
 
 def importJSON(filepath):
+
+    """_summary_
+    General helper function.
+    Allows user to import a BCO. 
+    Args:
+        filepath (Str): Location of BCO on computer
+
+    Returns:
+        BioComputeObject: A BCO
+    """
+
     try:
         outputBCO = JSONtoClass(filepath)
     except FileNotFoundError:
@@ -3290,6 +5829,17 @@ def importJSON(filepath):
 
 #read in JSON file, create bco class instance from json
 def JSONtoClass(jsonFn):
+
+    """_summary_
+    Takes in a JSON file and converts it to a BCO class object. 
+    Works great with most parts except the Extension Domain.
+    Since the Extension Domain is a user defined type the program will just capture all of the data.
+    This means the schema will be repeated. 
+    
+    Args:
+        jsonFn (JSON): A JSON file with a complete BCO input. 
+    """
+
     f = open(jsonFn, 'r')
 
     data = json.load(f)
@@ -3678,6 +6228,9 @@ def JSONtoClass(jsonFn):
     jExtension = None
     #print(extensionSchema)
     #print(userData)
+
+    #IMPORTANT COMPLETELY BROKE PLEASE FIX
+
     #jExtension = ExtensionDomain(extensionSchema, userData)
 
 
@@ -3811,7 +6364,9 @@ def JSONtoClass(jsonFn):
 
 # newBCO1 = JSONtoClass("/Users/Panig/Desktop/extensionDomanText.json")
 # newBCO2 = JSONtoClass("/Users/seanc/Desktop/CopyNumberCounterBCO.json")
-newBCO3 = JSONtoClass("/Users/seanc/Desktop/TEST_BCO.json") # Modified pipeline to test areToolsRegistered() and alignSteps()
+
+# newBCO3 = JSONtoClass("/Users/Panig/Desktop/extensionDomanText.json") # Modified pipeline to test areToolsRegistered() and alignSteps()
+
 
 
 
@@ -3825,12 +6380,32 @@ newBCO3 = JSONtoClass("/Users/seanc/Desktop/TEST_BCO.json") # Modified pipeline 
 
 # sets BCO inputted to None. Needs more. Can be done once a container is made, a way to save out the BCO. 
 def deleteBCO(BCOin):
-    
+
+    """_summary_
+    Unfinished please don't call this
+    Args:
+        BCOin (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
     BCOin = None
     return BCOin
 
 # returns true if the two BCOs are the same BCO 
 def isSameBCO(BCO1, BCO2):
+
+    """_summary_
+    Alignment Helper function.
+    Takes in 2 BCOs and determines if they are the same BCO with the meta tags. 
+    Args:
+        BCO1 (BioComputeObject): A BCO input
+        BCO2 (BioComputeObject): A BCO input
+
+    Returns:
+        Boolean: True or False
+    """
 
     if isinstance(BCO1, BioComputeObject):
         meta1 = BCO1.meta
@@ -3851,6 +6426,18 @@ def isSameBCO(BCO1, BCO2):
 
 # returns true if one BCO is derived from the other
 def isParentBCO(BCO1, BCO2):
+
+    """_summary_
+    Alignment Helper Function
+    Takes in 2 BCOs and determines if one is derived from another with derived from, meta and BCO ID.
+
+    Args:
+        BCO1 (BioComputeObject): A complete BCO object
+        BCO2 (BioComputeObject): A complete BCO object
+
+    Returns:
+        Boolean: True or False
+    """
 
     if isinstance(BCO1, BioComputeObject):
         meta1 = BCO1.meta
@@ -3923,6 +6510,19 @@ def test2(BCO1, BCO2):
 
 # compares the prerequisites, script driver, and external data endpoints needed to run each pipeline
 def comparePrereqs(BCO1, BCO2):
+
+    """_summary_
+    Alignment Helper Function
+    Takes in 2 BCOs and compares the prerequisites, script driver, and external data endpoints needed to run each pipeline.
+    Returns true if they are the same. 
+    Args:
+        BCO1 (BioComputeObject): A complete BCO object
+        BCO2 (BioComputeObject): A complete BCO object
+
+    Returns:
+        Boolean: True or False
+    """
+
     if isinstance(BCO1, BioComputeObject):
         execution1 = BCO1.execution_Domain
     if isinstance(execution1, ExecutionDomain):
@@ -3986,6 +6586,17 @@ def comparePrereqs(BCO1, BCO2):
     return False
 
 def getToolType(toolName):
+
+    """_summary_
+    General Helper method.
+    Gets the toolType of a tool. For example Bowtie2 would return aligner as the tooltype. 
+    Args:
+        toolName (Str): The name of the tool
+
+    Returns:
+        Str: Type of the tool
+    """
+
     # query toolType database in git and return string type
     targetFile = 'https://raw.github.com/biocompute-objects/-Tool-Type-Dictionary/main/toolsDictionary.json'
     req = requests.get(targetFile)
@@ -4000,6 +6611,13 @@ def getToolType(toolName):
     return toolType
 
 def alignLogic():
+
+    """_summary_
+    
+    Returns:
+        _type_: _description_
+    """
+
     wfl1 = ["Alignment", "Variant Calling", "Annotation", "Enrichment"]
     wfl2 = ["Alignment", "Variant Calling", "Filtering", "Annotation"]
     overlap = []
@@ -4039,6 +6657,21 @@ def alignLogic():
 # alignLogic()
 
 def alignSteps(BCO1, BCO2):
+
+    """_summary_
+    Main alignment function. Alignment is creating a graphic with the overlap of workflows between 2 BCOs.
+    Creates two lists containing the tooltype used in each step.
+    If two BCOs have the same tool type with a position difference of just one, 
+    an empty space is added between alignment steps so the steps are synced. 
+    
+    Args:
+        BCO1 (BioComputeObject): A complete BCO
+        BCO2 (BioComputeObject): A complete BCO
+
+    Returns:
+        List: An output list with the overlapped list and the regular pipeline lists of both BCOs. 
+    """
+
     # NOTE: can assume tools are registered in toolType dictionary 
 
     if isinstance(BCO1, BioComputeObject):
@@ -4101,6 +6734,12 @@ def alignSteps(BCO1, BCO2):
 # alignSteps(BCO_000139, newBCO3)
 
 def alignedOutput():
+
+    """_summary_
+    Alignment helper method.
+    Displays the workflow overlap between two BCOs. 
+    """
+
     lists = alignSteps(BCO_000139, newBCO3)
     print('\n')
     print('{:50} {:50} {:50}'.format("Workflow Overlap", "BCO 1", "BCO 2"))
@@ -4108,12 +6747,27 @@ def alignedOutput():
     for x, y, z in zip(*lists):
         print('{:50} {:50} {:50}'.format(x, y, z))
 
-alignedOutput()
+
+#alignedOutput()
+
 
 
 # Loops through pipeline steps for both BCOs and checks if the tool used in each step is registered in the toolType repo
 # Retruns true if tools of ALL steps of BOTH bcos are registered, false otherwise
 def areToolsRegistered(BCO1, BCO2):
+
+    """_summary_
+    Alignment Helper method.
+    Checks if a tool type used by a BCO is registered in a dictionary.
+    
+    Args:
+        BCO1 (BioComputeObject): A complete BCO object
+        BCO2 (BioComputeObject): A complete BCO object
+
+    Returns:
+        Boolean: True or false depending if the tool is registerd
+    """
+
     # targetFile2 = 'https://raw.github.com/skeeney01/-Tool-Type-Dictionary/main/toolsDictionary.json'
     targetFile = 'https://raw.github.com/biocompute-objects/-Tool-Type-Dictionary/main/toolsDictionary.json'
     req = requests.get(targetFile)
@@ -4253,6 +6907,20 @@ def areToolsRegistered(BCO1, BCO2):
 # outputs simple side by side comparison of bco workflows if either one contains a tool not registered in the toolType Dictionary
 # Shows the step number and name
 def sideBySideWorkflows(BCO1, BCO2):
+
+    """_summary_
+    Prints a side by side comparison of the two BCOs workflows 
+    if either one contains a tool not registered in the toolType Dictionary
+    It also shows the step number and name of the tool. 
+    
+   Args:
+        BCO1 (BioComputeObject): A complete BCO object
+        BCO2 (BioComputeObject): A complete BCO object
+
+    Returns:
+        None: None
+    """
+
     if isinstance(BCO1, BioComputeObject):
         desc_BCO1 = BCO1.description_Domain
     if isinstance(BCO2, BioComputeObject):
@@ -4293,6 +6961,19 @@ def sideBySideWorkflows(BCO1, BCO2):
 # compares software prereqs, checks if two BCOs are the same or if one is derived from the other
 # can take in BCO class object and json (any combination of the two)
 def simpleStats(BCO1, BCO2):
+
+    """_summary_
+    Compares software prereqs, checks if two BCOs are the same or if one is derived from the other
+    can take in BCO class object and json (any combination of the two)
+    Prints out if the two are the same. 
+    Args:
+        BCO1 (BioComputeObject): A complete BCO object
+        BCO2 (BioComputeObject): A complete BCO object
+
+    Returns:
+        None: None
+    """
+
     if isinstance(BCO1, BioComputeObject) and isinstance(BCO2, BioComputeObject):
         if isSameBCO(BCO1, BCO2):
             print("These two BioCompute Class Objects are the same")
@@ -4351,6 +7032,21 @@ def simpleStats(BCO1, BCO2):
 # otherwise command line side by side of workflows is output
 def compare(BCO1, BCO2):
 
+    """_summary_
+    Compare function takes in two BCOs in either class object or json (any combination)
+    checks if tools are registered in type tool repo
+    If tools are registered, the steps of pipelines are aligned
+    will output graphic of aligned steps + workflow overlap 
+    otherwise command line side by side of workflows is output
+    Prints out a graphic comparing the two workflows. NOT FINISHED YET. GRAPHIC TO BE ADDED.
+    Args:
+        BCO1 (BioComputeObject): A complete BCO object
+        BCO2 (BioComputeObject): A complete BCO object
+
+    Returns:
+        None: None
+    """
+
     if isinstance(BCO1, BioComputeObject) and isinstance(BCO2, BioComputeObject):
         if areToolsRegistered(BCO1, BCO2):
             alignSteps(BCO1, BCO2)
@@ -4387,11 +7083,21 @@ def compare(BCO1, BCO2):
     
 
 # more simple comparison made by user specified domain
+
 def compareByDomain(BCO1, BCO2):
+    """_summary_
+    Outputs the domain of two BCOs. The user can specify which two domains they want to view. 
+
+    Args:
+        BCO1 (BioComputeObject): A complete BCO object
+        BCO2 (BioComputeObject): A complete BCO object
+        
+    """
     if not (isinstance(BCO1, BioComputeObject) and isinstance(BCO2, BioComputeObject)):
         print("Error please make sure inputs are of type BioComputeObject or json")
         return 0
-    userIn = str.lower(input(print("Please enter which domains you would like to compare. Enter 'Help' for keywords: ")))
+    userIn = str.lower(input("Please enter which domains you would like to compare. Enter 'Help' for keywords: "))
+
     match userIn:
         case 'help':
             print("With this command you can compare two areas of a domain. The domains being Meta, Provenace, Execution, Description, Inputs, Outputs, Error and Parameters. Extension is not supported as the Extension domain is a user defined type.  To compare two domains type the name of the domain. For example, to compare two Parameter domains type 'Parameter'. To exit type 'EXIT'")
@@ -4428,7 +7134,15 @@ def compareByDomain(BCO1, BCO2):
             compareByDomain(BCO1, BCO2)
 
 def compareMeta(BCO1, BCO2):
-    userIn = str.lower(input(print("What parts of the meta data would you like to view? Type 'Help' for keywords: ")))
+    """_summary_
+    Compares the two Meta Domains
+    Args:
+        BCO1 (BioComputeObject): A complete BCO object
+        BCO2 (BioComputeObject): A complete BCO object
+
+    """
+    userIn = str.lower(input("What parts of the meta data would you like to view? Type 'Help' for keywords: "))
+
     match userIn:
         case 'help':
             print("You can view both BCOs Etags, BCOid, SpecVersions by typing their respective names. For example, if you wanted to view BCOids type 'BCOid'. To view all of them by typing 'ALL'. ")
@@ -4454,7 +7168,16 @@ def compareMeta(BCO1, BCO2):
     return None
 
 def compareProvenance(BCO1, BCO2):
-     userIn = str.lower(input(print("What parts of the Provenance data would you like to view? Type 'Help' for keywords: ")))
+
+     """_summary_
+     Compares provenance Domains.
+     Args:
+            BCO1 (BioComputeObject): A complete BCO object
+            BCO2 (BioComputeObject): A complete BCO object
+
+     """
+     userIn = str.lower(input("What parts of the Provenance data would you like to view? Type 'Help' for keywords: "))
+
      match userIn:
         case 'help':
             print("You can view Name, License, Version, Created, Modified, Contributors, Review, Embargo, Obsolete, Derived_From by typing their respective names. For example, if you wanted to view name type 'Name'. To view all of them by typing 'ALL'. ")
@@ -4499,33 +7222,655 @@ def compareProvenance(BCO1, BCO2):
             print("Please check your spelling. To exit type 'EXIT'")
             compareProvenance(BCO1, BCO2)
 
-def compareExecution():
-    return None
+def compareExecution(BCO1, BCO2):
+    """_summary_
+     Compares Execution Domains.
+     Args:
+            BCO1 (BioComputeObject): A complete BCO object
+            BCO2 (BioComputeObject): A complete BCO object
 
-def compareDescription():
-    return None
+    """
+    userIn = str.lower(input("What parts of the Execution data would you like to view? Type 'Help' for keywords: "))
+    match userIn:
+        case 'all':
+            print("BCO 1: ", BCO1.execution)
+            print("BCO 2: ", BCO2.execution)
+        case 'script':
+            print("BCO 1: ", BCO1.execution_Domain.exScript)
+            print("BCO 2: ", BCO2.execution_Domain.exScript)
+        case 'scriptdriver': 
+            print("BCO 1: ", BCO1.execution_Domain.scriptDr)
+            print("BCO 2: ", BCO2.execution_Domain.scriptDr)
+        case 'prerequisites':
+            print("BCO 1: ", BCO1.execution_Domain.swPrereqs)
+            print("BCO 2: ", BCO2.execution_Domain.swPrereqs)
+        case 'enviornmentalvariable':
+            print("BCO 1: ", BCO1.execution_Domain.envVars)
+            print("BCO 2: ", BCO2.execution_Domain.envVars)
+        case 'externaldata':
+            print("BCO 1: ", BCO1.execution_Domain.extDataEP)
+            print("BCO 2: ", BCO2.execution_Domain.extDataEP)
+        case 'help':
+             print("You can view script, scriptdriver, prerequisites, externaldata, and environmentalvariables. For example, to view Environmental Variables type 'enviornmentalvariables' in the command line. To view ALL data type 'all' ")
+             compareExecution(BCO1, BCO2)
+        case 'exit':
+            print("Exiting method. Returning a value of 0")
+            return 0
+        case other:
+            print("Please check your spelling. To exit type 'EXIT'")
+            compareExecution(BCO1, BCO2)
+    
+def compareDescription(BCO1, BCO2):
+    """_summary_
+     Compares Description Domains.
+     Args:
+            BCO1 (BioComputeObject): A complete BCO object
+            BCO2 (BioComputeObject): A complete BCO object
 
-def compareInputs():
-    return None
+    """
+    userIn = str.lower(input("What parts of the Description data would you like to view? Type 'Help' for keywords: "))
+    match userIn:
+        case 'all':
+            print("BCO 1: ", BCO1.description)
+            print("BCO 2: ", BCO2.description)
+        case 'help':
+             print("You can view keywords, pipeline, and xref. For example, to view pipeline type 'pipeline' in the command line. To view ALL data type 'all' ")
+             compareDescription(BCO1, BCO2)
+        case 'exit':
+            print("Exiting method. Returning a value of 0")
+            return 0
+        case 'keywords':
+            print("BCO 1: ", BCO1.description_Domain.descKeyword)
+            print("BCO 2: ", BCO2.description_Domain.descKeyword)
+        case 'pipeline':
+             print("BCO 1: ", BCO1.description_Domain.pipeLine)
+             print("BCO 2: ", BCO2.description_Domain.pipeLine)
+        case 'xref':
+            print("BCO 1: ", BCO1.description_Domain.descXref)
+            print("BCO 2: ", BCO2.description_Domain.descXref)
+        case other:
+            print("Please check your spelling. To exit type 'EXIT'")
+            compareDescription(BCO1, BCO2)
 
-def compareOutputs():
-    return None
+def compareInputs(BCO1, BCO2):
+    """_summary_
+     Compares Input Domains.
+     Args:
+            BCO1 (BioComputeObject): A complete BCO object
+            BCO2 (BioComputeObject): A complete BCO object
 
-def compareError():
-    return None
+    """
+    userIn = str.lower(input("What parts of the Inputs data would you like to view? Type 'Help' for keywords: "))
+    match userIn:
+        case 'all':
+            print("BCO 1: ", BCO1.io_Domain.input_Subdomain)
+            print("BCO 2: ", BCO2.io_Domain.input_Subdomain)
+        case 'help':
+             print("You can view all of the input subdomain data. To do so type 'all'. To exit type exit. ")
+             compareInputs(BCO1, BCO2)
+        case 'exit':
+            print("Exiting method. Returning a value of 0")
+            return 0
+        case other:
+            print("Please check your spelling. To exit type 'EXIT'")
+            compareInputs(BCO1, BCO2)
+        
 
-def compareParameters():
-    return None
+def compareOutputs(BCO1, BCO2):
+    """_summary_
+     Compares Output Domains.
+     Args:
+            BCO1 (BioComputeObject): A complete BCO object
+            BCO2 (BioComputeObject): A complete BCO object
 
-compareByDomain(BCO_000139, newBCO3)
+    """
+    userIn = str.lower(input("What parts of the Outputs data would you like to view? Type 'Help' for keywords: "))
+    match userIn:
+        case 'all':
+            print("BCO 1: ", BCO1.io_Domain.output_Subdomain)
+            print("BCO 2: ", BCO2.io_Domain.output_Subdomain)
+        case 'help':
+             print("You can view all of the input subdomain data. To do so type 'all'. To exit type exit. ")
+             compareOutputs(BCO1, BCO2)
+        case 'exit':
+            print("Exiting method. Returning a value of 0")
+            return 0
+        case other:
+            print("Please check your spelling. To exit type 'EXIT'")
+            compareOutputs(BCO1, BCO2)
+def compareError(BCO1, BCO2):
+    """_summary_
+     Compares Error Domains.
+     Args:
+            BCO1 (BioComputeObject): A complete BCO object
+            BCO2 (BioComputeObject): A complete BCO object
 
+    """
+    userIn = str.lower(input("What parts of the Error data would you like to view? Type 'Help' for keywords: "))
+    match userIn:
+        case 'all':
+            print("BCO 1: ", BCO1.error_Domain)
+            print("BCO 2: ", BCO2.error_Domain)
+        case 'help':
+             print("You can view empricial error and algorithmic error. When typing out please forgo spaces To view all data type all.  To exit type exit. ")
+             compareError(BCO1, BCO2)
+        case 'exit':
+            print("Exiting method. Returning a value of 0")
+            return 0
+        case 'empiricalerror':
+            print("BCO 1: ", BCO1.error_Domain.empErr)
+            print("BCO 2: ", BCO2.error_Domain.empErr)
+        case 'algorithmicerror':
+            print("BCO 1: ", BCO1.error_Domain.algErr)
+            print("BCO 2: ", BCO2.error_Domain.algErr)
+        case other:
+            print("Please check your spelling. To exit type 'EXIT'")
+            compareOutputs(BCO1, BCO2)
+
+def compareParameters(BCO1, BCO2):
+    """_summary_
+     Compares Parameter Domains.
+     Args:
+            BCO1 (BioComputeObject): A complete BCO object
+            BCO2 (BioComputeObject): A complete BCO object
+
+    """
+    userIn = str.lower(input("What parts of the Error data would you like to view? Type 'Help' for keywords: "))
+    match userIn:
+        case 'all':
+            print("BCO 1: ", BCO1.parametric_Domain)
+            print("BCO 2: ", BCO2.parametric_Domain)
+        case 'help':
+             print("You can view steps, parameters and values. When typing out please forgo spaces To view all data type all.  To exit type exit. ")
+             compareParameters(BCO1, BCO2)
+        case 'exit':
+            print("Exiting method. Returning a value of 0")
+            return 0 
+#EndChange
 # returns true if two BCOs are compatible for concatenation
 def ConcatCheck():
     return False
 
 
 
+# returns true if two BCOs are compatible for concatenation
+def ConcatCheck():
+    return False
 
+
+# ******************************************************************* BCO TEMPATE *******************************************************************
+    """_summary_
+    The BCOTemplate class is a fully functioning BCO. It exports a Template BCO with specific areas that can be edited.
+    The creator of the template can specifify which fields they want editable.
+    The possible editable fields are the 
+    -Usability Domain
+    -IO Domain
+    -Error Domain
+    The only domain the author has no control over being edited is the Contributor sub domain for the provenance Domain.
+    When a user gets a template they can edit, or delete editable areas. The area that cannot be deleted is the author domain.
+    
+    Making a template
+    To make a template use the makeTemplate method. This takes in a fully complete BCO as an input. The BCO is then verified.
+    From there you have the option to make the domains specified above editable or not. 
+    
+    Making a template by directly calling the class
+    testTemplate = BCOTemplate(BCO_000139, True, True, True) 
+    Creates a template with the details from BCO_000139 and all domains editable.
+    
+    ...
+    Attributes
+    -----------
+    BCOin : BioComputeObject
+        The BCO you are making a template out of.
+    usabilityMod : bool
+        Whether the domain is editable or not
+    IOMod : bool
+        Whether the domain is editable or not
+    errorMod : bool
+        Whether the domain is editable or not
+    
+    Getters and Setters
+    -------------------
+    Usability
+    modifyUsability()
+        Getter
+    modifyUsability(usabilityIn)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None
+    
+    IO
+    modifyIO()
+        Getter
+    modifyIO(IOin)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None
+    
+    Error
+    modifyError()
+        Getter
+    modifyError(errorIn)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None
+        
+    BCO
+    modifyBCO()
+        Getter
+    modifyBCO(BCOin)
+        Setter. Input cannot be None.
+        ValueError thrown if input is None
+    
+    """
+class BCOTemplate:
+    def __init__(self, BCOin, usabilityMod, IOMod, errorMod):
+        self.BCOin = BCOin
+        self.usabilityMod = usabilityMod 
+        self.IOMod = IOMod
+        self.errorMod = errorMod
+    def __repr__(self):
+        return '{} {} {} {} '.format(self.BCOin, self.usabilityMod, self.IOMod, self.errorMod)
+    def validate(self, usabilityMod, IOMod, errorMod, BCOin):
+        reqArgs = [BCOin, usabilityMod, IOMod, errorMod]
+        for i in reqArgs:
+            if i is None: 
+                print("Please enter true or false for the usabilityMod, authorMod, IOMod, errorMod. Please enter a valid BCO")
+                return False
+        argTypes = {
+            BCOin : BioComputeObject,
+            usabilityMod : bool,
+            IOMod : bool,
+            errorMod : bool
+        }
+        for x in argTypes: 
+            if not isinstance(x, argTypes[x]) and not x is None:
+                print("Type Error. Please check valid types in documentation")
+                return False
+        return True
+    @property
+    def modifyUsability(self):
+        return printBoolean(self.usabilityMod)
+    @modifyUsability.setter
+    def modifyUsability(self, usabilityIn):
+        if usabilityIn is None:
+            print("This is a required field")
+            raise ValueError
+        self.usabilityMod = usabilityIn
+    
+    @property
+    def modifyIO(self):
+        return printBoolean(self.IOMod)
+    @modifyIO.setter
+    def modifyIO(self, IOin):
+        if IOin is None:
+            print("This is a required field")
+            raise ValueError
+        self.IOMod = IOin
+
+    @property
+    def modifyError(self):
+        return printBoolean(self.errorMod)
+    @modifyError.setter
+    def modifyError(self, errorIn):
+        if errorIn is None:
+            print("This is a required field")
+            raise ValueError
+        self.errorMod = errorIn
+    
+    @property
+    def modifyBCO(self):
+        return self.BCOin
+    @modifyBCO.setter
+    def modifyBCO(self, inputBCO):
+        if inputBCO is None:
+            print("This is a required field")
+            raise ValueError
+        self.BCOin = inputBCO
+      
+def makeTemplate(BCOin):
+    """_summary_
+    The template making function.
+    Input a BCO and follow the steps for which fields you want editable.
+    A Template BCO will be outputted. 
+    To make a domain editable follow the prompt and press 'y' when prompted.
+    
+    Args:
+        BCOin (BioComputeObject): BCO that you will be making a template out of
+
+    Returns:
+        BCOTemplate: Template BCO
+    """
+    if(not(bcoVerify(BCOin))):
+        print("Error: Invalid BCO.")
+        return False
+    print("Valid BCO entered.")
+    usabilityCheck = str.lower(input("Would you like to make the usability domain editable. (y/n)"))
+    ioCheck = str.lower(input("Would you like to make the IO domain editable. (y/n)"))
+    errorCheck = str.lower(input("Would you like to make the errror domain editable. (y/n)"))
+    inputDict = {
+        "usability" : usabilityCheck,
+        "IO" : ioCheck,
+        "error" : errorCheck
+    }
+    trueFalseList = []
+    for key in inputDict:
+        if(inputDict[key] == "y"):
+               trueFalseList.append(True)     
+        trueFalseList.append(False)
+    template = BCOTemplate(BCOin, trueFalseList[0], trueFalseList[1], trueFalseList[2])
+    return template
+
+def templateEdit(templateIn):
+    """_summary_
+    Method where you edit the template. 
+    Input a template and follow instructions.
+    You are given the option between 4 areas of edit
+    -Usability
+    -IO
+    -Error
+    -Author
+    
+    Usability, IO and Error will be editable if the author of the template allows it. Author is always editable.
+    Please make sure all domain edits follow IEEE2791 regulations. If not an error will be thrown and you will be returned to the start of the templateEdit. 
+    
+    Args:
+        templateIn (BCOTemplate): A BCOTemplate input
+
+    Returns:
+        BCOTemplate: Returns a remade BCO template. 
+    """
+    tempTemplate = templateIn
+    if(not(isinstance(templateIn, BCOTemplate))):
+        print("Error: Invalid Template Entered")
+        return False
+    userIn = str.lower(input("Which domain would you like to edit. (Usability, IO, Error, Authors)"))
+    match userIn:
+        case('usability'):
+            if(templateIn.usabilityMod):
+                try: #Used as a way to prevent the entire program crashing if a ValueError is thrown. 
+                    tempTemplate = useEdit(templateIn)
+                except ValueError:
+                    print("Invalid Usability Domain. Value Error Caught. Returning to start of method.")
+                    templateEdit(templateIn)
+                #templateIn = tempTemplate
+                templateEdit(tempTemplate)
+            else:
+                print("Error usability is not editable")
+                templateEdit(templateIn)
+        case('io'):
+            if(templateIn.IOMod):
+                try:
+                    tempTemplate = ioEdit(templateIn)
+                except ValueError:
+                    print("Invalid IO. Value Error Caught. Returning to start of method.")
+                    templateEdit(templateIn)
+                    
+                templateIn = tempTemplate
+                templateEdit(templateIn)
+            else:
+                 print("Error IO is not editable")
+                 templateEdit(templateIn)
+        case('error'):
+            if(templateIn.errorMod):
+                try:
+                    tempTemplate = errorEdit(templateIn)
+                except ValueError:
+                    print("Invalid Error Domain. Value Error Caught. Returning to start of method.")
+                    
+                templateIn = tempTemplate
+                templateEdit(templateIn)
+            else:
+                print("Error domain is not editable")
+                templateEdit(templateIn)
+        case('author'):
+            try:
+                tempTemplate = authorEdit(templateIn)
+            except ValueError:
+                print("Invalid Author Domain entered Please check again.")
+            templateIn = tempTemplate
+            templateEdit(templateIn)
+        case('complete'):
+            print("Biocompute edit finished. Exiting, returning template...")
+            return templateIn
+    
+       
+               
+#HELPER FUNCTIONS
+def authorEdit(templateIn):
+    """_summary_
+    authorEdit adds additional authors to the list of previous authors. 
+    The only contribution they are able to add is "authoredBy". 
+    Args:
+        templateIn (BCOTemplate): The template you wish to edit the authors of
+
+    Returns:
+        BCOTemplate: An updated template with edits to the author domain. 
+    """
+    userIn = str.lower(input("Beginning Author Edit. To learn more about editing the domain type 'HELP'. "))
+    match userIn:
+        case('help'):
+            print("The commands avaliable to you are EDIT and EXIT.")
+            authorEdit(templateIn)
+        case('edit'):
+            previousContributors = templateIn.provenance_Domain.provContributors
+            newContributor = makeContributor()
+            newContributor.contribution = "authoredBy"
+            mergedContributors = []
+            mergedContributors.append(newContributor)
+            mergedContributors.append(previousContributors)
+            templateIn.BCOin.provenance_Domain.provContributors = mergedContributors
+        case('exit'):
+            print("Exiting...")
+            return templateIn
+    return templateIn
+            
+def errorEdit(templateIn):
+    """_summary_
+    errorEdit replaces old errors from the template with news ones generated by a user.
+    To learn about commands type HELP when prompted. 
+    The program will prompt you with the amount of empirical and algorithmic errors you have. 
+    Please keep in mind deleting the domain is irreversible. 
+    Args:
+        templateIn (BCOTemplate): Template Input
+
+    Returns:
+        BCOTemplate: Modified Template with changes to error Domain
+    """
+    userIn = str.lower(input("Beginning Error Edit. To learn more about editing the domain type 'HELP'. "))
+    match userIn:
+        case('help'):
+            print("The commands avaliable to you are EDIT and EXIT.")
+            errorEdit(templateIn)
+        case('delete'):
+            deleteIn = str.lower(input("Are you sure(y/n)"))
+            match deleteIn:
+                case('y'):
+                    print("Error Domain deleted")
+                    templateIn.BCOin.error_Domain = None
+                case ('n'):
+                    errorEdit(templateIn)
+                case other:
+                    print("Please enter y/n")
+                    errorEdit(templateIn)
+        case('edit'):
+            newError = errorEditHelper(templateIn)
+            
+            templateIn.BCOin.error_Domain = newError
+        case('exit'):
+            print("Exiting")
+            return templateIn
+        case other:
+            print("Please enter a valid command")
+            errorEdit(templateIn)
+    return templateIn
+
+def errorEditHelper(templateIn):
+    """_summary_
+    Helper class for error domain. Eventually won't be callable by users. 
+    """
+    errorObject = makeError()
+    if errorObject != None:
+        return errorObject
+    else:
+        return templateIn
+    
+def ioEdit(templateIn):
+    """_summary_
+    ioEdit replaces previous IO fields with new ones.
+    You will be walked through the process of creating an IO object in command line.
+    To learn about commands type HELP when prompted. 
+    
+    Args:
+        templateIn (BCOTemplate): The template you wish to edit the authors of
+
+    Returns:
+        BCOTemplate: An updated template with edits to the author domain. 
+   
+    """
+    inputList = []
+    outputList = []
+    userIn = str.lower(input("Beginning IO Edit. To learn about the usability domain type 'HELP'. "))
+    match userIn:
+        case('help'):
+            print("The commands avaliable to you are EDIT and EXIT.")
+            ioEdit(templateIn)
+        case('edit'):
+            ioEditHelper(templateIn, inputList, outputList)
+            newIO = IODomain(inputList, outputList)
+            #print("newIO:",newIO)
+            templateIn.BCOin.io = newIO
+        case('exit'):
+            print("Exiting")
+            return templateIn
+        case other:
+            print("Please enter a valid command")
+            ioEdit(templateIn)
+    return templateIn
+
+def ioEditHelper(templateIn, inputList, outputList):
+    """_summary_
+    Helper method for ioEdit. Eventually will be made private. 
+    """
+    ioIn = str.lower(input("Would you like to edit Input or Output domain: "))
+    match ioIn:
+         case('input'):
+            numInput = int(input("Enter the number of inputs: "))
+            counter = 0
+            while counter < numInput:
+                tempInput = makeInputSubdomain()
+                inputList.append(tempInput)
+                counter += 1
+            print("When finished with the inputs and outputs type 'complete'. ")        
+            ioEditHelper(templateIn, inputList, outputList)
+            
+         case('output'):
+            numOutput = int(input("Enter the number of Outputs: "))
+            counter = 0
+            while counter < numOutput:
+                tempOutput = makeOutputSubdomain()
+                outputList.append(tempOutput)
+                counter += 1
+            print("When finished with the inputs and outputs type 'complete'. ")
+            ioEditHelper(templateIn, inputList, outputList)
+            
+         case('complete'): 
+             newIO = IODomain(inputList, outputList)
+             valIO = newIO.validate(inputList, outputList)
+             if valIO: 
+                 print("Passing new IO")
+                 return newIO
+             else:
+                 tryAgain = str.lower(input("Error invalid IO entered. Would you like to retry?(y/n)"))
+                 if tryAgain == 'y':
+                     ioEditHelper(templateIn, inputList, outputList)
+                 else:
+                    return templateIn.io_Domain
+         case other:
+            print("Please enter a valid command")
+            ioEditHelper(templateIn)          
+                         
+def useEdit(templateIn):
+    """_summary_
+    Overwrites the usability domain. 
+    To view commands type 'HELP'
+    Deleting the usability domain is permanent you cannot go back.
+    
+    Args:
+        templateIn (BCOTemplate): Template input
+
+    Returns:
+        BCOTemplate: Template with new usability domain
+    """
+    userIn = str.lower(input("Beginning Usability Edit. To learn about the usability domain type 'HELP'. "))
+    match userIn:
+        case('help'):
+            print("The commands avaliable to you are DELETE, EDIT and EXIT.")
+            useEdit(templateIn)
+        case('delete'):
+            deleteIn = str.lower(input("Are you sure(y/n)"))
+            match deleteIn:
+                case('y'):
+                    print("Usability Domain deleted")
+                    templateIn.BCOin.use = ""
+                case ('n'):
+                    useEdit(templateIn)
+                case other:
+                    print("Please enter y/n")
+                    useEdit(templateIn)
+        case('edit'):
+            editIn = input("Begin typing the new usability domain (Will end when you hit enter): ")
+            templateIn.BCOin.use = editIn
+            print(templateIn.BCOin.use)
+        case('exit'):
+            print("Exiting")
+            return templateIn
+        case other:
+            print("Please enter a valid command")
+            useEdit(templateIn)
+    return templateIn
+
+def printBoolean(boolIn):
+    """_summary_
+    Private helper function. 
+    """
+    if(boolIn):
+        print("TRUE")
+    else:
+        print("FALSE")
+
+def bcoVerify(BCOin):
+    """_summary_
+    Verifies if the BCO inputted is valid. 
+    Will verify any type of BCO so can see use in other parts of the program.
+    Args:
+        BCOin (BioComputeObject): A BCO input
+
+    Returns:
+        Bool: True false
+    """
+    if(not(isinstance(BCOin, BioComputeObject))):
+        return False
+    else:
+        if(not(BCOin.validate(BCOin.meta, BCOin.usability_Domain, BCOin.provenance_Domain, BCOin.execution_Domain, None, BCOin.description_Domain, BCOin.error_Domain, BCOin.io_Domain, None))):
+            return False
+    return True
+def run(templateIn):
+    """_summary_
+    Method you use to actually run the template edit function.
+    You could also directly call the function however printing in python is weird.
+    Args:
+        templateIn (BCOTemplate): A BCOTemplate input
+    """
+    templateEdit(templateIn)
+    print(templateIn)
+
+
+#TESTING
+#testTemplate = BCOTemplate(BCO_000139, True, True, True) 
+#testOutput = templateEdit(testTemplate)
+#templateEdit(testTemplate)
+
+#print(testTemplate.BCOin)
+
+#bcoTemplate(newBCO3)
 
 
 # ****************************************************************** TASKS + NOTES ******************************************************************
