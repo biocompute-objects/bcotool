@@ -10,7 +10,7 @@ class VisualComparator:
 
     # Canvas Defaults
     WIDTH = 800
-    HEIGHT = 1200
+    HEIGHT = 1800
 
     # Connector Defaults
     CONNECTOR_LINE_WIDTH = 0.6
@@ -105,18 +105,67 @@ class VisualComparator:
                 "loc1": self.bco_pipeline_tool_types1.index(tool),
                 "loc2": self.bco_pipeline_tool_types2.index(tool)
             })
+        print("OVERLAP {}".format(self.bco_overlap_list))
 
         for idx, overlap in enumerate(overlap_idx):
+            print("OVERLAP {}".format(idx))
             if overlap["loc1"] == overlap["loc2"]:
                 while self.GLOBAL_LEVEL <= overlap["loc1"]:
                     [self._add_box(bco, self.GLOBAL_LEVEL) for bco in self._bco_visualizations]
                     self.GLOBAL_LEVEL += 1
-            elif overlap["loc1"] < overlap["loc2"]:
-                # Need to draw loc2 to align the steps
-                pass
-            elif overlap["loc1"] > overlap["loc2"]:
-                # reverse of above.
-                pass
+            else:
+                # 1. Need to bring loc1 up to overlap step
+                while self._bco_visualizations[0].current_step < overlap["loc1"]:
+                    # TODO: I don't like how this is hard coded for the first visualization
+                    # print(" ADDing 1: Level {}: Global: {}".format(self._bco_visualizations[0].current_level, self.GLOBAL_LEVEL))
+                    self._add_box(self._bco_visualizations[0], self.GLOBAL_LEVEL)
+                    self.GLOBAL_LEVEL += 1
+
+                # 2. Need to bring loc2 up to overlap step
+                while self._bco_visualizations[1].current_step < overlap["loc2"]:
+                    # TODO: I don't like how this is hard coded for the first visualization
+                    # print(" ADDing 2: Level {}: Global: {}".format(self._bco_visualizations[1].current_level, self.GLOBAL_LEVEL))
+                    self._add_box(self._bco_visualizations[1], self.GLOBAL_LEVEL)
+                    # tmp_global += 1
+                    self.GLOBAL_LEVEL += 1
+
+                # 3. need to draw overlap at same global level
+                # print("ADDIing Global: {} -> obj 1 {}: obj 2 {}".format(self.GLOBAL_LEVEL, self._bco_visualizations[0].current_level,self._bco_visualizations[1].current_level))
+                [self._add_box(bco, self.GLOBAL_LEVEL) for bco in self._bco_visualizations]
+                self.GLOBAL_LEVEL += 1
+
+        # Write out any remaining steps.
+        while self._bco_visualizations[0].current_step < len(self._bco_visualizations[0].bco_object):
+            self._add_box(self._bco_visualizations[0], self.GLOBAL_LEVEL)
+            self.GLOBAL_LEVEL += 1
+
+        while self._bco_visualizations[1].current_step < len(self._bco_visualizations[1].bco_object):
+            self._add_box(self._bco_visualizations[1], self.GLOBAL_LEVEL)
+            self.GLOBAL_LEVEL += 1
+
+
+        # elif overlap["loc1"] > overlap["loc2"]:
+            #     # TODO this can be done more cleverly - duplicated from above basically
+            #     # 1. Need to bring loc1 up to overlap step
+            #     tmp_global = self.GLOBAL_LEVEL
+            #     while tmp_global < overlap["loc1"]:
+            #         # TODO: I don't like how this is hard coded for the first visualization
+            #         self._add_box(self._bco_visualizations[0], tmp_global)
+            #         tmp_global += 1
+            #
+            #     # 2. Need to bring loc2 up to overlap step
+            #     tmp_global = self.GLOBAL_LEVEL
+            #     while tmp_global < overlap["loc2"]:
+            #         # TODO: I don't like how this is hard coded for the first visualization
+            #         self._add_box(self._bco_visualizations[1], tmp_global)
+            #         tmp_global += 1
+            #
+            #     # 3. need to draw overlap at same global level
+            #     self.GLOBAL_LEVEL = tmp_global
+            #     while self.GLOBAL_LEVEL <= overlap["loc2"]:
+            #         [self._add_box(bco, self.GLOBAL_LEVEL) for bco in self._bco_visualizations]
+            #         self.GLOBAL_LEVEL += 1
+
 
             # for bco_id, bco in self._bco_visualizations:
             #     if idx == bco.current_step:
@@ -270,7 +319,7 @@ class VisualComparator:
         self._draw_rectangle(x=x, y=y, width=self.STEP_BOX_WIDTH, height=self.STEP_BOX_HEIGHT)
 
         # Add Text
-        text = bco.bco_object[bco.current_level]
+        text = bco.bco_object[bco.current_step]
         self._draw_text(x=x + 10, y=y + 10, text=text, font_size=16)
 
         # Update last y position
