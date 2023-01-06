@@ -29,7 +29,7 @@ Run the Git Clone command in the location you would like the repostory:
 
         pip install -r requirements.txt
 
-6. Copy the exicutable program file to the user local  bin:
+6. Copy the executable program file to the user local  bin:
 
         cp bco-tool/bco_runner.py  /usr/local/bin/bco
 
