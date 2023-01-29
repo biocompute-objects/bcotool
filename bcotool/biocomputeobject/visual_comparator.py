@@ -1,7 +1,9 @@
 import json
 import cairo
 from visualcomparatorerrors import VisualComparatorError, RGBNotInRangeError, ValueOutOfRange
-
+import numpy as np
+import cv2
+import os
 
 class VisualComparator:
     #
@@ -54,7 +56,7 @@ class VisualComparator:
     # TODO: Need to merge with the BCO_Class implementation - specifically should take in the outputList
     #       returned in the alignSteps function.
     # TODO: Need to update BCO_Class to return more information in the alignSteps function (bco IDs etc.)
-    def __init__(self, bco_overlap_list: list, width: int = None, height: int = None):
+    def __init__(self, bco_overlap_list: list, width: int = None, height: int = None, file_name: str = "comparison.png"):
         """
 
         :param width: Canvas width in pixels
@@ -84,6 +86,17 @@ class VisualComparator:
             self.WIDTH = width
         if height is not None:
             self.HEIGHT = height
+
+        # Save the filename we will use
+        # NOTE: For the moment we only support PNGs (native for pycairo)
+        #       This could be changed if needed, but will require conversion
+        #       code.
+
+        splt = os.path.splitext(file_name)
+        if splt[-1].lower() != "png":
+            self.file_name = splt[0] + ".png"
+        else:
+            self.file_name = file_name
 
         # Construct the surface
         self.surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.WIDTH, self.HEIGHT)
@@ -331,4 +344,11 @@ class VisualComparator:
         bco.current_step += 1
 
     def finalize(self):
-        self.surface.write_to_png("example2.png")
+        self.surface.write_to_png(self.file_name)
+
+    def show(self):
+        buf = self.surface.get_data()
+        array = np.ndarray (shape=(self.HEIGHT, self.WIDTH, 4), dtype=np.uint8, buffer=buf)
+        cv2.imshow("Comparison", array)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
