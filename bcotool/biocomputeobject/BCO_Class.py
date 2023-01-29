@@ -7,6 +7,7 @@ from pickle import TRUE
 from pprint import pprint
 import subprocess
 import json
+from visual_comparator import VisualComparator
 
 
 # ************************************** BIOCOMPUTE + DOMAIN + HELPER CLASS DEFINITIONS  ***************************************
@@ -7049,36 +7050,51 @@ def compare(BCO1, BCO2):
 
     if isinstance(BCO1, BioComputeObject) and isinstance(BCO2, BioComputeObject):
         if areToolsRegistered(BCO1, BCO2):
-            alignSteps(BCO1, BCO2)
+            aligned_list = alignSteps(BCO1, BCO2)
             # output graphic here
-        else: 
+            v = VisualComparator(aligned_list, width=450, height=1000)
+            v.visualize()
+            v.finalize()
+        else:
+            # TODO: Side by side workflow 
             sideBySideWorkflows(BCO1, BCO2)
     elif isinstance(BCO1, BioComputeObject) and isinstance(BCO2, json):
         classObj2 = JSONtoClass(BCO2)
         if areToolsRegistered(BCO1, classObj2):
-            alignSteps(BCO1, classObj2)
+            aligned_list = alignSteps(BCO1, classObj2)
             # output graphic here
+            v = VisualComparator(aligned_list, width=450, height=1000)
+            v.visualize()
+            v.finalize()
         else: 
+            # TODO: Side by side workflow
             sideBySideWorkflows(BCO1, classObj2)
     elif isinstance(BCO1, json) and isinstance(BCO2, BioComputeObject):
         classObj1 = JSONtoClass(BCO1)
         if areToolsRegistered(classObj1, BCO2):
-            alignSteps(classObj1, BCO2)
+            aligned_list = alignSteps(classObj1, BCO2)
             # output graphic here
+            v = VisualComparator(aligned_list, width=450, height=1000)
+            v.visualize()
+            v.finalize()
         else: 
+            # TODO: Side by side workflow
             sideBySideWorkflows(classObj1, BCO2)  
     elif isinstance(BCO1, json) and isinstance(BCO2, json):
         classObj1 = JSONtoClass(BCO1)
         classObj2 = JSONtoClass(BCO2)
         if areToolsRegistered(classObj1, classObj2):
-            alignSteps(classObj1, classObj2)
+            aligned_list = alignSteps(classObj1, classObj2)
             # output graphic here
+            v = VisualComparator(aligned_list, width=450, height=1000)
+            v.visualize()
+            v.finalize()
         else: 
+            # TODO: Side by side workflow
             sideBySideWorkflows(classObj1, classObj2)
     else:
         print("Invalid BCOs Entered. (Must be BioCompute Object Class instance or JSON)")
-
-
+    
     return None
     
 
