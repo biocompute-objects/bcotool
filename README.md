@@ -40,7 +40,8 @@ Run the Git Clone command in the location you would like the repostory:
 * **map** - takes a BCO and generates a template mapping file to use for convert method.
 * **license** - takes a BCO and gives a license.
 * **functions** - Lists all functions in app.
-* **run_cwl** - taks a BCO describing a [CWL Workflow](https://www.commonwl.org/) and runs it
+* **run_cwl** - takes a BCO describing a [CWL Workflow](https://www.commonwl.org/) and runs it
+* **compare** - takes a list of BCOs and generate a visual comparison of them
 
 * **--help/-h** - gives detailed help message
 * **--version/-v** - gives information about version
