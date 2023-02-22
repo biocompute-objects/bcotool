@@ -516,7 +516,10 @@ def convert_schema(bco, filename, mapping_dict):
     """
     # Hard coded fixes for GLYGEN and OncoMX
     if isinstance(bco['extension_domain'], dict) and 'dataset_categories' in bco['extension_domain']:
-        del bco['error_domain']['emperical_error']
+        try:
+            del bco['error_domain']['emperical_error']
+        except KeyError:
+            pass
         categories = bco['extension_domain']['dataset_categories']
         extension = {
             'extension_schema': "http://www.w3id.org/biocompute/extension_domain/1.1.0/dataset/dataset_extension.json",
